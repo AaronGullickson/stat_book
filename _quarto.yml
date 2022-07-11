@@ -1,0 +1,29 @@
+project:
+  type: book
+
+book:
+  title: "Statistical Analysis in Sociology"
+  author: "Aaron Gullickson"
+  date: "4/5/2022"
+  chapters:
+    - index.qmd
+    - part: "The Fundamentals"
+      chapters:
+       - chapter_understand_data.qmd
+    - part: "Going Further"
+      chapters:
+      - chapter_understand_data.qmd
+  appendices:
+    - references.qmd
+
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: superhero
+  pdf:
+    documentclass: scrreprt
+
+
+

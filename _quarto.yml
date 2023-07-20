@@ -23,8 +23,6 @@ bibliography: bibliography/references.bib
 format:
   html:
     theme: flatly
-  pdf:
-    documentclass: scrreprt
 
 
 

@@ -6,7 +6,8 @@
 
 packages = c("here",
              "tidyverse", "janitor", "glue",
-             "gt")
+             "scales",
+             "gt", "gtExtras")
 
 #packages = c("here","tidyverse", "broom","janitor","glue",
 #             "ggalt","scales","ggrepel","gganimate","gifski",

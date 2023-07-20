@@ -4,15 +4,18 @@
 #code borrowed from here:
 #http://www.vikram-baliga.com/blog/2015/7/19/a-hassle-free-way-to-verify-that-r-packages-are-installed-and-loaded
 
-#add new packages to the chain here
-packages = c("here","tidyverse", "broom",
-             "ggalt","scales","ggrepel","gganimate","gifski",
-             "psych","car","MASS","VGAM","nlme","nnet",
-             "maptools","sp","rgeos","rgdal",
-             "sandwich","lmtest","survey","mice",
-             "margins","logistf",
-             "gapminder",
-             "texreg", "pander", "kableExtra")
+packages = c("here",
+             "tidyverse", "janitor", "glue",
+             "gt")
+
+#packages = c("here","tidyverse", "broom","janitor","glue",
+#             "ggalt","scales","ggrepel","gganimate","gifski",
+#             "psych","car","VGAM","nlme","nnet",
+#             "maptools","sp","rgeos","rgdal",
+#             "sandwich","lmtest","survey","mice",
+#             "margins","logistf",
+#             "gapminder",
+#             "texreg", "pander", "kableExtra", "gt")
 
 package.check <- lapply(packages, FUN = function(x) {
   if (!require(x, character.only = TRUE)) {

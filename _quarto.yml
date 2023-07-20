@@ -1,18 +1,19 @@
 project:
   type: book
+  pre-render:
+    - scripts/check_packages.R
 
 book:
   title: "Statistical Analysis in Sociology"
   author: "Aaron Gullickson"
-  date: "4/5/2022"
   chapters:
     - index.qmd
     - part: "The Fundamentals"
       chapters:
         - chapters/chapter_understand_data.qmd
-    - part: "Going Further"
-      chapters:
-        - chapters/chapter_understand_data.qmd
+#       - chapters/chapter_distribution_variable.qmd
+#   - part: "Going Further"
+#     chapters:
   appendices:
     - bibliography/references.qmd
 
@@ -21,7 +22,7 @@ bibliography: bibliography/references.bib
 
 format:
   html:
-    theme: superhero
+    theme: flatly
   pdf:
     documentclass: scrreprt
 

@@ -1,15 +1,16 @@
 # Understanding Data
 
+In this first module, we will cover what it actually means to have "data" and give a broad overview of what kinds of things we can do with data. Data are the foundation of any statistical analysis and most data that we use in the social sciences consist of **variables** measured on some **observations**. In the next two sections, we will learn more about these concepts. 
+
+Slides for this module can be found [here](stat_slides/module1_slides_understanding_data.html).
+
 ```{r}
+#| label: load-libs-data
 #| include: false
 library(here)
 source(here("scripts","check_packages.R"))
 source(here("scripts","load_example_data.R"))
 ```
-
-In this first module, we will cover what it actually means to have "data" and give a broad overview of what kinds of things we can do with data. Data are the foundation of any statistical analysis and most data that we use in the social sciences consist of **variables** measured on some **observations**. In the next two sections, we will learn more about these concepts. 
-
-Slides for this module can be found [here](stat_slides/module1_slides_understanding_data.html).
 
 ---
 
@@ -18,11 +19,12 @@ Slides for this module can be found [here](stat_slides/module1_slides_understand
 The data that we look at typically take the format of a "spreadsheet" with rows and columns. @tbl-passengers below shows some characteristics of four randomly drawn passengers from the Titanic, in this type of spreadsheet format.
 
 ```{r}
-#| echo: false
 #| label: tbl-passengers
 #| tbl-cap: Data on four passengers from the Titanic
-kable(titanic[c(13, 1238, 2, 306),-1], row.names=FALSE) %>%
-  kable_styling(bootstrap_options = c("striped","hover"))
+#| echo: false
+
+titanic[c(13, 1238, 2, 306),-1] |>
+  gt()
 ```
 
 Clearly, we can see variation in who survived and died, the passenger classes they were housed in, gender, and age. We also have a measure of the fare they paid for the trip (in English pounds) and the number of family members traveling with them. To understand how to think about data, we need to understand the concepts of an **observation** and a **variable** and the distinction between them. 

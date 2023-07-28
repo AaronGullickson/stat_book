@@ -59,6 +59,88 @@ Categorical variables can also be sub-divided into two sub-types. **Ordinal vari
 
 Race, gender, and political party affiliation are all examples of nominal variables because The categories of these variables have no logical ordering. While some people might have their own political party preferences, these sort of normative evaluations of categories are irrelevant. For the same reason, even the variable of survival on the Titanic is a nominal variable.  We don't judge the value of life and death, we just record it!
 
+### Using course example datasets in R
+
+Throuhgout this course, we will use several example datasets. I will use these datasets as examples in the text, in the slides, and in class. You will also access these datasets to complete assignments. More information about these datasets can be found in the Example Datasets section of this textbook, but here I provide a brief overview of each dataset.
+
+Crimes
+: The crimes data contain information on violent and property crime rates and demographic variables for all fifty US states and the District of Columbia. The crime rates are averaged over the years 2014-2018 and come from the FBI’s Uniform Crime Reports (UCR). The demographic variables include information on poverty rates, education levels, income inequality, and median income.
+
+Earnings
+: This data has information on the hourly wages of US workers in 2018. The data here are extracted from Current Population Survey. We will use it to look at the relationship between a variety of demographic variables and how much a person earns.
+
+Movies
+: The movie data contain information about 4,343 full feature English language movies produced in the US between 2000 and 2021. The data come from the Internet Movie Database and have been supplemented with extra information from the Open Movie Database. Variables include box office returns, movie runtime, maturity ratings, and viewer and critic review scores.
+
+Politics
+: This data comes from the 2016 American National Election Study (ANES). The ANES is a survey of the American electorate that is conducted every two years. The study collects information on a variety of political attitudes and voting behaviors, including each respondent's presidential vote.
+
+Popularity
+: This data comes from the National Longitudinal Study of Adolescent to Adult Health (Add Health), conducted by the Carolina Population Center at UNC-Chapel Hill and supported by a grant from the National Institute of Child Health and Human Development. The sample we will use includes all students in 16 high schools in 1994-95. Students were asked to nominate their friends in schools and we will use the number of friend nominations received as an indicator of popularity.
+
+Sex
+: The sex data come from the General Social Survey (GSS) for the years between 2014 and 2021. Respondents were asked about their sexual frequency and we will use their responses to explore the relationship between sexual frequency and a variety of demographic variables.
+
+Titanic
+: The titanic data contain information on all 1,309 passengers aboard the Titanic. The data do not include information about the crew. The data primarily come from the online database, Encyclopedia Titanica.
+
+If you are taking this course from me, you will have access to these datasets through a Posit Cloud project. You can also get the datasets directly [here](https://github.com/AaronGullickson/stat_data/releases).
+
+The dataset files all have an *.RData extension. You can load a dataset into RStudio in one of two ways. From within RStudio, you can click on the file in your Files tab and you will be prompted to load the file. Alternatively, you can use the `load` command to load the file. For example, if I wanted to load the file `sex.RData`, I would type the following into the R console:
+
+```r
+load("sex.RData")
+```
+
+`load` is an example of an *R* command (or function), which I will have more to say about in the next module. 
+
+::: {.callout-caution}
+## Where is your data?
+
+This command will only work if the file is in the working directory shown at the top of the R console. Typically, your working directory will be the top-level directory of the projects we work in. If for example, your dataset files are in a subdirectory of the working directory called `input`, you would instead need to type:
+
+```r
+load("input/sex.RData")
+```
+
+If you alternatively click on the dataset to load it, R will run the `load` command with the correct path to the data. This can be useful if you are having trouble providing the correct path to your data.
+:::
+
+Once the load is successful, you will see an object titled `sex` in your Environment tab. To take a glance at this dataset, we can just type its name into the R prompt:
+
+```{r}
+sex
+```
+
+By default, only the first ten rows will be shown. You can also click on the dataset in your Environment tab to open up a data viewer in RStudio that gives you a fuller picture. 
+
+I can see that this dataset contains multiple variables. What if I want to reference a specific variable in this dataset? In R, we do this with the following syntax:
+
+```r
+dataset_name$variable_name
+```
+
+To reference a particular variable, we use the dollar sign after the dataset name and then follow that with the variable name. We will use this syntax *a lot* in this course. For example, lets say we want to calculate the mean (which we will learn more about in the next module) of the `educ` variable. It turns out that there is a `mean` function that expects us to feed in a variable. So,
+
+```{r}
+mean(sex$educ)
+```
+
+If you type this command in RStudio, you will notice that RStudio will start offering possible variable names as soon as you enter in the `$`.
+
+::: {.callout-caution}
+## Dataset not found!
+
+One of the most common problems students first have when learning *R* looks something like:
+
+```r
+Error in mean(sex$educ) : object 'sex' not found
+```
+
+What is *R* trying to tell you here? Its telling you that your `sex` dataset was not found. Remember that you have to load your dataset as a first step. It seems simple, but I guarantee you will forget sometimes (I sure do). Just remember that, when you see error messages like this one, *don't panic*. Its a simple mistake and *R* is telling you exactly what the problem is. Just load the dataset and you should be able to continue on.
+
+:::
+
 ---
 
 ## What Can We Do With Data?

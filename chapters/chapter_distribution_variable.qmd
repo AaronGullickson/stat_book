@@ -208,8 +208,9 @@ Now that we have the proportions/percents, we can visualize the distribution wit
 ```{r}
 #| label: fig-barplot-passclass
 #| fig-cap: Barplot of passenger class distribution on the Titanic
+#| warning: false
 
-ggplot(titanic, aes(x=pclass, y=after_stat(prop), group=1))+
+ggplot(titanic, aes(x=pclass, y=..prop.., group=1))+
   geom_bar()+
   labs(x="passenger class", y="percent")+
   scale_y_continuous(labels=scales::percent)+
@@ -221,7 +222,7 @@ ggplot(titanic, aes(x=pclass, y=after_stat(prop), group=1))+
 
 So how did I create this graph? The `ggplot` syntax is a little different than most of the other R syntax we will look at this term. With `ggplot`, we add several commands together with the `+` sign to create our overall plot. Each command adds a "layer" to our plot. These layers are:
 
-1. `ggplot(titanic, aes(x=pclass, y=..prop.., group=1))`: The first command is always the `ggplot` command itself which defines the dataset we will use (in this case, `titanic`) and the "aesthetics" that are listed in the `aes` argument. In this case, we defined an x (horizontal) variable as the `pclass` variable itself and the y (vertical) variable as a proportion (which in ggplot-speak is ..prop..). The `group=1` argument is a trick for barplots that makes sure our proportions add up to 1 across all categories. 
+1. `ggplot(titanic, aes(x=pclass, y=..prop.., group=1))`: The first command is always the `ggplot` command itself which defines the dataset we will use (in this case, `titanic`) and the "aesthetics" that are listed in the `aes` argument. In this case, we defined an x (horizontal) variable as the `pclass` variable itself and the y (vertical) variable as a proportion (which in ggplot-speak is `..prop..`). The `group=1` argument is a trick for barplots that makes sure our proportions add up to 1 across all categories. 
 2. `geom_bar()`: This command defines what geometric shape (in this case a bar) to actually plot. These two layers would be enough for a figure, but I also add four more layers that make for a nicer looking figure. You can try the command above with only the first two elements to see how it is different. 
 3. `labs(x="passenger class", y="percent")`: The `labs` command allows me to add a variety of nice labels to my graph. In this case I labeled my x and y axes. 
 4. `scale_y_continuous(labels=scales::percent)`: This is not a necessary command but it is useful to get better labels on my y-axis tickmarks. Without this command, the tickmarks would just show proportions (e.g. 0.2, 0.4). This command allows me define custom labels for those tickmarks that show them as percents rather than proportions. 
@@ -231,25 +232,77 @@ So how did I create this graph? The `ggplot` syntax is a little different than m
 The ggplot library is a very flexible system that repeats these same basic layer elements in all the graphs it creates. In an appendix to this book, you can see cookbook examples of all the ways we will we use it to create figures throughout the term. 
 
 ::: {.callout-caution}
-## Don't forget the "+"!
+## Don't forget the +!
 
-To construct a figure with `ggplot2`, you string together multiple commands with the "+" sign. A very common mistake is to miss a a "+" which will break the chain and end your plot. So, if your plot is not looking right, one of the first things to check is whether you missed a "+" somewhere. 
+To construct a figure with `ggplot2`, you string together multiple commands with the "+" sign. A very common mistake is to miss a "+" which will break the chain and end your plot. So, if your plot is not looking right, one of the first things to check is whether you missed a "+" somewhere. 
 
 You will note that I place each separate command that is part of the `ggplot` on a separate line and indent subsequent commands after the `ggplot` command. This helps me to visually tell which bits of code are part of the `ggplot`. RStudio will do this indenting for you by default and you can also force it to do a line-by-line re-indenting with the Control+I hotkey (or Command+I in Mac). Re-indenting your lines provides an easy check on this problem because a missing "+" will mean that subsequent lines will not be indented.
 :::
 
-<div class = "dcl">
-
-#### Try it out
+::: {.dcl}
 
 In the interactive *R* session below, use <tt>ggplot</tt> to construct a barplot of the percent of respondents in each category of presidential election voting from the <tt>president</tt> variable. Keep the following in mind:
 
 1. You must combine together different elements of ggplot, in this case <tt>ggplot</tt> itself and <tt>geom_bar</tt> with a plus sign to display correctly.
 2. Be sure to add nice labels for your x and y axes by adding a <tt>labs</tt> command. Keep in mind that if you use <tt>coord_flip</tt> the axes will be reversed on your graph (i.e. the x-axis will represent the vertical axis).
 
-<iframe src="dcl_interactives/barplot.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+```{=html}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'/>
+  <script async src="https://cdn.datacamp.com/dcl-react-dev.js.gz"></script>
+</head>
 
+<body>
+<div data-datacamp-exercise data-lang="r" data-show-run-button data-height="400">
+  <code data-type="pre-exercise-code">
+  	# This will get executed each time the exercise gets initialized
+    load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/politics.RData"))
+	  library(ggplot2)
+  </code>
+  <code data-type="sample-code">
+	# create a barplot of voter choice for president in the politics dataset
+  
+  
+  </code>
+  <code data-type="solution">
+	# create a barplot of voter choice for president in the politics dataset
+  ggplot(politics, 
+         aes(x=president, 
+             y=..prop.., 
+             group=1))+
+    geom_bar()+
+    labs(x="presidential vote 2016", 
+         y="proportion")+
+    coord_flip()+
+    theme_bw()
+  </code>
+  <code data-type="sct">
+  ex() %>% {
+    check_function(., "ggplot") %>% check_arg("data") %>% check_equal()
+    check_function(., "aes") %>% {
+      check_arg(., "x") %>% check_equal(eval=FALSE, 
+                                        incorrect_msg="The `x` aesthetic should be the variable `president`.") 
+      check_arg(., "y") %>% check_equal(eval=FALSE,
+                                        incorrect_msg="The `y` aesthetic should be `..prop..`` for proportions.")
+      check_arg(., "group") %>% check_equal(eval=FALSE, 
+                                            incorrect_msg="In order for the proportions to sum to one, the `group` aesthetic must be `1`.")
+  }
+  check_function(., "geom_bar")
+  check_function(., "labs", 
+                 not_called_msg="You should provide labels for your axes with the `labs` command." ) %>% {
+    check_arg(., "x", arg_not_specified_msg="You should label the x-axis")
+    check_arg(., "y", arg_not_specified_msg="You should label the y-axis")
+    }
+  }
+  success_msg("Great Job!")
+  </code>
 </div>
+</body>
+</html>
+```
+:::
 
 ::: {.callout-warning}
 #### Never use piecharts!
@@ -327,9 +380,7 @@ As @fig-hist-agepol-bin5 shows, I get more or less the same overall impression b
 knitr::include_app("https://aarongullickson.shinyapps.io/histogram/", height="800px")
 ```
 
-<div class = "dcl">
-
-#### Try it out
+::: {.dcl}
 
 In the interactive *R* session below, use <tt>ggplot</tt> to construct a histogram of the distribution of family income from the politics dataset using the <tt>income</tt> variable. Keep the following in mind:
 
@@ -338,9 +389,60 @@ In the interactive *R* session below, use <tt>ggplot</tt> to construct a histogr
 3. Play around with the border and fill color of your histogram bars with the <tt>col</tt> and <tt>fill</tt> arguments to <tt>geom_histogram</tt>. 
 4. Be sure to add nice labels for your x axis by adding a <tt>labs</tt> command. 
 
-<iframe src="dcl_interactives/histogram.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+```{=html}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'/>
+  <script async src="https://cdn.datacamp.com/dcl-react-dev.js.gz"></script>
+</head>
 
+<body>
+<div data-datacamp-exercise data-lang="r" data-show-run-button data-height="400">
+  <code data-type="pre-exercise-code">
+  	# This will get executed each time the exercise gets initialized
+	  load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/politics.RData"))
+	  library(ggplot2)
+  </code>
+  <code data-type="sample-code">
+	# create a histogram of family income from the politics data
+	ggplot(politics, aes())
+  
+  
+  </code>
+  <code data-type="solution">
+	# create a histogram of family income from the politics data
+  ggplot(politics, 
+         aes(x=income))+
+    geom_histogram(binwidth=10,
+                   color="black", 
+                   fill="grey")+
+    labs(x="family income in $1000s")+
+    theme_bw()
+  </code>
+  <code data-type="sct">
+  ex() %>% {
+    check_function(., "ggplot") %>% check_arg("data") %>% check_equal()
+    check_function(., "aes") %>% {
+      check_arg(., "x") %>% check_equal(eval=FALSE, 
+                                        incorrect_msg="The `x` aesthetic should be the variable `income`.") 
+  }
+    check_function(., "geom_histogram") %>% {
+      check_arg(., "binwidth", arg_not_specified_msg="You should try specifying the `binwidth` argument in `geom_histogram`.")
+  }
+  check_function(., "labs", 
+                 not_called_msg="You should provide labels for your axes with the `labs` command." ) %>% {
+    check_arg(., "x", arg_not_specified_msg="You should label the x-axis")
+    }
+  }
+  success_msg("Great Job!")
+  </code>
 </div>
+</body>
+</html>
+```
+
+:::
 
 What kinds of things should you be looking for in your histogram? There are four general things to be on the lookout for when you examine a histogram.
 
@@ -612,19 +714,53 @@ As a result of this skew, the mean box office returns are about \$45.8 million, 
 
 Note that neither estimate is in some fundamental way incorrect. They are both correctly estimating what they were intended to estimate. It is up to us to understand and interpret these numbers correctly and to understand their limitations.
 
-<div class = "dcl">
-
-#### Try it out
+::: {.dcl}
 
 In the interactive *R* session below, Calculate the mean and median of hourly wages from the earnings dataset. Keep the following in mind:
 
-1. To identify the variable you want for the <tt>mean</tt> and <tt>median</tt> you need to follow the syntax of <tt>dataset$variable_name</tt>.
+1. To identify the variable you want for the <tt>mean</tt> and <tt>median</tt> you need to follow the syntax of <tt>dataset_name$variable_name</tt>.
 
 How do the results for the mean and median compare? What does this suggest about the underlying shape of the distribution?
 
-<iframe src="dcl_interactives/mean_median.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+```{=html}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'/>
+  <script async src="https://cdn.datacamp.com/dcl-react-dev.js.gz"></script>
+</head>
 
+<body>
+<div data-datacamp-exercise data-lang="r" data-show-run-button data-height="400">
+  <code data-type="pre-exercise-code">
+  	# This will get executed each time the exercise gets initialized
+	  load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/earnings.RData"))
+	  library(ggplot2)
+  </code>
+  <code data-type="sample-code">
+	# calculate the mean and median of hourly wages from the earnings data
+  
+  
+  
+  </code>
+  <code data-type="solution">
+	# calculate the mean and median of hourly wages from the earnings data
+  mean(earnings$wages)
+  median(earnings$wages)
+  </code>
+  <code data-type="sct">
+  ex() %>% {
+    check_function(., "mean") %>% check_result() %>% check_equal()
+    check_function(., "median") %>% check_result() %>% check_equal()
+  }
+  success_msg("Great Job!")
+  </code>
 </div>
+</body>
+</html>
+```
+
+:::
 
 ::: {.callout-warning}
 ## Only calculate statistics for quantitative variables

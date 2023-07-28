@@ -23,6 +23,7 @@ bibliography: bibliography/references.bib
 format:
   html:
     theme: flatly
+    css: styles.css
 
 
 

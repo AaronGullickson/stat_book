@@ -1,8 +1,13 @@
 # Distribution of a Variable
 
-The **distribution** of a variable refers to how the different values of that variable are spread out across observations. This distribution gives us a sense of what the most common values are for a given variable and how much these values vary. It can also alert us to unusual patterns in the data. Intuitively, we think about distributions in our personal life any time we think about how we "measure" up relative to everyone else on something (income, number of Facebook friends, GRE scores, etc.). We want to know where we "fall" in the distribution of one of these variables. 
+The **distribution** of a variable refers to how the different values of that variable are spread out across observations. This distribution gives us a sense of what the most common values are for a given variable and how much these values vary. It can also alert us to unusual patterns in the data. Intuitively, we think about distributions in our personal life any time we think about how we "measure" up relative to everyone else on something (income, number of social media followers, GRE scores, etc.). We want to know where we "fall" in the distribution of one of these variables. 
 
-In this chapter we will first learn graphical techniques that allow us to visualize what the distribution of a variable looks like. For quantitative variables we will then move on to calculate important summary statistics that measure the center and spread of a distribution.  
+In this chapter we will focus on two ways to gain better understanding of the distribution of a variable:
+
+1. **Graph it**. Visualizing a distribution with a good figure is often the first step in trying to understand it.
+2. **Measure it**. For quantitative variables, we can move beyond a visual display to calculate summary statistics that provide more precise information about the distribution including its center and spread.
+
+For this module, we are only examining the distribution of a single variable. We sometimes refer to this form of analysis and the statistics we calculate from it as **univariate** which is a fancy way to say "one variable." Importantly, univariate analysis of a single variable does not tell us anything about the association of that variable with other variables.
 
 Slides for this module can be found [here](stat_slides/module2_slides_distribution_variable.html).
 
@@ -18,13 +23,19 @@ source(here("scripts","load_example_data.R"))
 
 ## Looking at Distributions
 
-One of the best ways to understand the distribution of a variable is to visualize that distribution with a graph. However, the technique we use to graph the distribution will depend on whether we have a categorical or a quantitative variable. For categorical variables, we will use a **barplot**, while for quantitative variables, we will use a **histogram**. 
+One of the best ways to understand the distribution of a variable is to visualize that distribution with a graph. Importantly, the technique we use to graph the distribution will depend on whether we have a categorical or a quantitative variable. For categorical variables, we will use a **barplot**, while for quantitative variables, we will use a **histogram**.
+
+::: {.callout-tip}
+## Know your variable type!
+
+Remember that categorical and quantitative variables require different kinds of graphs. Knowing which kind of variable you have is the first step to making the right kind of graph!
+:::
 
 ### Looking at the distribution of a categorical variable
 
 #### Calculating the frequency
 
-In order to graph the distribution of a categorical variable, we first need to calculate its **frequency**. The frequency is just the number of observations that fall into a given category of a categorical variable. We could, for example, count up the number of passengers who were in the various passenger classes on the Titanic. Doing so would give us the following:
+In order to graph the distribution of a categorical variable, we first need to calculate its **frequency**. The frequency is just the number of observations that fall into a given category of a categorical variable. We could, for example, count up the number of passengers who were in the various passenger classes on the Titanic. Doing so would give us the frequencies shown in @tbl-titanic-pclass below:
 
 ```{r}
 #| label: tbl-titanic-pclass
@@ -51,16 +62,30 @@ tab |>
   tab_stubhead("Passenger Class")
 ```
 
-There were 323 first class passengers, 277 second class passengers, and 709 third class passengers. Adding those numbers up gives us 1,309 total passengers. *R* will calculate these numbers for us easily using the `table` command: 
+The Titanic contained 323 first class passengers, 277 second class passengers, and 709 third class passengers. Adding those numbers up gives us 1,309 total passengers. 
+
+We can also calculate these numbers in *R*, we can use the `table` command: 
 
 ```{r}
 #| label: table-command-pclass
 table(titanic$pclass)
 ```
 
+::: {.callout-note}
+## Commands in *R*
+
+`table` is an example of a command (of function) in *R*. *R* comes with many built-in functions and more can be added from additional packages/libraries. You can even create your own! These commands will be the workhorse for us as they can do all kinds of calculations.
+
+Command names are always followed by and opening and closing parenthesis and inside of those parenthesis you can feed in input called *arguments*. In this case, we just need one argument which is the variable for which we want the frequencies. Remember that we have to specify this with our `dataset_name$variable_name` syntax. One translation of this command in English would be "create a table of the passenger class variable from the Titanic dataset."
+
+Although this command only had one argument, many commands can have multiple arguments. When a command has more than one argument, we separate them inside the parenthesis with commas. We will see some examples of multiple arguments commands below when we get to `ggplot` commands.
+:::
+
 #### Frequency, proportion, and percent
 
-The frequency we just calculated is sometimes called the **absolute frequency** because it just counts the raw number of observations. However such raw numbers are often not very helpful because they will vary by the overall number of observations. Instead, we usually want to calculate the **proportion** of observations that fall within each category. These proportions are sometimes also called the **relative frequency**.  We can calculate the proportion by simply dividing our absolute frequency by the total number of observations:
+The frequency we just calculated is called the **absolute frequency** because it counts the raw number of observations. However such raw numbers are often not very helpful because they will vary by the overall number of observations. If I told you out of context that there were 323 first class passengers on the Titanic, would you think that is a large or small number? Most likely, you would want to know how many total passengers there were on the Titanic to evaluate the absolute frequency of 323 first class passengers.
+
+Instead of relying on the absolute frequency, we generally calculate the **proportion** of observations that fall within each category. These proportions are sometimes also called the **relative frequency**.  We can calculate the proportion by simply dividing our absolute frequency by the total number of observations:
 
 ```{r pclass-table-props, echo=FALSE}
 #| label: tbl-titanic-pclass-prop
@@ -80,6 +105,8 @@ tab |>
   tab_stubhead("Passenger Class")
 ```
 
+We can confirm that our calculations are correct by noting that the proportions add up to 1 (plus or minus a bit of rounding error).
+
 *R* provides a nice shorthand function titled `prop.table` to conduct this operation. The `prop.table` command should be run on the output from a `table` command. 
 
 ```{r}
@@ -87,7 +114,22 @@ tab |>
 prop.table(table(titanic$pclass))
 ```
 
-Note that I have "wrapped" the `prop.table` command around the `table` command here to do this calculation in a single line. 
+::: {.callout-note}
+## Wrapping Commands vs. Saving Output in *R*
+
+Note that I have "wrapped" one command (`table`) inside of another command (`prop.table`). In essence, the output of the `table` command became the input of the `prop.table` command. *R* is fine with this kind of code and we can often use this wrapping feature to take care of multiple operations in one line of code.
+
+Alternatively, I could have "saved" the output of my `table` command and then fed that saved output into the `prop.table` command. That code would look something like:
+
+```r
+tab <- table(titanic$pclass)
+prop.table(tab)
+```
+
+The `<-` is an *assignment operator*. It tells R that instead of printing the output of `table` to the screen, it should instead save that output to a new object. I call that object "tab" but I could have called it anything I want. I then feed that `tab` object into `prop.table` on the second line.
+
+The reason we often prefer to wrap commands as I did above is that it reduces the lines of code and also avoids the creation of temporary data artifacts like the `tab` object. However, there may be some cases where you want to save output to an object, so its good to know how to do this.
+:::
 
 We often convert proportions to percents which are more familiar to most people. To convert a proportion to a percent, just multiply by 100:
 
@@ -113,38 +155,55 @@ tab |>
 
 24.7% of passengers were first class, 21.2% of passengers were second class, and 54.2% of passengers were third class. Just over half of passengers were third class and the remaining passengers were fairly evenly split between first and second class.
 
-<div class = "dcl">
+::: {.dcl}
 
-#### Try it out
-
-In the interactive *R* session below, try to calculate the proportion or percent of the voting age population that voted for each candidate (or didn't vote) in the 21016 election, based on our politics dataset. Keep the following in mind:
+In the interactive *R* session below, try to calculate the proportion or percent of the voting age population that voted for each candidate (or didn't vote) in the 21016 election, based on the politics dataset. Keep the following in mind:
 
 1. The <tt>politics</tt> dataset is already loaded. Remember that to access a variable in a dataset, you need to use the <tt>\$</tt> sign. In this case, the variable you want is called <tt>president</tt> so you need to use the syntax <tt>politics$president</tt>.
 2. You need to run the <tt>table</tt> command on your variable *before* you can run <tt>prop.table</tt>.
 
 Is the result surprising to you? Notice that no candidate received even close to 50%. Why is this the case?
 
-<iframe src="dcl_interactives/calculate_props.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+```{=html}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'/>
+  <script async src="https://cdn.datacamp.com/dcl-react-dev.js.gz"></script>
+</head>
 
+<body>
+<div data-datacamp-exercise data-lang="r" data-show-run-button data-height="400">
+  <code data-type="pre-exercise-code">
+  	# This will get executed each time the exercise gets initialized
+  	load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/politics.RData"))
+	  options(digits=3)
+  </code>
+  <code data-type="sample-code">
+	# calculate the proportion/percent of voter choice for president in the politics dataset
+  
+  
+  </code>
+  <code data-type="solution">
+	# calculate the proportion/percent of voter choice for president in the politics dataset
+  prop.table(table(politics$president))
+  
+  </code>
+  <code data-type="sct">
+    ex() %>% check_function("table", not_called_msg="Did you remember to call `table` first?") %>% check_arg(., "..1") %>% check_equal(incorrect_msg="It looks like you are not using the right variable in your `table` command")
+    ex() %>% check_function("prop.table", not_called_msg="Did you remember to call `prop.table`?") %>% check_result() %>% check_equal()
+  success_msg("Great Job!")
+  </code>
 </div>
-
-#### Don't make a piechart
-
-Now that we have proportions/percents, we can use these values to construct a graphical display of the distribution. One of the most common techniques for doing this is a **piechart**. @fig-piechart shows a piechart of the distribution of passengers on the Titanic. 
-
-```{r}
-#| label: fig-piechart
-#| fig-cap: Piechart of passenger class distribution on Titanic
-
-p <- prop.table(table(titanic$pclass))
-pie(p)
+</body>
+</html>
 ```
 
-You will notice that I do not show you the code for constructing this piechart. I hid this code because **I don't ever want you to construct a piechart**. Despite their popularity, piecharts are a poor tool for visualizing distributions. In order to judge the relative size of the slices on a piechart, your eye has to make judgments in two dimensions and with an unusual pie-shaped slice ($\pi*r^2$ anyone?). As a result, it can often be difficult to decide which slice is bigger and to properly evaluate the relative sizes of each of the slices. In this case, for example, the relative size of first and second class are quite close and it is not immediately obvious which category is larger. 
+:::
 
 #### Make a barplot
 
-A better way to display the distribution is by using a **barplot** in which vertical or horizontal bars give the proportion or percent. @fig-barplot-passclass shows a barplot for the distribution of passengers on the Titanic. 
+Now that we have the proportions/percents, we can visualize the distribution with a **barplot** in which vertical or horizontal bars give the proportion or percent. @fig-barplot-passclass shows a barplot for the distribution of passengers on the Titanic. 
 
 ```{r}
 #| label: fig-barplot-passclass
@@ -171,6 +230,14 @@ So how did I create this graph? The `ggplot` syntax is a little different than m
 
 The ggplot library is a very flexible system that repeats these same basic layer elements in all the graphs it creates. In an appendix to this book, you can see cookbook examples of all the ways we will we use it to create figures throughout the term. 
 
+::: {.callout-caution}
+## Don't forget the "+"!
+
+To construct a figure with `ggplot2`, you string together multiple commands with the "+" sign. A very common mistake is to miss a a "+" which will break the chain and end your plot. So, if your plot is not looking right, one of the first things to check is whether you missed a "+" somewhere. 
+
+You will note that I place each separate command that is part of the `ggplot` on a separate line and indent subsequent commands after the `ggplot` command. This helps me to visually tell which bits of code are part of the `ggplot`. RStudio will do this indenting for you by default and you can also force it to do a line-by-line re-indenting with the Control+I hotkey (or Command+I in Mac). Re-indenting your lines provides an easy check on this problem because a missing "+" will mean that subsequent lines will not be indented.
+:::
+
 <div class = "dcl">
 
 #### Try it out
@@ -184,12 +251,29 @@ In the interactive *R* session below, use <tt>ggplot</tt> to construct a barplot
 
 </div>
 
+::: {.callout-warning}
+#### Never use piecharts!
+
+You may have seen the distributions I am showing here also displayed using a piechart like @fig-piechart below. 
+
+```{r}
+#| label: fig-piechart
+#| fig-cap: Piechart of passenger class distribution on Titanic
+#| echo: false
+
+p <- prop.table(table(titanic$pclass))
+pie(p)
+```
+
+Many people feel that piecharts have an aesthetic appeal but they are actually very poor at conveying information relative to barplots. Why? In order to judge the relative size of the slices on a piechart, your eye has to make judgments in two dimensions and with an unusual pie-shaped slice ($\pi*r^2$ anyone?). As a result, it can often be difficult to decide which slice is bigger and to properly evaluate the relative sizes of each of the slices. In this case, for example, the relative size of first and second class are quite close and it is not immediately obvious which category is larger. Because barplots only work in one dimension, we can much more clearly guage the relative size of each bar in @fig-barplot-passclass which shows that first class was larger than second class by about 3-4%.
+
+:::
 
 ### Looking at the distribution of a quantitative variable
 
 Barplots won't work for quantitative variables because quantitative variables don't have categories. However, we can do something quite similar with the **histogram**. 
 
-One way to think about the histogram is that we are imposing a set of categories on a quantitative variable by breaking our quantitative variable into a set of equally wide intervals that we call **bins**. The most important decision with a quantitative variable is how wide to make these bins. As an example, lets take the age variable from our politics dataset. Because the youngest people in this dataset are 18 years old, I could start my first bin at age 18 and go to age 27. However, that will give me somewhat non-intuitive bins for most people (e.g. 18-27, 28-37, etc.). Instead, I will start my first bin at 15-24, so the bins are "cut" at the mid-decade point for each age group (e.g. 15-24, 25-34, 35-44, etc.). Then, I count the number of observations that fall into each age bin as shown in @tbl-age-politics.
+One way to think about the histogram is that we are imposing a set of categories on a quantitative variable by breaking our quantitative variable into a set of equally wide intervals that we call **bins**. The most important decision with a quantitative variable is how wide to make these bins. As an example, lets calculate 10-year bins for the age variable in the politics dataset. Because the youngest people in this dataset are 18 years old, I could start my first bin at age 18 and go to age 27. However, that will give me somewhat non-intuitive bins for most people (e.g. 18-27, 28-37, etc.). Instead, I will start my first bin at 15-24, so the bins are "cut" at the mid-decade point for each age group (e.g. 15-24, 25-34, 35-44, etc.). Then, I count the number of observations that fall into each age bin as shown in @tbl-age-politics.
 
 
 ```{r age-dist-table, echo=FALSE}
@@ -209,7 +293,7 @@ politics |>
 
 Now that I have the frequencies for each bin, I can plot the histogram. The histogram looks much like a barplot except for two important differences. First, on the x-axis we have a numeric scale for the quantitative variable rather than categories. Second, we don't put any space between our bars. 
 
-Below I show some *R* code for producing the histogram shown in @fig-hist-agepol using `ggplot`. This code is simpler than the barplot code. We only need to define an x aesthetic in our `ggplot` command. Instead of a `geom_bar` we use a `geom_histogram`. I can specify different bin widths in this command with the `binwidth` argument. Here I have specified a binwidth of ten years. I have also specified two different colors. The `col` argument is the color of the border for each bar and the `fill` argument is the color of the bars themselves. 
+Below I show some *R* code for producing the histogram shown in @fig-hist-agepol using `ggplot`. This code is simpler than the barplot code. We only need to define an x aesthetic in our `ggplot` command. Instead of a `geom_bar` we use a `geom_histogram`. I can specify different bin widths in this command with the `binwidth` argument. Here I have specified a bi nwidth of ten years which should correspond to @tbl-age-politics. I have also specified two different colors. The `col` argument is the color of the border for each bar and the `fill` argument is the color of the bars themselves. 
 
 ```{r}
 #| label: fig-hist-agepol
@@ -221,7 +305,7 @@ ggplot(politics, aes(x=age))+
   theme_bw()
 ```
 
-Looking at @fig-hist-agepol, I can see the peak in the distribution in the 55-64 group (the baby boomers) with a long fat tail to the right and a steeper drop off at older ages, due to smaller cohorts and old age mortality. I can also see a smaller peak in the 25-34 range which is largely the children of the baby boomers. 
+Looking at @fig-hist-agepol, I see the peak in the distribution in the 55-64 group (the baby boomers) with a plateau to the left at younger ages before dropping off for the youngest age group, due to the fact that this youngest age group is only a partial age group (e.g. I have no 15-17 year olds). To the right, the frequency drops off much faster, due to smaller cohorts and old age mortality. I can also sort of see a smaller peak in the 25-34 range which  happens to be the children of the baby boomers. 
 
 What would this histogram look like if I had used 5-year bin widths instead of 10-year bins? Lets try it:
 
@@ -262,25 +346,21 @@ What kinds of things should you be looking for in your histogram? There are four
 
 #### Center
 
-Where is the center of the distribution? Loosely we can think of the center as the peak in the data, although we will develop some more technical terms for center in the next section. Some distributions might have more than one distinct peak. When a distribution has one peak, we call it a **unimodal** distribution. @fig-hist-unimodal-runtime shows a clear unimodal distribution for the runtime of movies. We can clearly see that the peak is somewhere between 90 and 100 minutes. 
+Where is the center of the distribution? Loosely we can think of the center as the peak in the data, although we will develop some more technical terms for center in the next section. Some distributions might have more than one distinct peak. When a distribution has one peak, we call it a **unimodal** distribution. @fig-hist-modality-1 shows a clear unimodal distribution for the runtime of movies. We can clearly see that the peak is somewhere between 90 and 100 minutes. 
 
 ```{r}
-#| label: fig-hist-unimodal-runtime
-#| fig-cap: The distribution of movie runtimes is unimodal with one clear peak around 90-100 minutes
+#| label: fig-hist-modality
+#| layout-ncol: 2
+#| fig-cap: How many peaks do we oberve in these histograms?
+#| fig-subcap:
+#| - The distribution of movie runtimes is unimodal.
+#| - The distribution of property crimes by states is bimodal.
 #| echo: false
 
 ggplot(movies, aes(x=runtime))+
   geom_histogram(binwidth=5, color="black", fill="lavender")+
   labs(x="Movie Runtime (in minutes)")+
   theme_bw()
-```
-
-When a distribution has two distinct peaks, we call it a **bimodal** distribution. @fig-hist-bimodal-property shows that the distribution of violent crime rates across states is bimodal. The first peak is around 2200-2500 crimes per 100,000 and the second is around 3500 crimes per 100,000. This suggests that there are two distinctive clusters of states: in the first cluster are states with a moderate crime rate and in the second cluster, states with high crime rate states. You can probably guess what we call a distribution with three peaks (and so on), but its fairly rare to see more than two distinct peaks in a distribution.
-
-```{r}
-#| label: fig-hist-bimodal-property
-#| fig-cap: The distribution of property crimes by states is bimodal with a two separate peaks.
-#| echo: false
 
 ggplot(crimes, aes(x=property_rate))+
   geom_histogram(binwidth=250, color="black", fill="firebrick")+
@@ -289,26 +369,26 @@ ggplot(crimes, aes(x=property_rate))+
   theme_bw()
 ```
 
+When a distribution has two distinct peaks, we call it a **bimodal** distribution. @fig-hist-modality-2 shows that the distribution of violent crime rates across states is bimodal. The first peak is around 2200-2500 crimes per 100,000 and the second is around 3500 crimes per 100,000. This suggests that there are two distinctive clusters of states: in the first cluster are states with a moderate crime rate and in the second cluster, states with high crime rate states. You can probably guess what we call a distribution with three peaks (and so on), but its fairly rare to see more than two distinct peaks in a distribution.
+
 #### Shape
 
-Is the shape symmetric or is one of the tails longer than the other? When the  long tail is on the right, we refer to this distribution as **right skewed**. When the long tail is on the left, we refer to the distribution as **left skewed**. @fig-hist-symmetic-metacritic and @fig-hist-rskewed-boxoffice show examples of roughly symmetric and heavily right-skewed distributions, respectively, from the movies dataset. The Tomato Rating that movies receive (a score from 1-10) is roughly symmetric with about equal numbers of movies above and below the peak. Box office returns on the other hand are heavily right-skewed. Most movies make less than \$100 million at the box office but there are few "blockbusters" that rake in far more. Right-skewness to some degree or another is common in social science data, partially because many variables can't logically have values below zero and thus the left tail of the distribution is truncated. Left-skewed distributions are rare. In fact, they are so rare that I don't really have a very good example to show you from our datasets. 
+Is the shape symmetric or is one of the tails longer than the other? When the  long tail is on the right, we refer to this distribution as **right skewed**. When the long tail is on the left, we refer to the distribution as **left skewed**. @fig-hist-skewness-1 and @fig-hist-skewness-2 show examples of roughly symmetric and heavily right-skewed distributions, respectively, from the movies dataset. The Metacritic score that movies receive (from 0-100) is roughly symmetric with about equal numbers of movies above and below the peak. Box office returns on the other hand are heavily right-skewed. Most movies make less than \$100 million at the box office but there are few blockbusters that rake in far more money. Right-skewness to some degree or another is common in social science data, partially because many variables can't logically have values below zero and thus the left tail of the distribution is truncated. Left-skewed distributions are rare. In fact, they are so rare that I don't really have a very good example to show you from our datasets. 
 
 
 ```{r}
-#| label: fig-hist-symmetic-metacritic
-#| fig-cap: The distribution of movie tomato ratings is roughly symmetric
+#| label: fig-hist-skewness
+#| layout-ncol: 2
+#| fig-cap: How skewed are these distributions?
+#| fig-subcap:
+#| - The distribution of Metacritic scores is roughly symmetric.
+#| - The distribution of movie box office returns is heavily right-skewed.
 #| echo: false
 
 ggplot(movies, aes(x=metascore))+
   geom_histogram(binwidth=5, color="black", fill="skyblue")+
   labs(x="Metacritic score")+
   theme_bw()
-```
-
-```{r}
-#| label: fig-hist-rskewed-boxoffice
-#| fig-cap: The distribution of movie box office returns is heavily right skewed
-#| echo: false
 
 ggplot(movies, aes(x=box_office))+
   geom_histogram(binwidth=20, color="black", fill="darkgreen")+
@@ -320,7 +400,7 @@ ggplot(movies, aes(x=box_office))+
 
 How spread out are the values around the center? Do they cluster tightly around the center or are they spread out more widely? Typically this is a question that can only be asked in relative terms. We can only say that the spread of a distribution is larger or smaller than some comparable distribution. We might be interested for example in the spread of the income distribution in the US compared to Sweden, because this spread is one measure of income inequality.  
 
-@fig-hist-spread-runtime compares the distribution of movie runtime for comedy movies and sci-fi/fantasy movies. The figure clearly shows that the spread of movie runtime is much greater for sci-fi/fantasy movies. Comedy movies are all tightly clustered between 90 and 120 minutes while longer movies are more common for sci-fi/fantasy movies leading to a longer right tail and a correspondingly higher spread. 
+@fig-hist-spread-runtime compares the distribution of movie runtime for comedy and sci-fi/fantasy movies. The figure clearly shows that the spread of movie runtime is much greater for sci-fi/fantasy movies. Comedy movies are all tightly clustered between 90 and 120 minutes while longer movies are more common for sci-fi/fantasy movies leading to a longer right tail and a correspondingly higher spread. 
 
 ```{r}
 #| label: fig-hist-spread-runtime
@@ -331,6 +411,7 @@ ggplot(movies, aes(x=runtime, fill=genre, y=after_stat(density)))+
   geom_histogram(data=subset(movies, genre=="Comedy"), binwidth=10, alpha=0.5)+
   geom_histogram(data=subset(movies, genre=="Sci-Fi/Fantasy"), binwidth=10,
                  alpha=0.5)+
+  scale_fill_viridis_d()+
   annotate(geom="text", x=200, y=0.002, label="Return of\nthe King", size=3)+
   labs(x="Movie runtime (in minutes)")+
   theme_bw()
@@ -340,29 +421,29 @@ ggplot(movies, aes(x=runtime, fill=genre, y=after_stat(density)))+
 
 Are there extreme values which fall outside the range of the rest of the data? We want to pay attention to these values because they may have a strong influence on the statistics that we will learn to calculate to summarize a distribution. They might also influence some of the measures of association that we will learn later. Finally, extreme outliers may help identify data coding errors. 
 
-In @fig-hist-bimodal-property above, we can see a clear outlier in the violent crime rate for Washington DC. Washington DC's crime rate is such an outlier relative to the other states that we will pay attention to it throughout this term as we conduct our analysis. @fig-hist-spread-runtime above shows that Peter Jackson's Return of the King was an outlier for the runtime of sci-fi/fantasy movies, although it doesn't seem quite as extreme as for the case of Washington DC. 
+In @fig-hist-modality-2 above, we can see that Washington DC is a clear outlier in terms of the violent crime rate. Washington DC's crime rate is such an outlier relative to the other states that we will pay attention to it throughout this term as we conduct our analysis. @fig-hist-spread-runtime above shows that Peter Jackson's Return of the King was an outlier for the runtime of sci-fi/fantasy movies, although it doesn't seem quite as extreme as for the case of Washington DC. 
 
-In large datasets, it can sometimes be very difficult to detect a single outlier on a histogram because the height of its bar will be so small. Later in this chapter, we will learn another graphical technique called the boxplot that can be more useful for detecting outliers in a quantitative variable.
+In large datasets, it can sometimes be very difficult to detect a single outlier on a histogram because the height of its bar will be so small. You probably wouldn't even notice the Return of the King outlier in the movies dataset if I hadn't labeled it. Later in this chapter, we will learn another graphical technique called the boxplot that can be more useful for detecting outliers in a quantitative variable.
 
 
 ---
 
 ## Measuring the Center of a Distribution
 
-When we look at a distribution, we often can get an intuitive sense of where its "center" is. But what do we really mean by the term "center?" The notion of center often allows us to think about the value we expect a typical or "average" observation to have, but there are multiple ways of defining this center. In statistics, three different measures of center are used: the **mean**, **median**, and **mode**. 
+In the previous section, we just looked at a distribution to try and gauge its center. But what do we really mean by the term "center?" We often think about this center intuitively as representing the "typical" or "average" value on a given variable. However, we can define this idea of average in multiple ways. In this section, we will move from a basic visual sense of center to more precise statistical measures of center that can be calculated for quantitative variables. Specifically, we will learn how to measure the **mean**, **median**, and **mode**. 
 
 ### The mean
 
-The mean is the measure most frequently referred to as the "average" although that term could apply to the median and mode as well. The mean is the **balancing point** of a distribution. Imagine trying to balance a distribution on your finger like a basketball. Where along the distribution would you place your finger to achieve this balance? This point is the mean. It is equivalent to the concept of "center of mass" from physics. 
+The mean is the measure most frequently referred to as the "average" although that term could apply to the median and mode as well. The mean is the **balancing point** of a distribution. Imagine trying to balance a distribution on your finger like a basketball. Where along the distribution would you place your finger to achieve balance? This point is the mean. It is equivalent to the concept of "center of mass" from physics. 
 
 The calculation of the mean is straightforward:
 
 1. Sum up all the values of your variable across all observations. 
 2. Divide this sum by the number of observations.
 
-As an example, lets take a sub-sample of our movie data. I am going to select all the romances (not including rom-coms which are coded as comedies) produced in 2018. There were nine "pure" romances in 2017. I want to know their mean Metacritic score. 
+As a workable example, lets take a sub-sample of our movie data with a small number of observations. I am going to select all nine "pure" romance movies produced in 2017 (not including romantic comedies which are coded as comedies rather than romances on the `genre` variable. @tbl-romance-sum displays these movies along with their Metacritic score.
 
-```{r romance-table-mean, echo=FALSE}
+```{r}
 #| label: tbl-romance-sum
 #| tbl-cap: Metacritic scores of pure romance movies released in 2017
 #| echo: false
@@ -378,53 +459,56 @@ movies |>
                formatter = fmt_integer)
 ```
 
-In the very last row, I show the sum of the Metacritic score which simply sums up the Metacritic score of each movie. To calculate the mean, I simply divide this sum by the number of movies which is 9.
+In the very last row, I show the sum of the Metacritic score which simply sums up the Metacritic score of each movie. With this sum, I am already halfway to calculating the mean! To finish the calculation, I divide this sum (522) by the number of movies (9).
 
-$$\bar{x}=\frac{522}{9}=58$$
+$$\frac{522}{9}=58$$
 
-The mean Metacritic score for romantic movies in 2017 was 58. Notice the funny $x$ with a bar over it ("x bar"). Mathematically, we often represent variables with lower-case roman letters like $x$ or $y$. Putting the bar above the letter is the way to mathematically signify the mean of that variable. 
+The mean Metacritic score for romantic movies in 2017 was 58. 
 
-Since we are discussing math symbols, lets talk about creating a mathematical formula for what we just did. In order to do that, I need to introduce a variety of mathematical symbols, but don't get frightened. We are just formalizing the method of calculating the mean that I just demonstrated above. 
-
-First, as I said we represent a given variable by a lower-case roman letter, such as $x$. If we want to specify a particular observation of $x$, we use a subscript number. So $x_1$ is the value of the first observation of $x$ in our data and $x_{25}$ is the value of the 25th observation of $x$ in our data. We use the letter n to signify the number of observations so $x_n$ is always the last observation of $x$ in our data. 
-
-Now we need some way to indicate "sum up all the values of $x$." This is given by the summation sign which looks as follows:
-
-$$\sum_{i=1}^n x_i$$
-
-In English, this just means "sum up all the values of $x$, starting at $x_1$ and ending at $x_n$." That gives us our sum, which we just need to divide by the number of observations, $n$. 
-
-$$\bar{x}=\frac{\sum_{i=1}^n x_i}{n}$$
-
-In *R*, the mean is very straightforward to calculate. Lets calculate the mean of the Tomato Meter rating for all movies in our dataset:
+Lets use *R* to calculate mean Metacritic score across all movies. You could use the `sum` command (self-explanatory) and the `nrow` command, which will give you the number of observations, to calculate the mean:
 
 ```{r}
 #| label: mean-by-hand
 sum(movies$metascore)/nrow(movies)
 ```
 
-The `sum` command calculates the sum and the `nrow` command calculates the number of rows of our dataset, which is equivalent to the number of observations. Or we could go even simpler and just use the `mean` command:
+Alternatively, *R* already has a command called `mean`:
 
-```{r mean-tomato-meter}
+```{r}
 #| label: mean-metascore
 mean(movies$metascore)
 ```
 
-We can see that the mean Metacritic score of romantic movies in 2017 (58) were slightly below the mean for all the movies in our dataset (`r round(mean(movies$metascore),1)`), but not by much.
+We can see that the mean Metacritic score of romantic movies in 2017 (58) was slightly higher the mean for all the movies in our dataset (`r round(mean(movies$metascore),1)`), but not by much.
 
-One last thing to note is that it only makes sense to calculate the mean of quantitative variables. You cannot add up the values for categorical variables because categorical values don't have numeric values. Rather, they have categories. Notice that you will get an "NA" value and a warning if you try to do this using the `mean` command:
+::: {.callout-note}
+## Learning equation symbols
 
-```{r}
-#| label: mean-categorical
-#| warning: true
-mean(movies$maturity_rating)
-```
+We won't focus too much on formulas in this course, but it is helpful to know some basics of the way mathematical formulas are represented in statistics.
+
+Mathematically, we often represent variables with lower-case roman letters like $x$ or $y$. Then we can talk abstractly about "some variable $x$" rather than referencing a specific variable. If we want to specify a particular observation of $x$, we use a subscript number. So $x_1$ is the value of the first observation of $x$ in our data and $x_{25}$ is the value of the 25th observation of $x$ in our data. We use the letter $n$ to signify the number of observations so $x_n$ is always the last observation of $x$ in our data.
+
+We could use this symbology to describe summing up all the values of $x$ and dividing by $n$:
+
+$$\frac{x_1+x_2+x_3+\ldots+x_n}{n}$$
+
+This approach works but can be quite tedious. You can see that I already tired of writing out each value of $x$ and just used $\ldots$ to convey the general point. To avoid this, we often use a *summation* sign to indicate the summing up of all the values of a variable:
+
+$$\sum_{i=1}^n x_i=x_1+x_2+x_3+\ldots+x_n$$
+
+In English, this formula just means "sum up all the values of $x$, starting at $x_1$ and ending at $x_n$." That gives us our sum, which we just need to divide by the number of observations, $n$, to get the mean:
+
+$$\bar{x}=\frac{\sum_{i=1}^n x_i}{n}$$
+
+You will notice that I describe this mean using the symbol $\bar{x}$. This symbol is often called "x-bar" and is the standard way to describe the mean of some variable $x$. Note that if we had two variables $x$ and $y$, then we would have $\bar{x}$ (x-bar) and $\bar{y}$ (y-bar) to represent the mean of each variable.
+
+:::
 
 ### The median
 
 The median is almost as widely used as the mean as a measure of center, for reasons I will discuss below. The median is the **midpoint** of the distribution. It is the point at which 50% of observations have lower values and 50% of the observations have higher values. 
 
-In order to calculate the median, we need to first order our observations from lowest to highest. Lets do that with the 2017 romantic movie data from before. 
+In order to calculate the median, we need to first order our observations from lowest to highest. As an example, in @tbl-romance-median, I take the 2017 romantic movie data from @tbl-romance-sum and re-order it from highest Metacritic score to lowest. 
 
 ```{r}
 #| label: tbl-romance-median
@@ -441,27 +525,26 @@ movies |>
   gt_highlight_rows(rows=5)
 ```
 
-To find the median, we have to find the observation right in the middle. When we have an odd number of observations, finding the exact middle is easy. In this case, it is given by the 5th observation because it has four observations lower than it and four observations higher than it. So the median Metacritic for romantic movies in 2017 was 52. 
+To find the median, we have to find the observation right in the middle. When we have an odd number of observations, finding the exact middle is easy. In this case, the fifth observation is the exact middle because it has four observations lower than it and four observations higher than it. So the median Metacritic score for romantic movies in 2017 was 52. 
 
-When you have an even number of observations, then finding the median is slightly more tricky because you have no single observation that is exactly in the middle. In this case, you find the two observations that are closest to the middle and calculate their mean (sum them up and divide by two). For example, if we had ten observations, we would take the mean of the 5th and 6th observations to calculate the median. 
+What if you have an even number of observations? Finding the median is slightly more tricky in this case because you have no single observation that is exactly in the middle. Instead, you find the two observations that are closest to the middle and calculate their mean (sum them up and divide by two). For example, if we had ten observations, we would take the mean of the fifth and sixth observations to calculate the median. 
 
 The `median` command in *R* will calculate the median for you.
 
-```{r median-command}
+```{r}
+#| label: median-metascore
 median(movies$metascore)
 ```
 
-In this particular case, the mean (`r round(mean(movies$metascore),1)`) and median (`r round(median(movies$metascore),1)`) of the Metacritic score produce very similar measures of center, but this isn't always the case as I will demonstrate below. 
-
-As for the mean, it makes no sense to calculate the median of a categorical variable.
+In this particular case, the median (53) is quite close to the mean (52.7). However, this similarity is not always the case and I will discuss below what can cause these two measures of center to diverge.
 
 ### The mode
 
-The mode is the least used of the three measures of center. In fact, it is so infrequently used that R does not even have a built-in function to calculate it. The mode is the **high point** or **peak** of the distribution. When you look at a distribution graphically, the mode is what your eye is drawn to as a measure of center. Calculating the mode however is much trickier. Simply speaking, the mode is the most common value in the data. However, when data are recorded down to very precise decimal levels, this can be a misleading number. Furthermore, there may be multiple "peaks" in the data and so speaking of a single mode can be misleading. In the sample of 2018 romance movies, no value was repeated and so there is no legitimate value for the mode. 
+The mode is the least used of the three measures of center. In fact, it is so infrequently used that *R* does not even have a built-in function to calculate it. The mode is the **high point** or **peak** of the distribution. When you look at a distribution graphically, the mode is what your eye is drawn to as a measure of center. Calculating the mode however is much trickier. Simply speaking, the mode is the most common value in the data. However, when data are recorded down to very precise decimal levels, this can be a misleading number. Furthermore, there may be multiple "peaks" in the data and so speaking of a single mode can be misleading. In the sample of 2017 romance movies, no value was repeated and so there is no legitimate value for the mode. 
 
-In the case of the Metacritic score distribution for the entire movies dataset, the single most common value was a score of 49 which was received by 109 movies. The score of 55 was a close second at 105 movies. @fig-hist-metacritic shows a histogram with binwidths of one. Although the score of 49 is the single highest value, you can see that it is surrounded by a group of high values. Its probably more accurate to describe the peak as "around 50" than a precise number.
+In the case of the Metacritic score distribution for the entire movies dataset, the single most common value was a score of 49 which was received by 109 movies. The score of 55 was a close second at 105 movies. @fig-hist-metacritic shows a histogram with bin widths of one. Although the score of 49 is the single highest value, you can see that it is surrounded by a group of high values. Its probably more accurate to describe the mode as "around 50" than to provide a precise number.
 
-```{r hist-tomato-meter, fig.cap='', fig.align='center'}
+```{r}
 #| label: fig-hist-metacritic
 #| fig-cap: Histogram of Metacrtic scores from movie dataset using binwidths of size 1. The dotted red line shows the highest frequency of movies which occurred for Metacritic score 49.
 ggplot(movies, aes(x=metascore))+
@@ -471,7 +554,10 @@ ggplot(movies, aes(x=metascore))+
   theme_bw()
 ```
 
-Interestingly, while it does not make sense to think about a mean or a median for quantitative variables, we can use the idea of the mode for categorical variables. The most common category is often referred to as the **modal category**. If you want to quickly identify the modal category for a categorical variable, you can wrap a `table` command inside a `sort` command with the `decreasing=TRUE` argument to see the top category at the left.
+::: {.callout-note}
+## The modal category
+
+Interestingly, while it does not make sense to think about a mean or a median for categorical variables, we can use the idea of the mode for categorical variables. The most common category is often referred to as the **modal category**. If you want to quickly identify the modal category for a categorical variable, you can wrap a `table` command inside a `sort` command with the `decreasing=TRUE` argument to see the top category at the left.
 
 ```{r}
 #| label: modal-category
@@ -479,12 +565,14 @@ sort(table(movies$maturity_rating), decreasing = TRUE)
 ```
 
 R-Rated movies are the modal category for maturity rating in the movies dataset.
+:::
+
 
 ### Comparing the mean and median
 
-How can the mean and median give different results? Remember that the mean defines the **balancing point** and the median defines the **midpoint**. If you have a perfectly symmetric distribution, then these two points are the same because you would balance the distribution at the midpoint. However, when the distribution is skewed in one direction or another, the mean and the median will be different. In order to maintain balance, the mean will be pulled in the direction of the skew. When you have heavily skewed distributions, this can lead to dramatically different values for the mean and median. 
+How can the mean and median give different results? Remember that the mean defines the **balancing point** and the median defines the **midpoint**. If you have a perfectly symmetric distribution, then these two points are the same because you would balance the distribution at the midpoint. However, when the distribution is skewed in one direction or another, the mean and the median will be different. In order to maintain balance, the *mean will be pulled in the direction of the skew*. When you have heavily skewed distributions, this can lead to substantially different values for the mean and median. 
 
-Lets look at this phenomenon for a couple of variables in the movie dataset. As the histogram above showed, the Metacritic score variable is fairly symmetric and as a result we end up with a mean (`r round(mean(movies$metascore),1)`) and median (`r round(median(movies$metascore),1)`) that are pretty close. @fig-hist-runtime shows the distribution of movie runtime which is somewhat more right-skewed.
+Lets look at this phenomenon for a couple of variables in the movie dataset. As the histogram in @fig-hist-skewness-1 shows, the Metacritic score variable is fairly symmetric and as a result we end up with a mean (`r round(mean(movies$metascore),1)`) and median (`r round(median(movies$metascore),1)`) that are very close. The distribution of movie runtime is somewhat more right-skewed as @fig-hist-runtime shows.
 
 ```{r}
 #| label: fig-hist-runtime
@@ -495,12 +583,12 @@ ggplot(movies, aes(x=runtime))+
   geom_vline(data = data.frame(value=c(mean(movies$runtime), 
                                        median(movies$runtime)),
                                center=c("mean","median")), 
-             aes(xintercept=value, color=center), size=2)+
+             aes(xintercept=value, color=center), linewidth=2)+
   labs(x="runtime in minutes", color="measure of center")+
   theme_bw()
 ```
 
-The skew here is not too large, but it pulls the mean almost three minutes higher than the median. 
+The skew here is not too great, but it pulls the mean almost three minutes higher than the median. 
 
 @fig-hist-boxoffice shows the distribution of box office returns to movies which is heavily right skewed. Most movies make moderate amounts of money, and then there are a few star performers that make bucket loads of cash.
 
@@ -514,7 +602,7 @@ ggplot(movies, aes(x=box_office))+
   geom_vline(data = data.frame(value=c(mean(movies$box_office),
                                        median(movies$box_office)),
                                center=c("mean","median")), 
-             aes(xintercept=value, color=center), size=1)+
+             aes(xintercept=value, color=center), linewidth=1)+
   labs(x="box office returns (in millions of dollars)", 
        color="measure of center")+
   theme_bw()
@@ -523,8 +611,6 @@ ggplot(movies, aes(x=box_office))+
 As a result of this skew, the mean box office returns are about \$45.8 million, while the median box office returns are about \$18.9 million. The mean here is more than double the median!
 
 Note that neither estimate is in some fundamental way incorrect. They are both correctly estimating what they were intended to estimate. It is up to us to understand and interpret these numbers correctly and to understand their limitations.
-
-In many cases, we are actually more interested in the median as a measure of "average" experience than the mean, even though we think of the mean as the "average." This is, for example, why you see home prices in an area always reported in terms of medians rather than means. Mean home prices tend to be much higher than median home prices because of the relatively few very expensive homes in a given area. 
 
 <div class = "dcl">
 
@@ -540,6 +626,17 @@ How do the results for the mean and median compare? What does this suggest about
 
 </div>
 
+::: {.callout-warning}
+## Only calculate statistics for quantitative variables
+
+It only makes sense to calculate the mean and median of quantitative variables. You cannot add up the values for categorical variables because categorical values don't have numeric values. Rather, they have categories. Notice that you will get an "NA" value and a warning if you try to calculate summary statistics for categorical variables: 
+
+```{r}
+#| label: mean-categorical
+#| warning: true
+mean(movies$maturity_rating)
+```
+:::
 
 ---
 
@@ -549,7 +646,7 @@ In this section, we will learn about the concept of **percentiles**. Percentiles
 
 ### Percentiles
 
-We have already seen one example of a percentile. The median is the 50th percentile of the distribution. It is the point at which 50% of the observations are lower and 50% are higher. We can actually use this same logic to calculate other percentiles. We could calculate the 25th percentile of the distribution by finding the point where 25% of the observations are below and 75% are above. We could even calculate something like the 43rd percentile if we were so inclined. 
+We have already seen one example of a percentile. The median is the 50th percentile of the distribution. It is the point at which 50% of the observations are lower and 50% are higher. We can use this exact same logic to calculate other percentiles. We could calculate the 25th percentile of the distribution by finding the point where 25% of the observations are below and 75% are above. We could even calculate the 42nd percentile if we were so inclined. 
 
 We calculate percentiles in a fashion similar to the median. First, sort the data from lowest to highest. Then, find the exact observation where X% of the observations fall below to find the Xth percentile. In some cases, there might not be an exact observation that fits this description and so you may have to take the mean across the two closest numbers. 
 
@@ -561,6 +658,12 @@ quantile(sex$age, p=c(.27,.57))
 ```
 
 27% of the sample were younger than 36 years of age and 57% of the sample were younger than 54 years of age. 
+
+::: {.callout-note}
+## What is the `c()` command?
+
+You will notice that for the second argument of `quantile` I fed in `c(.27,.57)`. What does the `c` stand for here? It stands for the word *concatenate* in this case. This command allows us to feed in a bunch of numbers (or words and other things) and combine them together into a *vector*. You can think of this vector as just a list of numbers. In this case, I used it to feed in two different percentile values I wanted. If I wanted the 25th, 50th, and 75th percentiles instead, I would have used `c(.25, .5, .75)`. We won't have to use `c()` very much in the course, but it is a handy *R* command to know.
+:::
 
 ### The five number summary
 
@@ -588,7 +691,6 @@ We can also use this five number summary to create another graphical representat
 ```{r}
 #| label: fig-boxplot-age-sex
 #| fig-cap: Boxplot of respondent's age in sexual frequency data
-#| echo: false
 
 ggplot(sex, aes(x="", y=age))+
   geom_boxplot(fill="skyblue")+
@@ -600,19 +702,7 @@ The "box" in the boxplot is drawn from the 25th to the 75th percentile. The heig
 
 The boxplot provides many pieces of information. It shows the center of the distribution as measured by the median. It also gives a sense of the spread of the distribution and extreme values by the height of the box and whiskers. It can also show skewness in the distribution depending on where the median is drawn within the box and the size of the whiskers. If the median is in the center of the box, then that indicates a symmetric distribution. If the median is towards the bottom of the box, then the distribution is right-skewed. If the median is towards the top of the box, then the distribution is left-skewed.  
 
-I have not yet shown you how to make a boxplot using ggplot. The code for @fig-boxplot-age-sex is shown below. 
-
-```{r}
-#| label: boxplot-code
-#| eval: false
-
-ggplot(sex, aes(x="", y=age))+
-  geom_boxplot(fill="skyblue")+
-  labs(x=NULL)+
-  theme_bw()
-```
-
-Most of this code is straightforward. We use the `y` aesthetic to indicate the variable we want the boxplot for and we use the `geom_boxplot` command to graph the boxplot (in this case the `fill` argument can be used to specify a color choice for the box of the boxplot). The only unusual thing here is the use of `x=""` in the top-level aesthetics and the use of `x=NULL` in the `labs` command. These additions are not strictly necessary but they do cause the horizontal x-scale on the graph to be suppressed. Otherwise we would see some non-intuitive numbers here.
+The code for a boxplot is relatively straightforward. We use the `y` aesthetic to indicate the variable we want the boxplot for and we use the `geom_boxplot` command to graph the boxplot (in this case the `fill` argument can be used to specify a color choice for the box of the boxplot). The only unusual thing here is the use of `x=""` in the top-level aesthetics and the use of `x=NULL` in the `labs` command. These additions are not strictly necessary but they do cause the horizontal x-scale on the graph to be suppressed. Otherwise we would see some non-intuitive numbers here.
 
 The exercise below allows you to adjust a slider to see different percentiles on both a histogram and a boxplot. 
 
@@ -620,7 +710,7 @@ The exercise below allows you to adjust a slider to see different percentiles on
 knitr::include_app("https://aarongullickson.shinyapps.io/percentiles/", height="800px")
 ```
 
-In general, boxplots for a single variable do not contain as much information as a histogram and so are generally inferior for understanding the full shape of the distribution. The real advantage of boxplots will come in the next module when we learn to use comparative boxplots to make comparisons of the distribution of a quantitative variable across different categories of a categorical variable. 
+In general, boxplots for a single variable do not contain as much information as a histogram and so are generally inferior for understanding the full shape of the distribution. They can be useful for detecting outliers, but tphe real advantage of boxplots will come in the next module when we learn to use comparative boxplots to make comparisons of the distribution of a quantitative variable across different categories of a categorical variable. 
 
 ---
 
@@ -647,7 +737,7 @@ ggplot(temp, aes(x=x, fill=type))+
 
 ### Range and interquartile range
 
-One of the simplest measures of spread is to calculate the **range**. The range is the distance between the highest and lowest value. Lets take a look at the range in the fare paid (in British pounds) for tickets on the Titanic. The `summary` command, will give us the information we need:
+One of the simplest measures of spread is the **range**. The range is the distance between the highest and lowest value. Lets take a look at the range in the fare paid (in British pounds) for tickets on the Titanic. The `summary` command, will give us the information we need:
 
 ```{r}
 #| label: calculate-range
@@ -656,7 +746,7 @@ summary(titanic$fare)
 
 Note that at least one person made it on the Titanic for free. The highest fare paid was 512.3 pounds. So the range is easy to calculate 512.3 - 0 = 512.3. The difference between the highest and lowest paying passenger was about 512 pounds. 
 
-This example also reveals the shortcoming of the range as a measure of spread. If there are any outliers in the data, they are going to show up in the range and so the range may give you a misleading idea of how spread out the values are. Note that the 75th percentile here is only 31.28 pounds, which would suggest that the 512.3 maximum is a pretty high outlier. We can check this by graphing a boxplot, as I have done in @fig-boxplot-fare. 
+This example also reveals the shortcoming of the range as a measure of spread. If there are any outliers in the data, they will by definition show up in the range and so the range may give you a misleading idea of how spread out the values are. Note that the 75th percentile here is only 31.28 pounds, which would suggest that the 512.3 maximum is a pretty big outlier. We can check this by graphing a boxplot, as I have done in @fig-boxplot-fare. 
 
 ```{r}
 #| label: fig-boxplot-fare
@@ -668,7 +758,7 @@ ggplot(titanic, aes(x="", y=fare))+
   theme_bw()
 ```
 
-The maximum value is such an outlier that the rest of the boxplot has to be "scrunched" in order to fit it all into the graph. Clearly this is not a good indicator of spread. However, we have already seen a better measure of spread using a similar idea: the **interquartile range** or **IQR**. The IQR is just the range between the 25th and 75th percentile. We already have these numbers from the output above, so the IQR = 31.28-7.90=23.38. So, the difference in fare between the 25th and 75th percentile (the middle 50% of the data) was 23.4 pounds. That result suggests a much smaller spread of fares. 
+The maximum value is such an outlier that the rest of the boxplot has to be "scrunched" in order to fit it all into the graph. Clearly this is not a good indicator of spread. However, we have already seen a better measure of spread using a similar idea: the **interquartile range** or **IQR**. The IQR is simply the range between the 25th and 75th percentile. We already have these numbers from the output above, so the IQR = 31.28-7.90=23.38. The difference in fare between the 25th and 75th percentile (the middle 50% of the data) was 23.4 pounds. That result suggests a much smaller spread of fares. 
 
 You can also use the `IQR` command in *R* to directly calculate the IQR. 
 
@@ -679,9 +769,9 @@ IQR(titanic$fare)
 
 ### Variance and standard deviation
 
-The most common measure of spread is the **variance** and its derivative measurement, the **standard deviation**. It is so common in fact, that most people simply refer to the concept of "spread" as "variance." The variance can be defined as the "average squared distance to the mean." Of course, "squared distance" is a bit hard to think about, so we more commonly take the square root of the variance to get the standard deviation which gives us the "average distance to the mean." Imagine if you were to randomly pick one observation from your dataset and guess how far it would be from the mean. Your best guess would be the standard deviation. 
+The most common measure of spread is the **variance** and its derivative measurement, the **standard deviation**. It is so common in fact, that most people simply refer to the concept of "spread" as "variance." The variance can be defined as the *average squared distance to the mean*. Of course, "squared distance" is a bit hard to think about, so we more commonly take the square root of the variance to get the standard deviation which gives us the *average distance to the mean*. Imagine if you were to randomly pick one observation from your dataset and guess how far it was from the mean. Your best guess would be the standard deviation. 
 
-The calculation for the variance and standard deviation is a bit intimidating but we will break it down into steps to show it is not that hard. At the same time, I will show you to calculate the parts in R using the fare variable from the Titanic data. 
+The calculation for the variance and standard deviation is a bit intimidating but I will break it down into steps to show it is not that hard. At the same time, I will show you to calculate the parts in *R* using the `fare` variable from the Titanic data. 
 
 The overall formula for the variance (which is represented as $s^2$) is:
 
@@ -698,18 +788,18 @@ You take each value of your variable $x$ and subtract the mean from it. This can
 diffx <- titanic$fare-mean(titanic$fare)
 ```
 
-This measure gives us a description of how far each observation is from the mean which is already kind of a measure of spread, but we can't do much with it yet because some differences are positive (higher than the mean) and some are negative (lower than the mean). In fact, if we take the mean of these differences, it will be zero by definition because this is what it means for the mean to be the balancing point of the distribution.
+This measure gives us a description of how far each observation is from the mean which is already kind of a measure of spread, but we can't do much with it yet because some differences are positive (higher than the mean) and some are negative (lower than the mean). In fact, if we take the mean of these differences, it will be zero by definition because the mean is the balancing point of the distribution.
 
 ```{r}
 #| label: sd-eq-mean-diffx
 round(mean(diffx),5)
 ```
 
-The next step is:
+The next step is to square those differences:
 
 $$(x_i-\bar{x})^2$$
   
-We just need to square the differences. This will get rid of our negative/positive problem, because the squared values will all be positive.
+By squaring the differences, we get rid of the negative/positive problem, because the squared values will all be positive.
 
 ```{r}
 #| label: sd-eq-diffx-sq
@@ -727,11 +817,11 @@ We need to sum up all of our values. This value is sometimes  called the **sum o
 ssx <- sum(diffx.squared)
 ```
 
-The more distance there is from the mean on average, the larger this value will be. However, it also gets larger when we have more values because we are just taking a sum. To get a number that is comparable across different number of observations, we need to do the final step:
+The more spread out the values are around the mean, the larger this value will be. However, it also gets larger when we have more observations because we are just taking a sum. To get a number that is comparable across different number of observations, we need to do the final step:
 
 $$s^2=\frac{\sum_{i=1}^n (x_i-\bar{x})^2}{n-1}$$
 
-We are going to divide our SSX value by the number of observations minus one. The "minus one" thing is a bit tricky and I don't want to get into the details of why we do it here. When n is large, this will have little effect and basically you are taking an average of the squared distance from the mean.
+We are going to divide our SSX value by the number of observations minus one. The "minus one" thing is a bit tricky and I won't into the details of why we do it here. When $n$ is large, this will have little effect and basically you are taking an average of the squared distance from the mean.
 
 ```{r}
 #| label: sd-eq-var
@@ -739,7 +829,7 @@ variance <- ssx/(length(diffx)-1)
 variance
 ```
 
-So the average squared distance from the mean fare is 2677.39 pounds squared. Of course, this isn't a very interpretable number, so its probably better to square root it and get the standard deviation:
+So the average squared distance from the mean fare is 2677.409 pounds squared. Of course, this isn't a very interpretable number, so its probably better to square root it and get the standard deviation:
 
 ```{r}
 #| label: sd-eq-sqrt-var

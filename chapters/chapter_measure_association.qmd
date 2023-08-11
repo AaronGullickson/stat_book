@@ -1,0 +1,610 @@
+# Measuring Association
+
+Measuring association between variables, in some form or another, is really what social scientists use statistics for the most. Establishing whether two variables are related to one another can help to affirm or cast doubt on theories about the social world. Does substance use improve an adolescent's popularity in school? Does increasing wealth in a country lead to more or less environmental degradation? Does income inequality inhibit voter participation? These are just a few of the questions one could ask that require a measurement of the association between two or more variables.
+
+In this module, we will learn about how to visualize and measure association between two variables. How we do this depends on the kinds of variables that we have. There are three possibilities:
+
+* two categorical variables
+* one categorical and one quantitative variable
+* two quantitative variables
+
+Each of these cases requires that we learn and master different techniques. In the three sections that follow, we will learn how to measure association for all three cases. 
+
+Slides for this module can be found [here](stat_slides/module3_slides_measuring_association.html).
+
+```{r}
+#| label: load-libs-data
+#| include: false
+library(here)
+source(here("scripts","check_packages.R"))
+source(here("scripts","load_example_data.R"))
+```
+
+------
+
+## The Two-Way Table
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/ltyT8BJbGLM")
+```
+
+The **two-way table** (also known as a **cross-tabulation** or **crosstab**) gives the joint distribution of two categorical variables. Lets use our politics dataset to construct a two-way table of belief in anthropogenic climate change by political party:
+
+```{r two-way}
+tab <- table(politics$party, politics$globalwarm)
+tab
+```
+
+The two-way table gives us the **joint distribution** of the two variables, which is the number of respondents who fell into both categories. For example, we can see that 234 democrats did not believe in anthropogenic climate change while 1230 did. 
+
+From this table, we can also calculate the **marginal distribution** of each of the variables, which are just the distributions of each of the variables separately. We can do that by adding up across the rows and down the columns:
+
+```{r two-way-table, echo=FALSE}
+row.margin <- paste(tab[,1],"+",tab[,2],"=",tab[,1]+tab[,2],sep="")
+col.margin <- c(paste(tab[1,],"+",tab[2,],"+",tab[3,],"+",tab[4,],"=",tab[1,]+tab[2,]+tab[3,]+tab[4,],sep=""), sum(tab))
+tab.full <- cbind(tab, row.margin)
+tab.full <- rbind(tab.full, col.margin)
+colnames(tab.full) <- c("Deniers", "Believers", "Total")
+rownames(tab.full) <- c(rownames(tab)[1:4], "Total")
+kable(tab.full, align=c("r","r","r"),
+      caption="Two-way table of party affiliation by climate change belief, ANES data 2016") %>%
+  kable_styling(bootstrap_options = c("striped","hover")) %>%
+  column_spec(1, bold=TRUE) %>%
+  row_spec(5, bold=TRUE, color="white", background="#666") %>%
+  column_spec(4, bold=TRUE, color="white", background="#666")
+```
+
+The marginal distribution of party affiliation is given by the Total column on the right and the marginal distribution of climate change belief is given by the Total row at the bottom. Looking at the column marginal, we can see that there were a total of 1465 Democrats, 1241 Republicans, and so on. Looking at the row marginal, we can see that there were 1180 anthropogenic climate change deniers and 3058 anthropogenic climate change believers. The final number (4238) in the far right corner is the total number of respondents altogether. You can get this number by summing up the column marginals (1180+3058) or row marginals (1465+1241+1381+151). 
+
+The `margin.table` command in *R* will also calculate marginals for us. I can use the `margin.table` command on the table I created and saved above as *tab*  to calculate the same marginals as above. Note that you need to indicate which marginal you want by a number, where 1=row and 2=column, as the second option to `margin.table`:
+
+```{r margin-table-command}
+margin.table(tab,1)
+margin.table(tab,2)
+```
+
+The two-way table provides us with evidence about the association between two categorical variables. To understand what the association looks like, we will learn how to calculate **conditional distributions**. 
+
+### Conditional distributions
+
+To this point, we have learned about the **joint** and **marginal** distributions in a two-way table. In order to look at the relationship between two categorical variables, we need to understand a third kind of distribution: the **conditional distribution**. The conditional distribution is the distribution of one variable conditional on being in a certain category of the other variable. In a two-way table, there are always two ways to calculate a conditional distribution. In our case, we could look at the distribution of climate change belief conditional on party affiliation, or we could look at the distribution of party affiliation conditional on climate change belief. Both of these distributions really give us the same information about the association, but sometimes one way is more intuitive to understand. In this case, I am going to start with the former case and calculate the distribution of climate change belief conditional on party affiliation.
+
+This conditional distribution is basically given by the rows of our two-way table, which give the number of individuals of a given party who fall into each belief category. For example, the distribution of denial/belief among Democrats is 429 and 1932, while among Republicans, this distribution is 708 and 681. However, these two rows are not directly comparable as they are because Republicans are a much smaller group than Democrats. Thus, even if the shares were very different between the two groups, the absolute numbers for Republicans would probably be smaller for both categories. In order to make these rows comparable, we need the proportion of each party that falls into each belief category. In order to do that, we need to divide our rows through by the marginal distribution of party affiliation, like so: 
+
+```{r cond-dist-calc, echo=FALSE}
+row.margin <- margin.table(tab,1)
+row.margin <- t(matrix(rep(row.margin, each=2),2,4))
+tab.cond <- matrix(paste(tab, row.margin, sep="/"), dim(tab))
+tab.cond <- cbind(tab.cond, row.margin[,1])
+rownames(tab.cond) <- rownames(tab)
+colnames(tab.cond) <- c("Deniers","Believers","Total")
+kable(tab.cond, align=c("r","r","r"),
+      caption="Calculation of distribution of belief conditional on party affiliation") %>%
+  kable_styling(bootstrap_options = c("striped","hover"),
+                full_width = FALSE) %>%
+  column_spec(1, bold=TRUE)
+```
+
+Note that each row gets divided by its row marginal. If we do the math here, we will come out with the following proportions:
+
+```{r cond-dist-table, echo=FALSE}
+tab.prop <- round(prop.table(tab,1),3)
+tab.prop <- cbind(tab.prop,1)
+colnames(tab.prop) <- c("Deniers","Believers","Total")
+kable(tab.prop, align=c("r","r","r"),
+      caption="Distribution of belief conditional on party affiliation") %>%
+  kable_styling(bootstrap_options = c("striped","hover"),
+                full_width = FALSE) %>%
+  column_spec(1, bold=TRUE)
+```
+
+Note that the proportions should add up to 1 within each row because we are basically calculating the share of each row that belongs to each column category. **To understand these conditional distributions, you need to look at the numbers within each row.** For example, the first row tells us that 15.7% of Democrats are deniers and 84.3% of Democrats are believers. The second row tells us that 46.5% of Republicans are deniers and 53.5% of Republicans are believers.
+
+We can tell if there is an association between the row and column variable if these conditional distributions are different across rows. In this case, they are clearly very different. About 84.3% of Democrats are believers while only about half (53.5%) of Republicans are believers. About 76.4% of Independents are believers, while about 68.9% of members of other parties are believers. 
+
+We can use the `prop.table` command we saw in the last module to estimate these conditional distributions. In order to do that we feed in the crosstab we calculated with tab and one additional argument that indicates which dimension (row or column ) we want to condition across. Like `margin.table` a value of `1` will condition on rows (rows sum to 1) and a value of `2` will condition on columns (columns sum to 1). If we condition on rows here, we will get the same table as above.  
+
+```{r prop-table-command-rows}
+prop.table(tab,1)
+```
+
+Its important to remember which way you did the conditional distribution and get the interpretation correct. If you are not sure, just note which way the proportions add up to one - this is the direction you should be looking (i.e. within row or column). In this case, I am looking at the distribution of variables within rows, so the proportions refer to the proportion of respondents from a given political party who hold a given belief. But, I could have done my conditional distribution the other way:
+
+```{r prop-table-command-cols}
+prop.table(tab,2)
+```
+
+Note that this table looks deceptively similar to the table above. But look again. The numbers now don't add up to one within each row. They do however add up to one within each column. In order to read this table properly, we have to understand that it is giving us the distribution within each column: the proportion of respondents who have a given belief who belong to a given political party. So we can see in the first number that 19.5% of deniers are Democrats, 48.2% are Republicans, 27.9% are Independents, and 4.1% belong to other parties. This distribution is very different from the party affiliation distribution of believers in the second column which tells us that there is an association. However, the large party cleavages on the issue are not as immediately obvious here as they were with the previous conditional distribution. Always think carefully about which conditional distribution is more sensible to interpret and always make sure that you are interpreting them in the correct way. 
+
+<div class = "dcl">
+
+#### Try it out
+
+In the interactive *R* session below, try to calculate the distribution of movie maturity ratings (e.g. PG, PG-13) by movie genre. Keep the following in mind:
+
+1. For easier display, its usually better to put the variable with more categories on the rows. In this case, <tt>Genre</tt> has more categories than <tt>Rating</tt>.
+2. For a more compact display, you should wrap your <tt>prop.table</tt> command in a <tt>round</tt> command with three decimal places. See the solution if you have trouble. 
+3. Remember to check that your conditional distributions add up to one in the direction that you expect.
+
+Once you have the correct output, you can explore some interesting questions. Which movie genre is the most likely to be R-rated? Which movie genre is the most likely to be G-rated? Which genre is the least likely to receive a PG-13 rating?
+
+<iframe src="dcl_interactives/cond_dist.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+
+</div>
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/UYsvfTXXs8w")
+```
+
+It is also possible to graph the conditional distribution as a set of barplots. To do that, we will learn a new feature of ggplot called **faceting**. Faceting allows us to make the same plot based on subsets of the data in a series of panels. In this case, we can use the code for a univariate barplot but faceted by  First, lets save the output of our prop.table into a new object.
+
+```{r barplot-climatebelief-party, fig.cap="Distribution of belief in anthropogenic climate change by party affiliation, ANES 2016"}
+ggplot(politics, aes(x=globalwarm, y=..prop.., group=1))+ 
+  geom_bar()+
+  facet_wrap(~party)+
+  scale_y_continuous(labels = scales::percent)+ 
+  labs(x="belief in anthropogenic climate change", y=NULL)+
+  theme_bw()
+```
+
+Figure \@ref(fig:barplot-climatebelief-party) is a **comparative barplot**. This is our first example of a graph that looks at a relationship. Each panel shows the distribution of climate change beliefs for respondents with that particular party affiliation. What we are interested in is whether the distribution looks different across each panel. In this case, because there were only two categories of the response variable, we only really need to look at the heights of the bar for one category to see the variation across party affiliation, which is substantial. 
+
+Lets try an example with more than two categories. For this example, I want to know whether there was a difference in passenger class by gender on the Titanic. I start with a comparative barplot:
+
+```{r comp-bar-pclass-gender, fig.cap="Distribution of passenger class by gender"}
+ggplot(titanic, aes(x=pclass, y=..prop.., group=1))+ 
+  geom_bar()+
+  facet_wrap(~sex)+
+  scale_y_continuous(labels = scales::percent)+ 
+  labs(x="passenger class", y=NULL)+
+  theme_bw()
+```
+
+I can also calculate the conditional distributions by hand using `prop.table`:
+
+```{r props-pclass-gender}
+round(prop.table(table(titanic$sex, titanic$pclass),1),3)*100
+```
+As these numbers and Figure \@ref(fig:comp-bar-pclass-gender) both show, the distribution of men and women by passenger class is very different. Women were less likely to be in third class and more likely to be in first class than men, while about the same percent of men and women were in second class. 
+
+<div class = "dcl">
+
+#### Try it out
+
+In the interactive *R* session below, Create a barplot showing the conditional distribution of smoking behavior by race in the popularity dataset. Keep the following in mind:
+
+1. You must combine together different elements of ggplot, in this case <tt>ggplot</tt> itself and <tt>geom_histogram</tt> with a plus sign to display correctly.
+2. Use the <tt>facet_wrap</tt> command to make comparisons by race.
+3. Be sure to add nice labels for your x axis by adding a <tt>labs</tt> command. 
+
+How do the results for the mean and median compare? What does this suggest about the underlying shape of the distribution?
+
+<iframe src="dcl_interactives/conditional_barplot.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+
+</div>
+
+### Odds ratio (advanced)
+
+We can also use the **odds ratio** to measure the association between two categorical variables.  The odds ratio is not a term that is common in everyday speech but it is a critical concept in all kinds of scientific research. 
+
+Lets take the different distributions of climate change belief for Democrats and Republicans. About 84% of Democrats were believers, but only 54% of Republicans were believers. How can we talk about how different these two numbers are from one another? We could subtract one from the other or we could take the ratio by dividing one by the other. However, both of these approaches have a major problem. Because the percents (and proportions) have minimum and maximum values of 0 and 100, as you approach those boundaries the differences necessarily have to shrink because one group is hitting its upper or lower limit. This makes it difficult to compare percentage or proportional differences across different groups because the overall average proportion across groups will affect the differences in proportion.
+
+Odds ratios are a way to get around this problem. To understand odds ratios, you first have to understand what odds are. All probabilities (or proportions) can be converted to a corresponding odds. If you have a $p$ probability of success on a task, then your odds $O$ of success are given by:
+
+$$O=\frac{p}{1-p}$$
+
+The odds are basically the ratio of the probability of success to the probability of failure. This tells you how many successes you expect to get for every one failure. Lets say a baseball player gets a hit 25% of the time that the player comes up to bat (an average of 250). The odds are then given by:
+
+$$O=\frac{0.25}{1-0.25}=\frac{0.25}{0.75}=0.33333$$
+
+The hitter will get on average 0.33 hits for every one out. Alternatively, you could say that the hitter will get one hit for every three outs. 
+
+Re-calculating probabilities in this way is useful because unlike the probability, the odds has no upper limit. As the probability of success approaches one, the odds will just get larger and larger.
+
+We can use this same logic to construct the odds that a Democratic and Republican respondent, respectively, will be climate change believers. For the Democrat, the probability is 0.843, so the odds are:
+
+$$O=\frac{0.843}{1-0.843}=\frac{0.843}{0.157}=5.369$$
+
+Among Democrats, there are 5.369 believers for every one denier. Among Republicans, the probability is 0.541, so the odds are:
+
+$$O=\frac{0.535}{1-0.535}=\frac{0.535}{0.465}=1.151$$
+
+Among Republicans, there are 1.151 believers for every one denier. This number is close to "even" odds of 1, which happen when the probability is 50%. 
+
+The final step here is to compare those two odds. We do this by taking their **ratio**, which means we divide one number by the other:
+
+$$\frac{5.369}{1.151}=4.67$$
+
+This is our odds ratio. How do we interpret it? This odds ratio tells us how much more or less likely climate change belief is among Democrats relative to Republicans. In this case, I would say that "the odds of belief in anthropogenic climate change are 4.665 times higher among Democrats than Republicans." Note the "times" here. This 4.665 is a multiplicative factor because we are taking a ratio of the two numbers. 
+
+You can calculate odds ratios from conditional distributions just as I have done above, but there is also a short cut technique called the **cross-product**. Lets look at the two-way table of party affiliation but this time just for Democrats and Republicans. For reasons I will explain below, I am going to reverse the ordering of the columns so that believers come first. 
+
+```{r echo=FALSE}
+tab <- cbind(c(1235,664),c(230,577))
+colnames(tab) <- c("Believer","Denier")
+rownames(tab) <- c("Democrat","Republican")
+tab[,1] <- cell_spec(tab[,1], bold=TRUE, color=c("blue","red"))
+tab[,2] <- cell_spec(tab[,2], bold=TRUE, color=c("red","blue"))
+kable(tab, align=c("r","r"), format="html", escape=FALSE) %>%
+  kable_styling(bootstrap_options = c("hover"), 
+                full_width = FALSE) %>%
+  column_spec(1, bold=TRUE)
+```
+
+The two numbers in blue are called the **diagonal** and the two numbers in red are the **reverse diagonal**. The cross-product is calculated by multiplying the two numbers in the diagonal by each other and multiplying the two numbers in the reverse diagonal together and then dividing the former product by the latter:
+
+$$\frac{1235*577}{664*230}=4.67$$
+
+I get the exact same odds ratio as above without having to calculate the proportions and odds themselves. This is a useful shortcut for calculating odds ratios. 
+
+The odds ratio that you calculate is always the odds of the first row being in the first column relative to those odds for the second row. Its easy to show how this would be different if I had kept the original ordering of believers and deniers:
+
+```{r echo=FALSE}
+tab <- cbind(c(230,577),c(1235,664))
+colnames(tab) <- c("Denier","Believer")
+rownames(tab) <- c("Democrat","Republican")
+tab[,1] <- cell_spec(tab[,1], bold=TRUE, color=c("blue","red"))
+tab[,2] <- cell_spec(tab[,2], bold=TRUE, color=c("red","blue"))
+kable(tab, align=c("r","r"), format="html", escape=FALSE) %>%
+  kable_styling(bootstrap_options = c("hover"), 
+                full_width = FALSE) %>%
+  column_spec(1, bold=TRUE)
+```
+
+$$\frac{230*664}{577*1235}=0.21$$
+
+I get a very different odds ratio, but that is because I am calculating something different. I am now calculating the odds ratio of being a denier rather than a believer. So I would say that the "the odds of denial of anthropogenic climate change among Democrats are only 22% of the odds for Republicans." In other words, the odds of being a denier are much lower among Democrats. 
+
+However, the information here is the same because the 0.21 here is exactly equal to 1/4.67. In other words, the odds ratio of denial is just the inverted mirror image of the odds ratio of belief. Its just important that you remember that when you calculate the cross-product, you are always calculating the odds ratio of being in the category of the first column, whatever category that may be. 
+
+------
+
+## Mean Differences
+
+Measuring association between a quantitative and categorical variable is fairly straightforward. We want to look for differences in the distribution of the quantitative variable at different categories of the categorical variables. For example, if we were interested in the gender wage gap, we would want to compare the distribution of wages for women to the distribution of wages for men. There are two ways we can do this. First, we can graphically examine the distributions using the techniques we have already developed, particularly the boxplot. Second, we can compare summary measures like the mean across categories.
+
+### Graphically examining differences in distributions
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/R_lUPYbWO34")
+```
+
+We could compare entire histograms of the quantitative variable across different categories of the categorical variable, but this is often too much information. A cleaner method is to use **comparative boxplots**. Comparative boxplots construct boxplots of the quantitative variable across all categories of the categorical variable and plot them next to each other for easier comparison. We can easily construct a comparative boxplot in ggplot by adding an `x` aesthetic to our existing boxplot code. Lets try an example looking at differences in the distribution of movie runtime across different movie genres.
+
+```{r compar-box-runtime-genre, fig.cap="Boxplots of movie runtime by genre"}
+ggplot(movies, aes(x=Genre, y=Runtime))+
+  geom_boxplot(fill="seagreen", outlier.color = "red")+
+  labs(x=NULL, y="movie runtime in minutes")+
+  theme_bw()
+```
+
+This plot is a good start, but I am running into a problem where the genre labels are running into each other on the x-axis because they are too long. We can solve this problem very easily by using the `coord_flip` command to flip the axis:
+
+```{r compar-box-runtime-genre-flip, fig.cap="Boxplots of movie runtime by genre, with coordinates flipped"}
+ggplot(movies, aes(x=Genre, y=Runtime))+
+  geom_boxplot(fill="seagreen", outlier.color = "red")+
+  labs(x=NULL, y="movie runtime in minutes")+
+  coord_flip()+
+  theme_bw()
+```
+Now my genre labels are much easier to read. However, there is one more addition I can make to this graph in order to improve its readability. I want to order my genre categories so that they are ordered from largest to smallest median runtime on the graph. I can do this by applying the `reorder` command directly within `ggplot`. The reorder command takes three arguments. The first argument is the categorical variable to be reordered (genre in my case). The second variable is the variable that reordering should be based upon (runtime in my case). The third argument is the mathematical function that will be used for sorting (median in my case). The full command looks like:
+
+```{r compar-box-runtime-genre-reorder, fig.cap="Boxplots of movie runtime by genre, with coordinates flipped"}
+ggplot(movies, aes(x=reorder(Genre, Runtime, median), y=Runtime))+
+  geom_boxplot(fill="seagreen", outlier.color = "red")+
+  labs(x=NULL, y="movie runtime in minutes")+
+  coord_flip()+
+  theme_bw()
+```
+
+Figure \@ref(fig:compar-box-runtime-genre-reorder) now contains a lot of information. At a glance, I can see which genres had the longest median runtime and which had the shortest. But I can also see how much variation in runtime there is within movies by comparing the width of the boxes. For example, I can see that there is relatively little variation in runtime for animation movies, and the most variation in runtime among sci-fi/fantasy and action movies. I can also see some of the extreme outliers by genre. Most of these outliers are for extremely long movies, relative to the genre norm, but in a couple of cases, I can see movies that were remarkably short for their genre. 
+
+<div class = "dcl">
+
+#### Try it out
+
+In the interactive *R* session below, Create a comparative boxplot showing the relationship between movie maturity rating and tomato meter score from the movies dataset. Keep the following in mind:
+
+1. You must combine together different elements of ggplot, in this case <tt>ggplot</tt> itself and <tt>geom_boxplot</tt> with a plus sign to display correctly.
+2. Be sure to add nice labels for your x axis by adding a <tt>labs</tt> command.
+3. Because there are only four categories of maturity rating, you probably do not need to use a <tt>coord_flip</tt> command but you are welcome to try it out.
+4. Because maturity ratings are ordinal, its probably best to not reorder the categories from smallest to largest as above.
+
+Which maturity ratings get the best tomato meter scores? Which get the worst? Do the results surprise you? Do you have any ideas as to why you observe the pattern that you do?
+
+<iframe src="dcl_interactives/comp_boxplot.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+
+</div>
+
+### Comparing differences in the mean
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/VCLzsa0bbbc")
+```
+
+We can also establish a relationship by looking at differences in summary measures. Implicitly, we are already doing this in the comparative boxplot when we look at the median bars across categories. However, in practice it is more common to compare the mean of the quantitative variable across different categories of the categorical variable. In *R*, you can get the mean of one variable at different levels of a categorical variable using the `tapply` command like so:
+
+```{r}
+tapply(movies$Runtime, movies$Genre, mean)
+```
+
+The `tapply` command takes three arguments. The first argument is the quantitative variable for which we want means. The second argument is the categorical variable. The third argument is the method we want to run on the quantitative variable, in this case the mean. The output is the mean movie runtime by genre.
+
+If we want a quantitative measure of how genre and runtime are related we can calculate a **mean difference**. This number is simply the difference in means between any two categories. For example, action movies are 111.9 minutes long, on average, while horror movies are 97.4 minutes long, on average. The difference is $111.9-97.4=14.5$. Thus, we can say that, on average, action movies are 14.5 minutes longer than horror movies.
+
+We could have reversed that subtraction to get $97.4-111.9=-14.5$. In this case, we would say that horror movies are 14.5 minutes *shorter* than action movies. Either way, we get the same information. However, its important to keep track of which number applies to which category when you take the difference, so that you get the interpretation correct. 
+
+<div class = "dcl">
+
+#### Try it out
+
+In the interactive *R* session below, try to calculate the mean difference in hourly wages between men and women, based on the earnings data. Keep the following in mind:
+
+1. You need to use the <tt>tapply</tt> command to calculate the mean wages for each group.
+2. You can use the output of the <tt>tapply</tt> command to calculate the mean difference itself.  
+
+<iframe src="dcl_interactives/mean_differences.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+
+</div>
+
+
+We can also display these results graphically using a barplot, although this will take a little more processing for `ggplot` because `ggplot` expects data to be in a "data.frame" object and the output of `tapply` is a single vector of numbers. To make this work, we have to use the `as.data.frame.table` command to convert our object and then rename the variables. Also, to make this prettier, I am first going to sort the output from largest to smallest mean runtime:
+
+```{r mean-barplot-runtime-genre, fig.cap="Mean runtime by movie genre"}
+mruntime <- tapply(movies$Runtime, movies$Genre, mean)
+#sort highest to lowest
+mruntime <- sort(mruntime, decreasing=FALSE)
+#convert to data.frame
+mruntime <- as.data.frame.table(mruntime)
+#rename variables
+colnames(mruntime) <- c("genre","runtime")
+ggplot(mruntime, aes(x=genre, y=runtime))+
+  geom_col()+
+  coord_flip()+
+  labs(x=NULL, y="runtime in minutes")+
+  theme_bw()
+```
+
+This is is one of the few examples this term where we have to process a dataset into something else prior to feeding it into `ggplot`. The result is shown in Figure \@ref(fig:mean-barplot-runtime-genre). While this information is useful, it doesn't really tell us anything that we haven't already seen in the comparative boxplot from Figure \@ref(fig:compar-box-runtime-genre-reorder). The only real difference is that the boxplots showed us medians while this figure shows us means. However, the comparative boxplots also showed us additional information about spread and outliers and so are generally preferable. 
+
+Figure \@ref(fig:mean-barplot-runtime-genre) also breaks a common stylistic rule in data visualization. The big thick bars take up a lot of ink but carry relatively little information. This is called the "ink to information ratio" made famous by Edward Tufte. An alternative way to display this information would be to use "lollipops" rather than bars:
+
+```{r mean-lollipop-runtime-genre, fig.cap="Using a lollipop graph to display ean runtime by movie genre is a lot easier on the eye and the ink cartridge"}
+ggplot(mruntime, aes(x=genre, y=runtime))+
+  geom_lollipop()+
+  coord_flip()+
+  labs(x=NULL, y="runtime in minutes")+
+  theme_bw()
+```
+
+------
+
+## Scatterplot and Correlation Coefficient
+
+The techniques for looking at the association between two quantitative variables are more developed than the other two cases, so we will spend more time on this topic. Additionally, the major approach here of ordinary least squares regression turns out to be a very flexible, extendable method that we will build on later in the term.
+
+When examining the association between two quantitative variables, we usually distinguish the two variables by referring to one variable as the **dependent variable** and the other variable as the **independent variable**. The dependent variable is the variable whose outcome we are interested in predicting. The independent variable is the variable that we treat as the predictor of the dependent variable. For example, lets say we were interested in the relationship between income inequality and life expectancy. We are interested in predicting life expectancy by income inequality, so the dependent variable is life expectancy and the independent variable is income inequality. 
+
+The language of dependent vs. independent variable is causal, but its important to remember that we are only measuring the association. That association is the same regardless of which variable we set as the dependent and which we set as the independent. Thus, the selection of the dependent and independent variable is more about which way it more intuitively makes sense to interpret our results.
+
+### The scatterplot
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/OEs5Hom1_Io")
+```
+
+We can examine the relationship between two quantitative variables by constructing a **scatterplot**. A scatterplot is a two-dimensional graph. We put the independent variable on the x-axis and the dependent variable on the y-axis. For this reason, we often refer generically to the independent variable as x and the dependent variable generically as y. 
+
+To construct the scatterplot, we plot each observation as a point, based on the value of its independent and dependent variable. For example, lets say we are interested in the relationship between the median age of the state population and violent crime in our crime data. Our first observation, Alabama, has a median age of 37.8 and a violent crime rate of 378 crimes per 100,000. this is plotted in \@ref(fig:scatter-onepoint) below. 
+
+```{r scatter-onepoint, echo=FALSE, fig.cap="Starting a scatterplot by plotting the firest observation"}
+ggplot(crimes, aes(x=MedianAge, y=Violent))+
+  geom_point(data=subset(crimes, State=="Alabama"))+
+  annotate("text",x=1.025*crimes$MedianAge[1], y=1.05*crimes$Violent[1], label="Alabama\n(37.8,378)")+
+  scale_y_continuous(limits = c(min(crimes$Violent),max(crimes$Violent)))+
+  scale_x_continuous(limits = c(min(crimes$MedianAge),max(crimes$MedianAge)))+
+  labs(x="median age in state", y="violent crimes per 100,000 population")+
+  theme_bw()
+```
+
+If I repeat that process for all of my observations, I will get a scatterplot that looks like:
+
+```{r scatter-age-violent, echo=FALSE, fig.cap="Scatterplot of median age by the violent crime rate for all US states"}
+ggplot(crimes, aes(x=MedianAge, y=Violent))+
+  geom_point()+
+  labs(x="median age in state", y="violent crimes per 100,000 population")+
+  theme_bw()
+```
+
+What are we looking for when we look at a scatterplot? There are four important questions we can ask of the scatterplot. First, what is the **direction** of the relationship. We refer to a relationship as **positive** if both variables move in the same direction. if y tends to be higher when x is higher and y tends to be lower when x is lower, then we have a positive relationship. On the other hand, if the variables move in opposite directions, then we have a **negative** relationship.  If y tends to be lower when x is higher and y tends to be higher when x is lower, then we have a negative relationship. In the case above, it seems like we have a generally negative relationship. States with higher median age tend to have lower violent crime rates.
+
+Second, is the relationship **linear**? I don't mean here that the points fall exactly on a straight line (which is part of the next question) but rather does the general shape of the points appear to have any "curve" to it. If it has a curve to it, then the relationship would be non-linear. This issue will become important later, because our two primary measures of association are based on the assumption of a linear relationship. In this case, there is no evidence that the relationship is non-linear.
+
+Third, what is the **strength** of the relationship. If all the points fall exactly on a straight line, then we have a very strong relationship. On the other hand, if the points form a broad elliptical cloud, then we have a weak relationship. In practice, in the social sciences, we never expect our data to conform very closely to a straight line. Judging the strength of a relationship often takes practice. I would say the relationship above is of moderate strength.
+
+Fourth, are there **outliers**? We are particularly concerned about outliers that go against the general trend of the data, because these may exert a strong influence on our later measurements of association. In this case, there are two clear outliers, Washington DC and Utah. Washington DC is an outlier because it has an extremely high level of violent crime relative to the rest of the data. Its median age tends to be on the younger side, so its placement is not inconsistent with the general trend. Utah is an outlier that goes directly against the general trend because it has one of the lowest violent crime rates and the youngest populations. This is, of course, driven by Utah's heavily Mormon population, who both have high rates of fertility (leading to a young population) and whose church communities are able to exert a remarkable degree of social control over these young populations.
+
+#### Constructing scatterplots in *R*
+
+You can construct scatterplots in `ggplot` by using the `geom_point` geometry. You just need to define the aesthetics for `x` (on the x-axis) and `y` (on the y-axis).
+
+```{r scatter-basic1, fig.cap="Scatterplot of a state's poverty rate by property crime rate, for all US states"}
+ggplot(crimes, aes(x=Poverty, y=Property))+
+  geom_point()+
+  labs(x="poverty rate", y="property crimes per 100,000 population")+
+  theme_bw()
+```
+
+Sometimes with large datasets, scatterplots can be difficult to read because of the problem of **overplotting**. This happens when many data points overlap, so that its difficult to see how many points are showing. For example:
+
+```{r scatter-overplot, fig.cap="An example of the problem of overplotting where points are being plotted on top of each other"}
+ggplot(movies, aes(x=Runtime, y=TomatoMeter))+
+  geom_point()+
+  labs(x="movie runtime in minutes", y="Percent of reviews that are positive")+
+  theme_bw()
+```
+
+Because so many movies are in the 90-120 minute range, it is difficult to see the density of points in this range and thus difficult to understand the relationship. 
+
+One way to address this is to allow the points to be semi-transparent, so that as more and more points are plotted in the same place, the shading will become darker. We can do this in `geom_point` by setting the `alpha` argument to something less than one but greater than zero:
+
+```{r scatter-alpha, fig.cap="Using a semi-transparent point will help us see areas where there is a dense tangle of points"}
+ggplot(movies, aes(x=Runtime, y=TomatoMeter))+
+  geom_point(alpha=0.3)+
+  labs(x="movie runtime in minutes", y="Percent of reviews that are positive")+
+  theme_bw()
+```
+
+Overplotting can also be a problem with discrete variables because these variables can only take on certain values which will then exactly overlap with one another. This can be seen in Figure \@ref(fig:scatter-overplot-discrete) which shows the relationship between age and wages in the earnings data.
+
+```{r scatter-overplot-discrete, fig.cap="Age is discrete so the scatterplot looks like a bunch of vertical lines of dots and is very hard to understand"}
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_point()+
+  labs(x="age", y="hourly wage")+
+  theme_bw()
+```
+
+Because age is discrete all points are stacked up in vertical bars making it difficult to understand what is going on. One solution for this problem is to "jitter" each point a little bit by adding a small amount of randomness to the x and y values. The randomness added won't affect our sense of the relationship but will reduce the issue of overplotting. We can do this simply in `ggplot` by replacing the `geom_point` command with `geom_jitter`. 
+
+```{r scatter-overplot-jitter, fig.cap="Jittering helps with overplotting but its still difficult to see how dense points are for most of the plot"}
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_jitter()+
+  labs(x="age", y="hourly wage")+
+  theme_bw()
+```
+
+Jittering helped get rid of those vertical lines, but there are so many observations that we still have problems of understanding the density of points for most of the plot. If we add an `alpha` parameter to the `geom_jitter` command, we should be better able to understand the scatterplot.  
+
+```{r scatter-overplot-jitter-alpha, fig.cap="Jittering and transparency help us to make sense of the relationship between age and wages"}
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_jitter(alpha=0.01)+
+  labs(x="age", y="hourly wage")+
+  theme_bw()
+```
+
+<div class = "dcl">
+
+#### Try it out
+
+In the interactive *R* session below, Create a scatterplot showing the relationship between a student's parental income and the number of friend nominations they receive using the popularity dataset. Keep the following in mind:
+
+1. You must combine together different elements of ggplot, in this case <tt>ggplot</tt> itself and <tt>geom_boxplot</tt> with a plus sign to display correctly.
+2. Be sure to add nice labels for your x axis by adding a <tt>labs</tt> command.
+3. You will observe significant issues with overplotting, so you should use <tt>geom_jitter</tt> and the <tt>alpha</tt> argument to help see patterns in the data. 
+
+Does it seem like there is a relationship? How would you characterize its direction, linearity, and strength? Are there any outliers?
+<iframe src="dcl_interactives/scatterplot.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+
+</div>
+
+
+### The correlation coefficient
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/Wxeu2uE_oXQ")
+```
+
+
+We can measure the association between two quantitative variables with the correlation coefficient, *r*. The formula for the correlation coefficient is:
+
+$$r=\frac{1}{n-1}\sum_{i=1}^n (\frac{x_i-\bar{x}}{s_x}*\frac{y_i-\bar{y}}{s_y})$$
+
+That looks complicated, but lets break it down step by step. We will use the association between median age and violent crimes as our example.
+
+The first step is to subtract the means from each of our x and y variables. This will give us the distance above or below the mean for each variable.
+
+```{r}
+diffx <- crimes$MedianAge-mean(crimes$MedianAge)
+diffy <- crimes$Violent-mean(crimes$Violent)
+```
+
+The second step is to divide these differences from the mean of x and y by the standard deviation of x and y, respectively. 
+
+```{r}
+diffx.sd <- diffx/sd(crimes$MedianAge)
+diffy.sd <- diffy/sd(crimes$Violent)
+```
+
+Now each of your x and y values have been converted from their original form into the number of standard deviations above or below the mean. This is often called **standarization**. By doing this, we have put both variables on the same scale and have removed whatever original units they were measured in (in our case, years of age and crimes per 100,000). 
+
+The third step is to to multiply each converted value of x by each converted value of y. 
+
+```{r}
+product <- diffx.sd*diffy.sd
+```
+
+Why do we do this? First consider this scatterplot of our standardized x and y:
+
+```{r scatter-r-standardized, echo=FALSE, fig.cap="Where a point falls in the four quadrants of this scatterplot indicate whether it provides evidence for a positive or negative relationship"}
+temp <- data.frame(diffx.sd, diffy.sd)
+temp$sign <- ifelse((diffx.sd*diffy.sd)>0, "Positive","Negative")
+ggplot(temp, aes(x=diffx.sd, y=diffy.sd, color=sign))+
+  geom_point()+
+  geom_hline(yintercept = 0, linetype=2)+
+  geom_vline(xintercept = 0, linetype=2)+
+  labs(x="SDs from mean of x", y="SDs from mean of y")+
+  theme_bw()+
+  annotate("text", -1.5, 1.5, label="Negative", col="red")+
+  annotate("text", 1.5, -1.5, label="Negative", col="red")+  
+  annotate("text", 1.5, 1.5, label="Positive", col="blue")+
+  annotate("text", -1.5, -1.5, label="Positive", col="blue")+
+  scale_color_manual(values=c("red","blue"))+
+  guides(color=FALSE)
+```
+
+Points shown in blue have either both positive or both negative x and y values. When you take the product of these two numbers, you will get a positive product. This is evidence of a positive relationship. Points shown in red have one positive and one negative x and y value. When you take the product of these two numbers, you will get a negative product. This is evidence of a negative relationship.
+
+The final step is to add up all this evidence of a positive and negative relationship and divide by the number of observations (minus one). 
+
+```{r}
+sum(product)/(length(product)-1)
+```
+
+This final value is our correlation coefficient. We could have also calculated it by using the `cor` command:
+
+```{r}
+cor(crimes$MedianAge, crimes$Violent)
+```
+
+How do we interpret this correlation coefficient? It turns out the correlation coefficient *r* has some really nice properties. First, the **sign** of *r* indicates the direction of the relationship. If *r* is positive, the association is positive. If *r* is negative, the association is negative. if *r* is zero, there is no association. 
+
+Second, *r* has a **maximum** value of 1 and a **minimum** value of -1. These cases will only happen if the points line up exactly on a straight line, which never happens with social science data. However, it gives us some benchmark to measure the strength of our relationship.  Figure \@ref(fig:correlations-strength) shows simulated scatterplots with different *r* in order to help you get a sense of the strength of association for different values of *r*.
+
+```{r correlations-strength, echo=FALSE, fig.cap="Strength of association for various values of the correlation coefficient, based on simulated data"}
+r_values <- seq(from=0.0, length=12, by=0.09)
+r <- lapply(r_values, function(x) {cbind(c(1,x),c(x,1))})
+temp <- lapply(r, function(x) {mvrnorm(300,c(0,0),Sigma=x)})
+correlations <- NULL
+for(i in 1:length(r_values)) {
+  correlations <- rbind(correlations, temp[[i]])
+}
+correlations <- as.data.frame(correlations)
+colnames(correlations) <- c("x","y")
+correlations$r <- rep(r_values, each=300)
+ggplot(correlations, aes(x=x, y=y))+
+  geom_point(alpha=0.5)+
+  facet_wrap(~r)+
+  theme_bw()+
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+#shutting this down for now as it produces a big file (12.3mb) is slow and does not work for pdf
+# a <- ggplot(correlations, aes(x=x, y=y))+
+#   geom_point(alpha=0.9)+
+#   theme_bw()+
+#   theme(axis.title = element_blank(),
+#         axis.text = element_blank(),
+#         axis.ticks = element_blank())+
+#   labs(title = "r={closest_state}")+
+#   transition_states(r, state_length=1, transition_length=2)+
+#   ease_aes("cubic-in-out")
+# 
+# animate(a, duration=60, nframes=400, fps=20, end_pause=5)
+```
+
+Third, *r* is a **unitless** measure of association. It can be compared across different variables and different datasets in order to make a comparison of the strength of association. For example, the correlation coefficient between unemployment and violent crimes is 0.45. Thus, violent crimes are more strongly correlated with unemployment than with median age (0.44>0.30).  The association between median age and property crimes is -0.36, so median age is more strongly related to property crimes than violent crimes (0.36>0.30).  
+
+There are some important cautions when using the correlation coefficient. First, the correlation coefficient will only give a proper measure of association when the underlying relationship is **linear**. if there is a non-linear (curved) relationship, then *r* will not correctly estimate the association. Second, the correlation coefficient can be affected by **outliers**. We will explore this issue of outliers and influential points more in later sections.  
+
+------

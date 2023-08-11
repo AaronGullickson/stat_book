@@ -203,33 +203,28 @@ Is the result surprising to you? Notice that no candidate received even close to
 
 #### Make a barplot
 
-Now that we have the proportions/percents, we can visualize the distribution with a **barplot** in which vertical or horizontal bars give the proportion or percent. @fig-barplot-passclass shows a barplot for the distribution of passengers on the Titanic. 
+Now that we have the proportions/percents, we can visualize the distribution with a **barplot** in which vertical or horizontal bars give the proportion or percent. To build this barplot, we need to use `ggplot`. The `ggplot` syntax is a little different than most of the other R syntax we will look at this term, but its very important because we will use it to build all of our figures. With `ggplot`, we add several commands together with the `+` sign to create our overall plot. Each command adds a "layer" to our plot. To help you understand how ggplot works, I have annotated the code to produce @fig-barplot-passclass below to show you what each element is doing. 
 
 ```{r}
 #| label: fig-barplot-passclass
 #| fig-cap: Barplot of passenger class distribution on the Titanic
 #| warning: false
 
-ggplot(titanic, aes(x=pclass, y=..prop.., group=1))+
-  geom_bar()+
-  labs(x="passenger class", y="percent")+
-  scale_y_continuous(labels=scales::percent)+
-  coord_flip()+
-  theme_bw()
+ggplot(titanic, aes(x=pclass, y=..prop.., group=1))+   # <1>  
+  geom_bar()+                                          # <2>
+  labs(x="passenger class", y="percent")+              # <3>
+  scale_y_continuous(labels=scales::percent)+          # <4>
+  coord_flip()+                                        # <5>
+  theme_bw()                                           # <6>
 ```
+1. The first command is always the `ggplot` command itself which defines the dataset we will use (in this case, `titanic`) and the "aesthetics" that are listed in the `aes` argument. In this case, I defined an x (horizontal) variable as the `pclass` variable itself and the y (vertical) variable as a proportion (which in ggplot-speak is `..prop..`). The `group=1` argument is a trick for barplots that ensures the proportions are calculated by group rather than for the total sample. I can then continue to add other elements to the ggplot by connecting them with a `+`.
+2. The `geom_bar` is an example of a `geom_` command, which tells ggplot what actual shapes to plot on the canvas - in this case, bars. At this point, I have a functional barplot, but I am going to connect other arguments with the `+` sign to make the figure look nicer.
+3. The `labs` command allows us to specify nice looking labels for the final figure. Here I use it to specify nice labels for the x and y axis. Always label your figure nicely!
+4. The `scale_` commands are not necessary but can be used when you want finer control over how the scale of one of your aesthetics (e.g. x, y, fill, color) is displayed. In this case, I am using it to make the y-axis display results as percentages.
+5. The `coord_flip` command will flip the x and y axis. This is useful when you have long labels on a categorical variable that will operlap on the x-axis.
+6. The `theme_bw` (bw for black and white) sets an overall theme for the figure. I like the clean look of `theme_bw` and use it for most figures in this book.
 
-@fig-barplot-passclass is our first code example of the `ggplot` library that we will use to make figures in *R*. I will discuss how this code works below, but first I want to focus on the figure itself. Unlike the piechart, our eye only has to work in one dimension (in this case, horizontal). We can clearly see that third class is the largest passenger class with slightly more than 50% of all passengers. We also can see easily determine visually that third class passengers are at more than twice as common as either of the other two categories, simply by comparing the height of the bars. We can also see that slightly more passengers were in first class than second class simply by comparing the heights of those two bars. 
-
-So how did I create this graph? The `ggplot` syntax is a little different than most of the other R syntax we will look at this term. With `ggplot`, we add several commands together with the `+` sign to create our overall plot. Each command adds a "layer" to our plot. These layers are:
-
-1. `ggplot(titanic, aes(x=pclass, y=..prop.., group=1))`: The first command is always the `ggplot` command itself which defines the dataset we will use (in this case, `titanic`) and the "aesthetics" that are listed in the `aes` argument. In this case, we defined an x (horizontal) variable as the `pclass` variable itself and the y (vertical) variable as a proportion (which in ggplot-speak is `..prop..`). The `group=1` argument is a trick for barplots that makes sure our proportions add up to 1 across all categories. 
-2. `geom_bar()`: This command defines what geometric shape (in this case a bar) to actually plot. These two layers would be enough for a figure, but I also add four more layers that make for a nicer looking figure. You can try the command above with only the first two elements to see how it is different. 
-3. `labs(x="passenger class", y="percent")`: The `labs` command allows me to add a variety of nice labels to my graph. In this case I labeled my x and y axes. 
-4. `scale_y_continuous(labels=scales::percent)`: This is not a necessary command but it is useful to get better labels on my y-axis tickmarks. Without this command, the tickmarks would just show proportions (e.g. 0.2, 0.4). This command allows me define custom labels for those tickmarks that show them as percents rather than proportions. 
-5. `coord_flip`: This does exactly what it sounds like. It flips the x and y axes of the graph. This causes the bars to display horizontally rather than vertically. This is not necessary, but is often a useful feature to avoid problems with long category names overlapping on the x-axis. Note that even though passenger class looks like it is on the y-axis, ggplot still treats it as the "x" variable for things like defining aesthetics and labeling with the `labs` layer. 
-6. `theme_bw()`: This last command is for the "theme" layer that just defines a variety of characteristics for the overall look of the figure. I like the `theme_bw` (bw for black and white) theme over the default theme that comes with `ggplot`. 
-
-The ggplot library is a very flexible system that repeats these same basic layer elements in all the graphs it creates. In an appendix to this book, you can see cookbook examples of all the ways we will we use it to create figures throughout the term. 
+@fig-barplot-passclass shows a barplot for the distribution of passengers on the Titanic. Unlike the piechart, our eye only has to work in one dimension (in this case, horizontal). We can clearly see that third class is the largest passenger class with slightly more than 50% of all passengers. We also can see easily determine visually that third class passengers are at more than twice as common as either of the other two categories, simply by comparing the height of the bars. We can also see that slightly more passengers were in first class than second class simply by comparing the heights of those two bars. 
 
 ::: {.callout-caution}
 ## Don't forget the +!
@@ -346,17 +341,21 @@ politics |>
 
 Now that I have the frequencies for each bin, I can plot the histogram. The histogram looks much like a barplot except for two important differences. First, on the x-axis we have a numeric scale for the quantitative variable rather than categories. Second, we don't put any space between our bars. 
 
-Below I show some *R* code for producing the histogram shown in @fig-hist-agepol using `ggplot`. This code is simpler than the barplot code. We only need to define an x aesthetic in our `ggplot` command. Instead of a `geom_bar` we use a `geom_histogram`. I can specify different bin widths in this command with the `binwidth` argument. Here I have specified a bi nwidth of ten years which should correspond to @tbl-age-politics. I have also specified two different colors. The `col` argument is the color of the border for each bar and the `fill` argument is the color of the bars themselves. 
+The annotated code below shows you how to create the histogram shown in  @fig-hist-agepol using `ggplot`.
 
 ```{r}
 #| label: fig-hist-agepol
 #| fig-cap: Histogram of age in the politics data
 #| 
-ggplot(politics, aes(x=age))+
-  geom_histogram(binwidth=10, col="black", fill="grey", closed="left")+
-  labs(x="age")+
+ggplot(politics, aes(x=age))+                             # <1>
+  geom_histogram(binwidth=10, col="black", fill="grey",   # <2>
+                 closed="left")+                          # <2>
+  labs(x="age")+                                          # <3>
   theme_bw()
 ```
+1. For the histogram case, we only need to specify an x aesthetic, defined by whichever variable we want to get a histogram for.
+2. The `geom_histogram` command will do most of the work of creating the histogram. The `binwidth` argument is the critical argument here because it defines how large each bin is. *You will need to adjust this number as necessary depending on your case.* The `col` and `fill` define border and fill colors, respectively for the bars. You can specify specific colors like this for most `geom_` elements. To see a list of built-in color choices in *R*, type `colors()` in the console.
+3. Always remember to use `labs` to nicely label your result.
 
 Looking at @fig-hist-agepol, I see the peak in the distribution in the 55-64 group (the baby boomers) with a plateau to the left at younger ages before dropping off for the youngest age group, due to the fact that this youngest age group is only a partial age group (e.g. I have no 15-17 year olds). To the right, the frequency drops off much faster, due to smaller cohorts and old age mortality. I can also sort of see a smaller peak in the 25-34 range which  happens to be the children of the baby boomers. 
 
@@ -367,7 +366,8 @@ What would this histogram look like if I had used 5-year bin widths instead of 1
 #| fig-cap: Histogram of age in the politics data with five year bins
 
 ggplot(politics, aes(x=age))+
-  geom_histogram(binwidth=5, col="black", fill="grey", closed="left")+
+  geom_histogram(binwidth=5, col="black", fill="grey", 
+                 closed="left")+
   labs(x="age")+
   theme_bw()
 ```
@@ -827,22 +827,23 @@ We can also use this five number summary to create another graphical representat
 ```{r}
 #| label: fig-boxplot-age-sex
 #| fig-cap: Boxplot of respondent's age in sexual frequency data
-
-ggplot(sex, aes(x="", y=age))+
-  geom_boxplot(fill="skyblue")+
+ggplot(sex, aes(x="", y=age))+                            # <1>
+  geom_boxplot(fill="skyblue", outlier.color = "red")+    # <2>
   labs(x=NULL)+
   theme_bw()
 ```
+1. We use the `y` aesthetic to indicate the variable we want the boxplot for. The only unusual thing here is the use of `x=""` which we do to avoid having non-intuitive numbers plotted on the x-axis.
+2. The `geom_boxplot` command will graph the boxplot. I have specified a few colors, but these are not necessary. This graph does not have any outliers but setting the `outlier.color` will help them stand out more in the figure.
 
 The "box" in the boxplot is drawn from the 25th to the 75th percentile. The height of this box is equal to the interquartile range. The median is drawn as a thick bar within the box. Finally, "whiskers" are then drawn to the minimum and maximum of the data. Sometimes, the whiskers are drawn to less than the minimum and maximum if these values are very extreme and instead the whiskers are drawn out to 1.5xIQR in length and then individual points are plotted. In this case there were no extreme values, so the whiskers were drawn all the way out to the actual maximum and minimum. 
 
 The boxplot provides many pieces of information. It shows the center of the distribution as measured by the median. It also gives a sense of the spread of the distribution and extreme values by the height of the box and whiskers. It can also show skewness in the distribution depending on where the median is drawn within the box and the size of the whiskers. If the median is in the center of the box, then that indicates a symmetric distribution. If the median is towards the bottom of the box, then the distribution is right-skewed. If the median is towards the top of the box, then the distribution is left-skewed.  
 
-The code for a boxplot is relatively straightforward. We use the `y` aesthetic to indicate the variable we want the boxplot for and we use the `geom_boxplot` command to graph the boxplot (in this case the `fill` argument can be used to specify a color choice for the box of the boxplot). The only unusual thing here is the use of `x=""` in the top-level aesthetics and the use of `x=NULL` in the `labs` command. These additions are not strictly necessary but they do cause the horizontal x-scale on the graph to be suppressed. Otherwise we would see some non-intuitive numbers here.
-
 The exercise below allows you to adjust a slider to see different percentiles on both a histogram and a boxplot. 
 
-```{r shiny-app-percentiles, echo=FALSE}
+```{r}
+#| label: shiny-app-percentiles
+#| echo: false
 knitr::include_app("https://aarongullickson.shinyapps.io/percentiles/", height="800px")
 ```
 
@@ -854,7 +855,7 @@ In general, boxplots for a single variable do not contain as much information as
 
 The second most important measure of a distribution is its spread. Spread indicates how far individual values tend to fall from the center of the distribution. As @fig-spread-compare below shows, two distributions can have the same center and general shape (in this case, a bell curve) but have very different spreads.
 
-```{r spread-compare, echo=FALSE, fig.cap=""}
+```{r}
 #| label: fig-spread-compare
 #| fig-cap: Two different distributions with the same mean but very different spreads, based on simulated data.
 #| echo: false

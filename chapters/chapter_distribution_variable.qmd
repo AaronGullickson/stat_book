@@ -19,8 +19,6 @@ source(here("scripts","check_packages.R"))
 source(here("scripts","load_example_data.R"))
 ```
 
----
-
 ## Looking at Distributions
 
 One of the best ways to understand the distribution of a variable is to visualize that distribution with a graph. Importantly, the technique we use to graph the distribution will depend on whether we have a categorical or a quantitative variable. For categorical variables, we will use a **barplot**, while for quantitative variables, we will use a **histogram**.
@@ -536,9 +534,6 @@ In @fig-hist-modality-2 above, we can see that Washington DC is a clear outlier 
 
 In large datasets, it can sometimes be very difficult to detect a single outlier on a histogram because the height of its bar will be so small. You probably wouldn't even notice the Return of the King outlier in the movies dataset if I hadn't labeled it. Later in this chapter, we will learn another graphical technique called the boxplot that can be more useful for detecting outliers in a quantitative variable.
 
-
----
-
 ## Measuring the Center of a Distribution
 
 In the previous section, we just looked at a distribution to try and gauge its center. But what do we really mean by the term "center?" We often think about this center intuitively as representing the "typical" or "average" value on a given variable. However, we can define this idea of average in multiple ways. In this section, we will move from a basic visual sense of center to more precise statistical measures of center that can be calculated for quantitative variables. Specifically, we will learn how to measure the **mean**, **median**, and **mode**. 
@@ -785,8 +780,6 @@ mean(movies$maturity_rating)
 :::
 --->
 
----
-
 ## Percentiles and the Five Number Summary
 
 In this section, we will learn about the concept of **percentiles**. Percentiles will allow us to calculate a **five number summary** of a distribution and introduce a new kind of graph for describing a distribution called the **boxplot**.
@@ -859,8 +852,6 @@ knitr::include_app("https://aarongullickson.shinyapps.io/percentiles/", height="
 ```
 
 In general, boxplots for a single variable do not contain as much information as a histogram and so are generally inferior for understanding the full shape of the distribution. They can be useful for detecting outliers, but tphe real advantage of boxplots will come in the next module when we learn to use comparative boxplots to make comparisons of the distribution of a quantitative variable across different categories of a categorical variable. 
-
----
 
 ## Measuring the Spread of a Distribution
 

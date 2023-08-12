@@ -12,8 +12,6 @@ source(here("scripts","check_packages.R"))
 source(here("scripts","load_example_data.R"))
 ```
 
----
-
 ## What Does Data Look Like?
 
 The data that we look at typically take the format of a "spreadsheet" with rows and columns. @tbl-passengers below shows some characteristics of four randomly drawn passengers from the Titanic, in this type of spreadsheet format.
@@ -140,8 +138,6 @@ Error in mean(sex$educ) : object 'sex' not found
 What is *R* trying to tell you here? Its telling you that your `sex` dataset was not found. Remember that you have to load your dataset as a first step. It seems simple, but I guarantee you will forget sometimes (I sure do). Just remember that, when you see error messages like this one, *don't panic*. Its a simple mistake and *R* is telling you exactly what the problem is. Just load the dataset and you should be able to continue on.
 
 :::
-
----
 
 ## What Can We Do With Data?
 

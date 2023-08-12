@@ -155,6 +155,10 @@ tab |>
 
 24.7% of passengers were first class, 21.2% of passengers were second class, and 54.2% of passengers were third class. Just over half of passengers were third class and the remaining passengers were fairly evenly split between first and second class.
 
+
+<!---
+
+Commenting out the Datacamp Light pieces now because packages are out of date and Datacamp is a bit icky.
 ::: {.dcl}
 
 In the interactive *R* session below, try to calculate the proportion or percent of the voting age population that voted for each candidate (or didn't vote) in the 21016 election, based on the politics dataset. Keep the following in mind:
@@ -200,6 +204,7 @@ Is the result surprising to you? Notice that no candidate received even close to
 ```
 
 :::
+--->
 
 #### Make a barplot
 
@@ -210,21 +215,21 @@ Now that we have the proportions/percents, we can visualize the distribution wit
 #| fig-cap: Barplot of passenger class distribution on the Titanic
 #| warning: false
 
-ggplot(titanic, aes(x=pclass, y=..prop.., group=1))+   # <1>  
-  geom_bar()+                                          # <2>
-  labs(x="passenger class", y="percent")+              # <3>
-  scale_y_continuous(labels=scales::percent)+          # <4>
-  coord_flip()+                                        # <5>
-  theme_bw()                                           # <6>
+ggplot(titanic, aes(x=pclass, y=after_stat(prop), group=1))+   # <1>  
+  geom_bar()+                                                  # <2>
+  labs(x="passenger class", y="percent")+                      # <3>
+  scale_y_continuous(labels=scales::percent)+                  # <4>
+  coord_flip()+                                                # <5>
+  theme_bw()                                                   # <6>
 ```
-1. The first command is always the `ggplot` command itself which defines the dataset we will use (in this case, `titanic`) and the "aesthetics" that are listed in the `aes` argument. In this case, I defined an x (horizontal) variable as the `pclass` variable itself and the y (vertical) variable as a proportion (which in ggplot-speak is `..prop..`). The `group=1` argument is a trick for barplots that ensures the proportions are calculated by group rather than for the total sample. I can then continue to add other elements to the ggplot by connecting them with a `+`.
+1. The first command is always the `ggplot` command itself which defines the dataset we will use (in this case, `titanic`) and the "aesthetics" that are listed in the `aes` argument. In this case, I defined an x (horizontal) variable as the `pclass` variable itself and the y (vertical) variable as a proportion (which in ggplot-speak is `after_stat(prop)`). The `group=1` argument is a trick for barplots that ensures the proportions are calculated by group rather than for the total sample. I can then continue to add other elements to the plot by connecting them with a `+`.
 2. The `geom_bar` is an example of a `geom_` command, which tells ggplot what actual shapes to plot on the canvas - in this case, bars. At this point, I have a functional barplot, but I am going to connect other arguments with the `+` sign to make the figure look nicer.
 3. The `labs` command allows us to specify nice looking labels for the final figure. Here I use it to specify nice labels for the x and y axis. Always label your figure nicely!
 4. The `scale_` commands are not necessary but can be used when you want finer control over how the scale of one of your aesthetics (e.g. x, y, fill, color) is displayed. In this case, I am using it to make the y-axis display results as percentages.
 5. The `coord_flip` command will flip the x and y axis. This is useful when you have long labels on a categorical variable that will operlap on the x-axis.
 6. The `theme_bw` (bw for black and white) sets an overall theme for the figure. I like the clean look of `theme_bw` and use it for most figures in this book.
 
-@fig-barplot-passclass shows a barplot for the distribution of passengers on the Titanic. Unlike the piechart, our eye only has to work in one dimension (in this case, horizontal). We can clearly see that third class is the largest passenger class with slightly more than 50% of all passengers. We also can see easily determine visually that third class passengers are at more than twice as common as either of the other two categories, simply by comparing the height of the bars. We can also see that slightly more passengers were in first class than second class simply by comparing the heights of those two bars. 
+@fig-barplot-passclass shows a barplot for the distribution of passengers on the Titanic. Unlike the piechart, our eye only has to work in one dimension (in this case, horizontal). We can clearly see that third class is the largest passenger class with slightly more than 50% of all passengers. We also can see easily determine visually that third class passengers are at more than twice as common as either of the other two categories, simply by comparing the height of the bars. We can also see that slightly more passengers were in first class than second class simply by comparing the heights of those two bars.
 
 ::: {.callout-caution}
 ## Don't forget the +!
@@ -234,6 +239,7 @@ To construct a figure with `ggplot2`, you string together multiple commands with
 You will note that I place each separate command that is part of the `ggplot` on a separate line and indent subsequent commands after the `ggplot` command. This helps me to visually tell which bits of code are part of the `ggplot`. RStudio will do this indenting for you by default and you can also force it to do a line-by-line re-indenting with the Control+I hotkey (or Command+I in Mac). Re-indenting your lines provides an easy check on this problem because a missing "+" will mean that subsequent lines will not be indented.
 :::
 
+<!---
 ::: {.dcl}
 
 In the interactive *R* session below, use <tt>ggplot</tt> to construct a barplot of the percent of respondents in each category of presidential election voting from the <tt>president</tt> variable. Keep the following in mind:
@@ -298,6 +304,7 @@ In the interactive *R* session below, use <tt>ggplot</tt> to construct a barplot
 </html>
 ```
 :::
+--->
 
 ::: {.callout-warning}
 #### Never use piecharts!
@@ -380,6 +387,7 @@ As @fig-hist-agepol-bin5 shows, I get more or less the same overall impression b
 knitr::include_app("https://aarongullickson.shinyapps.io/histogram/", height="800px")
 ```
 
+<!---
 ::: {.dcl}
 
 In the interactive *R* session below, use <tt>ggplot</tt> to construct a histogram of the distribution of family income from the politics dataset using the <tt>income</tt> variable. Keep the following in mind:
@@ -443,6 +451,7 @@ In the interactive *R* session below, use <tt>ggplot</tt> to construct a histogr
 ```
 
 :::
+--->
 
 What kinds of things should you be looking for in your histogram? There are four general things to be on the lookout for when you examine a histogram.
 
@@ -714,6 +723,7 @@ As a result of this skew, the mean box office returns are about \$45.8 million, 
 
 Note that neither estimate is in some fundamental way incorrect. They are both correctly estimating what they were intended to estimate. It is up to us to understand and interpret these numbers correctly and to understand their limitations.
 
+<!---
 ::: {.dcl}
 
 In the interactive *R* session below, Calculate the mean and median of hourly wages from the earnings dataset. Keep the following in mind:
@@ -773,6 +783,7 @@ It only makes sense to calculate the mean and median of quantitative variables. 
 mean(movies$maturity_rating)
 ```
 :::
+--->
 
 ---
 

@@ -30,9 +30,9 @@ tab <- table(politics$party, politics$globalwarm)
 tab
 ```
 
-The two-way table gives us the **joint distribution** of the two variables, which is the number of respondents who fell into both categories. For example, we can see that 234 democrats did not believe in anthropogenic climate change while 1238 did. 
+The two-way table gives us the **joint distribution** of the two variables, which is the number of respondents who belong to a particular intersection of both variables. For example, we can see that 234 democrats did not believe in anthropogenic climate change while 1238 did. 
 
-::: {.callout-tip}
+::: {.callout-note collapse="false"}
 ## Rows, Columns, and Dimensions
 
 Notice that the table is showing party affiliation on the rows and climate change belief on the columns. Which way *R* does this will depend on the order in which you entered the variables into the `table` command. The row variable always comes first, followed by the column variable. So, if I reversed the ordering, I would get:
@@ -46,7 +46,7 @@ There is no right or wrong way to order the variables, but it often makes it eas
 
 In general, this ordering reflects the *dimensions* of the created `table` object. When we create a table of a single variable, we have a table of a single dimension. When we create a table with two variables we have a table with two dimensions. You can also create three-way tables, four-way tables, and so on, but the results get a lot more complicated to track!
 
-The dimensions are also referred to by number and this will be important below when we start calculating conditional distributions. Just always remember the following which corresponds to the order the variables are entered:
+The dimensions are also referred to by number and this will be important below when we start calculating conditional distributions. Just always remember the following rule:
 
 * 1 is for rows
 * 2 is for columns
@@ -73,9 +73,9 @@ tab.full |>
   gt_highlight_rows(rows = 5)
 ```
 
-The marginal distribution of party affiliation is given by the Total column on the right and the marginal distribution of climate change belief is given by the Total row at the bottom. Looking at the marginal on the right, we can see that there were a total of 1465 Democrats, 1241 Republicans, and so on. Looking at the marginal on the bottom, we can see that there were 1180 anthropogenic climate change deniers and 3058 anthropogenic climate change believers. The final number (4238) in the far right corner is the total number of respondents altogether. You can get this number by summing up the column marginals (1180+3058) or row marginals (1465+1241+1381+151). 
+The marginal distribution of party affiliation is given by the "Total" column on the right and the marginal distribution of climate change belief is given by the "Total" row at the bottom. Looking at the marginal on the right, we can see that there were a total of 1472 Democrats, 1236 Republicans, and so on. Looking at the marginal on the bottom, we can see that there were 1183 anthropogenic climate change deniers and 3054 anthropogenic climate change believers. The final number (4237) in the far right corner is the total number of respondents altogether. You can get this number by summing up the column marginals (1183+3054) or row marginals (1472+1236+1381+148). 
 
-The `margin.table` command in *R* will also calculate marginals for us. This command expects to be fed the output from the `table` command as input which is why I saved the output of the `table` command above to an object named `tab`. I can now use the `margin.table` command on this objectto calculate the marginal distributions. To indicate which marginal you want, you need to include a second argument which is either a 1 for rows or a 2 for columns.
+The `margin.table` command in *R* will also calculate marginals for us. This command expects to be fed the output from the `table` command as its input, which is why I saved the output of the `table` command above to an object named `tab`. I can now use the `margin.table` command on this `tab` object to calculate the marginal distributions. To indicate which marginal you want, you need to include a second argument which is either a 1 for rows or a 2 for columns.
 
 ```{r}
 #| label: command-margin-table
@@ -87,9 +87,9 @@ The two-way table provides us with evidence about the association between two ca
 
 ### Conditional distributions
 
-To this point, we have learned about the **joint** and **marginal** distributions in a two-way table. In order to look at the relationship between two categorical variables, we need to understand a third kind of distribution: the **conditional distribution**. The conditional distribution is the distribution of one variable conditional on being in a certain category of the other variable. In a two-way table, there are always two ways to calculate a conditional distribution. In our case, we could look at the distribution of climate change belief conditional on party affiliation, or we could look at the distribution of party affiliation conditional on climate change belief. Both of these distributions really give us the same information about the association, but sometimes one way is more intuitive to understand. In this case, I am going to start with the former case and calculate the distribution of climate change belief conditional on party affiliation.
+To this point, we have learned about the **joint** and **marginal** distributions in a two-way table. In order to look at the relationship between two categorical variables, we need to understand a third kind of distribution: the **conditional distribution**. The conditional distribution is the distribution of one variable conditional on being in a certain category of the other variable. In a two-way table, one can always create two different conditional distributions. In our case, we could look at the distribution of climate change belief conditional on party affiliation, or we could look at the distribution of party affiliation conditional on climate change belief. Both of these distributions ultimately provide us the same information about the association, but sometimes one way is more intuitive to understand. In this case, I am going to calculate the distribution of climate change belief conditional on party affiliation.
 
-This conditional distribution is basically given by the rows of our two-way table, which give the number of individuals of a given party who fall into each belief category. For example, the distribution of denial/belief among Democrats is 429 and 1932, while among Republicans, this distribution is 708 and 681. However, these two rows are not directly comparable as they are because Republicans are a much smaller group than Democrats. Thus, even if the shares were very different between the two groups, the absolute numbers for Republicans would probably be smaller for both categories. In order to make these rows comparable, we need the proportion of each party that falls into each belief category. In order to do that, we need to divide our rows through by the marginal distribution of party affiliation, like so: 
+This conditional distribution is basically given by the rows of our two-way table, which give the number of individuals of a given party who fall into each belief category. For example, the distribution of denial/belief among Democrats is 234 and 1238, while among Republicans, the same distribution is 570 and 666. However, these two sets of numbers are not directly comparable because Republicans are a smaller group than Democrats. Thus, even if the shares were the same between the two groups, the absolute numbers for Republicans would probably be smaller for both categories. In order to make these rows comparable, we need the proportion of each party that falls into each belief category. In order to do that, we need to divide our row numbers through by the marginal distribution of party affiliation, like so: 
 
 ```{r}
 #| label: tbl-two-way-cond-dist-calc
@@ -108,7 +108,7 @@ tab.cond |>
   cols_label(party="")
 ```
 
-Note that each row gets divided by its row marginal. If we do the math here, we will come out with the following proportions:
+If we do the math here, we will come out with the following proportions:
 
 ```{r}
 #| label: tbl-two-way-cond-dist-final
@@ -123,21 +123,21 @@ tab.prop |>
   cols_label(party="")
 ```
 
-Note that the proportions should add up to 1 within each row because we are basically calculating the share of each row that belongs to each column category. **To understand these conditional distributions, you need to look at the numbers within each row.** For example, the first row tells us that 15.7% of Democrats are deniers and 84.3% of Democrats are believers. The second row tells us that 46.5% of Republicans are deniers and 53.5% of Republicans are believers.
+Note that the proportions should add up to 1 within each row because we are basically calculating the share of each row that belongs to each column category. *To understand these conditional distributions, you need to look at the numbers within each row.* For example, the first row tells us that 15.9% of Democrats are deniers and 84.1% of Democrats are believers. The second row tells us that 46.1% of Republicans are deniers and 53.9% of Republicans are believers.
 
-We can tell if there is an association between the row and column variable if these conditional distributions are different across rows. In this case, they are clearly very different. About 84.3% of Democrats are believers while only about half (53.5%) of Republicans are believers. About 76.4% of Independents are believers, while about 68.9% of members of other parties are believers. 
+We can tell if there is an association between the row and column variable if these conditional distributions are different. In this case, they are clearly very different. The vast majority (84.1%) of Democrats are believers while only about half (53.9%) of Republicans are believers. About 76.1% of Independents are believers, while about 66.9% of members of other parties are believers.
 
-We can use the `prop.table` command we saw in the last module to estimate these conditional distributions. The approach here is identical to that for marginal distributions. The first argument is our table object and the second is the dimension we want to condition on. If we condition on rows here, we will get the same table as above.  
+We can use the `prop.table` command we saw in @sec-look-distributions to estimate these conditional distributions. The approach here is identical to that for marginal distributions. The first argument is our table object and the second is the dimension we want to condition on. If we condition on rows here, we will get the same table as above.  
 
 ```{r}
 #| label: command-prop-table
-prop.table(tab,1)
+prop.table(tab, 1)
 ```
 
-::: {.callout-warning}
+::: {.callout-warning collapse="false"}
 ## Never forget the denominator!
 
-To properly compare conditional distributions, you must *always* use proportions and never the raw values from the table. Groups can vary in size and thus the raw numbers may tell us little about the associations we are interested in, but rather just indicate which groups are larger or smaller. The reason we divide through by marginal distributions is so that we put each group on a level playing field and can compare the proportions of each group that fall into each of the categories of the other variable.
+To properly compare conditional distributions, you must *always* use proportions and never the raw values from the table. Groups can vary in size and thus the raw numbers may tell us little about the associations we are interested in, but rather just indicate which groups are larger or smaller. The reason we divide through by the marginal distribution is so that we put each group on a level playing field, by directly comparing the *proportions* of each group that fall into each of the categories of the other variable.
 
 For example, lets look at belief in climate change by race using the politics data.
 
@@ -146,24 +146,24 @@ For example, lets look at belief in climate change by race using the politics da
 table(politics$race, politics$globalwarm)
 ```
 
-If we just look at the "Yes" column, we can see that there are a far larger number of responses for White people  (2179) than other racial groups. Does this indicate that White people are more likely to believe in climate change. No, it does not! You will also notice that there are more White responses in the "No" column as well (868). All this information is telling us is that White people are the largest racial group in the survey. To understand how race really affects climate change, we need to calculate the distribution of climate change belief conditional on race.
+If we just look at the "Yes" column, we can see that there are a far larger number of responses for White people  (2179) than other racial groups. Does this indicate that White people are more likely to believe in climate change. No, it does not! You will also notice that there are more White responses than any other in the "No" column as well (868). All this information is telling us is that White people are the largest racial group in the survey. To understand how race really affects climate change, we need to calculate the distribution of climate change belief conditional on race.
 
 ```{r}
 #| label: two-way-callout-denom-cond-dist
 prop.table(table(politics$race, politics$globalwarm), 1)
 ```
 
-From this table, we can see that racial groups do not differ considerably in their belief in climate change with most groups being in the 70-80% belief range. White people in the survey actually have one of the lower levels of belief in climate change at 71.5%. Never forget the denominator!
+From this table, we can see that racial groups do not differ considerably in their belief in climate change. Most groups are in the 70-80% belief range. White people in the survey actually have one of the lower levels of belief in climate change at 71.5%. Never forget the denominator!
 :::
 
-Its important to remember which way you did the conditional distribution to get the interpretation correct. If you are not sure, just note which way the proportions add up to one - this is the direction you should be looking (i.e. within row or column). In this case, I am looking at the distribution of variables within rows, so the proportions refer to the proportion of respondents from a given political party who hold a given belief. But, I could have done my conditional distribution the other way:
+Its important to remember which way you did the conditional distribution to get the interpretation correct. If you are not sure, just note which way the proportions add up to one - this is the direction you should be looking (i.e. within row or column). In the case above, I am looking at the distribution of variables within rows, so the proportions refer to the proportion of respondents from a given political party who hold a given belief. But, I could have done my conditional distribution the other way:
 
 ```{r}
 #| label: command-prop-table-cols
 prop.table(tab,2)
 ```
 
-Note that this table looks deceptively similar to the table above. But look again. The numbers now don't add up to one within each row. They do however add up to one within each column. In order to read this table properly, we have to understand that it is giving us the distribution within each column: the proportion of respondents who have a given belief who belong to a given political party. So we can see in the first number that 19.5% of deniers are Democrats, 48.2% are Republicans, 27.9% are Independents, and 4.1% belong to other parties. This distribution is very different from the party affiliation distribution of believers in the second column which tells us that there is an association. However, the large party cleavages on the issue are not as immediately obvious here as they were with the previous conditional distribution. Always think carefully about which conditional distribution is more sensible to interpret and always make sure that you are interpreting them in the correct way. 
+This table looks deceptively similar to the table above. But look again. The numbers no longer add up to one within each row. They do however add up to one within each column. In order to read this table properly, we have to understand that it is giving us the distribution within each column: the proportion of respondents who have a given belief who belong to a given political party. So we can see in the first column that 19.8% of deniers are Democrats, 48.2% are Republicans, 27.9% are independents, and 4.1% belong to other parties. This distribution is very different from the party affiliation distribution of believers in the second column. Democrats are overrepresented among believers and underrepresented among deniers, while the opposite is true of Republicans. This discrepancy tells us there is an association, but the large party cleavages on the issue are not as immediately obvious here as they were with the previous conditional distribution. Always think carefully about which conditional distribution is more sensible to interpret and always make sure that you are interpreting them in the correct way. 
 
 ### Comparative barplots
 
@@ -172,30 +172,45 @@ It is also possible to graph the conditional distribution as a set of barplots. 
 ```{r}
 #| label: fig-comp-barplot-facet
 #| fig-cap: Distribution of belief in anthropogenic climate change by party affiliation, ANES 2016. Here I use faceting to show differences across parties in climate change belief.
-ggplot(politics, aes(x=globalwarm, y=after_stat(prop), group=1))+ 
-  geom_bar()+
-  facet_wrap(~party)+
-  scale_y_continuous(labels = scales::percent)+ 
+ggplot(politics, aes(x=globalwarm, y=after_stat(prop), group=1))+ # <1>
+  geom_bar()+                                                     # <1>
+  facet_wrap(~party)+                                             # <2>
+  scale_y_continuous(labels = scales::percent)+
   labs(x="belief in anthropogenic climate change", y=NULL)+
   theme_bw()
 ```
+1. The first part of the plot is identical to a univariate barplot. We use `y=after_stat(prop)` and `group=1` to get the proportions of respondents in each category of climate change belief.
+2. The new part is given by the `facet_wrap` command. We are basically telling ggplot to make different panels of the same graph separately by the categories of the `party` variable. The `~` symbol basically means "by" in *R*-speak.
 
-@fig-cond-barplot-facet is a **comparative barplot**. This is our first example of a graph that looks at a relationship. Each panel shows the distribution of climate change beliefs for respondents with that particular party affiliation. What we are interested in is whether the distribution looks different across each panel. In this case, because there were only two categories of the response variable, we only really need to look at the heights of the bar for one category to see the variation across party affiliation, which is substantial. 
+
+@fig-comp-barplot-facet is a **comparative barplot**. It is our first example of a graph that looks at a relationship. Each panel shows the distribution of climate change beliefs for respondents with that particular party affiliation. What we are interested in is whether the distribution looks different across each panel. In this case, because there were only two categories of the response variable, we only really need to look at the heights of the bar for one category to see the variation across party affiliation, which is substantial. 
 
 Faceting is one way to get a comparative barplot. Another approach is to use color on a single figure to look at differences.
 
 ```{r}
 #| label: fig-comp-barplot-color
-#| fig-cap: Distribution of belief in anthropogenic climate change by party affiliation, ANES 2016. Here I use faceting to show differences across parties in climate change belief.
-ggplot(politics, aes(x=globalwarm, y=after_stat(prop), group=party, fill=party))+ 
-  geom_bar(position = "dodge")+
-  scale_y_continuous(labels = scales::percent)+ 
+#| fig-cap: Distribution of belief in anthropogenic climate change by party affiliation, ANES 2016. Here I use color to show differences across parties in climate change belief.
+ggplot(politics, aes(x=globalwarm, y=after_stat(prop),           
+                     group=party, fill=party))+                    # <1>
+  geom_bar(position = "dodge")+                                    # <2>
+  scale_y_continuous(labels = scales::percent)+                    # <3>
+  scale_fill_viridis_d()+
   labs(x="belief in anthropogenic climate change", y=NULL,
        fill="party affiliation")+
   theme_bw()
 ```
+1. The first change from our previous barplots is that instead of `group=1` (all one group), I am now grouping by the `party` variable. This will calculate correct conditional distributions of the `globalwarm` variable by party affiliation. I also add another aesthetic here of `fill=party`. This means that the fill color of the bars will vary by party affiliation.
+2. I use `geom_bar` as usual. However, if I specify this geom without an argument, the bars for each party will end up stacked on top of each other, which is not what I want. The `position="dodge"` argument tells ggplot to stack these next to each other instead (thinking of dodging shapes in Tetris).
+3. If I want to control the color palette of my fill color I can specify a `scale_fill_*` command. In this case, I am using a built-in palette called [viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) that is known to be colorblind safe. The callout below provides more information on using other color schemes.
 
-In this figure, the colors indicate each party affiliation and we plot the bars for each different affiliation next to each other. This approach allows us to easily compare the proportion for each group. For example, I can see that Democrats have the largest proportion and Republicans have the smallest proportion in the "Yes" category.
+In this figure, the colors indicate each party affiliation and we plot the bars for each different affiliation next to each other. This approach allows us to easily compare the proportion for each group. For example, I can see that Democrats have the largest proportion in the "Yes" column and Republicans have the smallest proportion.
+
+::: {.callout-tip collapse="false"}
+## Controlling the color palette
+
+In the previous chapter 
+
+:::
 
 Lets try an example with more than two categories. For this example, I want to know whether there was a difference in passenger class by gender on the Titanic. I start with a comparative barplot:
 

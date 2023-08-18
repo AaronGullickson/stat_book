@@ -11,7 +11,7 @@ book:
     - part: "The Fundamentals"
       chapters:
         - chapters/chapter_understand_data.qmd
-        - chapters/chapter_distribution_variable.qmd
+        - chapters/chapter_look_distributions.qmd
         - chapters/chapter_measure_association.qmd
 #   - part: "Going Further"
 #     chapters:

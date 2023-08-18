@@ -1,4 +1,4 @@
-# Distribution of a Variable
+# Looking at Distributions {#sec-look-distributions}
 
 The **distribution** of a variable refers to how the different values of that variable are spread out across observations. This distribution gives us a sense of what the most common values are for a given variable and how much these values vary. It can also alert us to unusual patterns in the data. Intuitively, we think about distributions in our personal life any time we think about how we "measure" up relative to everyone else on something (income, number of social media followers, GRE scores, etc.). We want to know where we "fall" in the distribution of one of these variables. 
 
@@ -19,7 +19,7 @@ source(here("scripts","check_packages.R"))
 source(here("scripts","load_example_data.R"))
 ```
 
-## Looking at Distributions
+## Graphing Distributions
 
 One of the best ways to understand the distribution of a variable is to visualize that distribution with a graph. Importantly, the technique we use to graph the distribution will depend on whether we have a categorical or a quantitative variable. For categorical variables, we will use a **barplot**, while for quantitative variables, we will use a **histogram**.
 
@@ -29,7 +29,7 @@ One of the best ways to understand the distribution of a variable is to visualiz
 Remember that categorical and quantitative variables require different kinds of graphs. Knowing which kind of variable you have is the first step to making the right kind of graph!
 :::
 
-### Looking at the distribution of a categorical variable
+### Graphing the distribution of a categorical variable
 
 #### Calculating the frequency
 
@@ -322,7 +322,7 @@ Many people feel that piecharts have an aesthetic appeal but they are actually v
 
 :::
 
-### Looking at the distribution of a quantitative variable
+### Graphing the distribution of a quantitative variable
 
 Barplots won't work for quantitative variables because quantitative variables don't have categories. However, we can do something quite similar with the **histogram**. 
 

@@ -1,4 +1,4 @@
-# Measuring Association
+# Measuring Association {#sec-measure-association}
 
 Measuring association between variables, in some form or another, is really what social scientists use statistics for the most. Establishing whether two variables are related to one another can help to affirm or cast doubt on theories about the social world. Does substance use improve an adolescent's popularity in school? Does increasing wealth in a country lead to more or less environmental degradation? Does income inequality inhibit voter participation? These are just a few of the questions one could ask that require a measurement of the association between two or more variables.
 
@@ -22,7 +22,7 @@ source(here("scripts","load_example_data.R"))
 
 ## The Two-Way Table
 
-The **two-way table** (also known as a **cross-tabulation** or **crosstab**) gives the joint distribution of two categorical variables. Lets use our politics dataset to construct a two-way table of belief in anthropogenic climate change by political party. We can do that in *R* using the same `table` command we used in the previous chapter, except this time we will add a second variable as an additional argument.
+The **two-way table** (also known as a **cross-tabulation** or **crosstab**) gives the joint distribution of two categorical variables. Lets use the politics dataset to construct a two-way table of belief in anthropogenic climate change by political party. We can do that in *R* using the same `table` command we used in @sec-look-distributions, except this time we will add a second variable as an additional argument.
 
 ```{r}
 #| label: two-way

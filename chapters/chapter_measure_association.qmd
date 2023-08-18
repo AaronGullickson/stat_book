@@ -208,8 +208,80 @@ In this figure, the colors indicate each party affiliation and we plot the bars 
 ::: {.callout-tip collapse="false"}
 ## Controlling the color palette
 
-In the previous chapter 
+In the previous chapter, I showed you how to color geoms using the `fill` and `col` arguments. You will notice in the comparative barplot above that we are using color in a different way. Color is now one of the *aesthetics* that we use to add information to the plot, not just style. In this case, the fill color indicated which political party a given bar represents. When we use color in this way, we can't just define a single color. Instead we need to define a *color palette* that contains at least as many colors as we have categories (in this case four). If we don't specify a color palette, ggplot will use a default one.
 
+We can select from some built-in color palettes, we can design our own, or we can install one of the many color palettes that are available online. However we do it, we will need to use some form of a `scale_fill_` or `scale_color_` command depending on whether the aesthetic is for a `fill` or `col`. You will notice above that I am using `scale_fill_viridis_d`. This uses a built-in color scheme known as [viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) which is considered to be a professional quality and colorblind-safe color palette. This is the color palette you will see throughout this book. 
+
+You can also use another command called `scale_fill_brewer` or `scale_color_brewer` which will give you several built-in palettes to choose from. Specifically, it provides the following color palettes by name:
+
+Diverging
+: BrBG, PiYG, PRGn, PuOr, RdBu, RdGy, RdYlBu, RdYlGn, Spectral
+
+Qualitative
+: Accent, Dark2, Paired, Pastel1, Pastel2, Set1, Set2, Set3
+
+Sequential
+: Blues, BuGn, BuPu, GnBu, Greens, Greys, Oranges, OrRd, PuBu, PuBuGn, PuRd, Purples, RdPu, Reds, YlGn, YlGnBu, YlOrBr, YlOrRd
+
+So, if I wanted to get the "Pastel1" qualitative color palette, I would use:
+
+```{r}
+#| label: fig-comp-barplot-color-pastel1
+#| fig-cap: Distribution of belief in anthropogenic climate change by party affiliation, ANES 2016. Color is via the "Pastel1" palette. Unfortunately, this ends up reversing the well-known association with colors for the two major parties.
+ggplot(politics, aes(x=globalwarm, y=after_stat(prop),           
+                     group=party, fill=party))+                    
+  geom_bar(position = "dodge")+                                    
+  scale_y_continuous(labels = scales::percent)+                    
+  scale_fill_brewer(palette = "Pastel1")+                       # <1>
+  labs(x="belief in anthropogenic climate change", y=NULL,
+       fill="party affiliation")+
+  theme_bw()
+```
+1. By specifying the `palette` argument with the name of one of the built-in color palettes, I can change the color scheme.
+
+If you prefer to roll your own color scheme, you can use the `scale_fill_manual` or `scale_color_manual` commands to provide a list of built-in *R* color names or hex codes in the `values` argument. For example:
+
+```{r}
+#| label: fig-comp-barplot-color-custom
+#| fig-cap: Distribution of belief in anthropogenic climate change by party affiliation, ANES 2016. Here I use custom colors that correspond more closely with the well known color associations of the two major parties.
+ggplot(politics, aes(x=globalwarm, y=after_stat(prop),           
+                     group=party, fill=party))+                    
+  geom_bar(position = "dodge")+                                    
+  scale_y_continuous(labels = scales::percent)+                    
+  scale_fill_manual(values=c("royalblue","tomato","thistle","seagreen"))+ # <1>
+  labs(x="belief in anthropogenic climate change", y=NULL,
+       fill="party affiliation")+
+  theme_bw()
+```
+1. You specify the list of names in a vector with the `c()` command. Just remember that you need at least as many colors as the number of categories you have.
+
+In this case, the manual option is useful because there is a well-known color association for the two major parties that will help readers understand the figure.
+
+A final option is to install an optional package with additional color palettes. There are many packages to choose from here, but my personal favorite is the [Wes Anderson Palettes](https://github.com/karthik/wesanderson) package which will give you palettes for all Wes Anderson movies. For this to work, you have to first install the package:
+
+```{r}
+#| label: install-wesanderson
+#| eval: false
+install.packages("wesanderson")
+```
+
+You will then need to load this package with the library command before using one of the custom palettes:
+
+```{r}
+#| label: fig-comp-barplot-color-wesanderson
+#| fig-cap: Distribution of belief in anthropogenic climate change by party affiliation, ANES 2016. Here I use one of the color palettes from the Wes Anderson Paletters for Moonrise Kingdom.
+library(wesanderson)                                       # <1>
+ggplot(politics, aes(x=globalwarm, y=after_stat(prop),           
+                     group=party, fill=party))+                    
+  geom_bar(position = "dodge")+                                    
+  scale_y_continuous(labels = scales::percent)+                    
+  scale_fill_manual(values=wes_palette("Moonrise2"))+      # <2>
+  labs(x="belief in anthropogenic climate change", y=NULL,
+       fill="party affiliation")+
+  theme_bw()
+```
+1. You need to load the library for the palette to work. You only need to do this once in your script.
+2. You specify `scale_fill_manual` but then use the `wes_palette` command with a palette name to get the right colors. Type `wesanderson::wes_palettes` into the console to see a full list of palettes.
 :::
 
 Lets try an example with more than two categories. For this example, I want to know whether there was a difference in passenger class by gender on the Titanic. I start with a comparative barplot:

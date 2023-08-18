@@ -23,7 +23,7 @@ source(here("scripts","load_example_data.R"))
 
 One of the best ways to understand the distribution of a variable is to visualize that distribution with a graph. Importantly, the technique we use to graph the distribution will depend on whether we have a categorical or a quantitative variable. For categorical variables, we will use a **barplot**, while for quantitative variables, we will use a **histogram**.
 
-::: {.callout-tip}
+::: {.callout-tip collapse="false"}
 ## Know your variable type!
 
 Remember that categorical and quantitative variables require different kinds of graphs. Knowing which kind of variable you have is the first step to making the right kind of graph!
@@ -69,7 +69,7 @@ We can also calculate these numbers in *R*, we can use the `table` command:
 table(titanic$pclass)
 ```
 
-::: {.callout-note}
+::: {.callout-note collapse="false"}
 ## Commands in *R*
 
 `table` is an example of a command (of function) in *R*. *R* comes with many built-in functions and more can be added from additional packages/libraries. You can even create your own! These commands will be the workhorse for us as they can do all kinds of calculations.
@@ -112,7 +112,7 @@ We can confirm that our calculations are correct by noting that the proportions 
 prop.table(table(titanic$pclass))
 ```
 
-::: {.callout-note}
+::: {.callout-note collapse="false"}
 ## Wrapping Commands vs. Saving Output in *R*
 
 Note that I have "wrapped" one command (`table`) inside of another command (`prop.table`). In essence, the output of the `table` command became the input of the `prop.table` command. *R* is fine with this kind of code and we can often use this wrapping feature to take care of multiple operations in one line of code.
@@ -229,7 +229,7 @@ ggplot(titanic, aes(x=pclass, y=after_stat(prop), group=1))+   # <1>
 
 @fig-barplot-passclass shows a barplot for the distribution of passengers on the Titanic. Unlike the piechart, our eye only has to work in one dimension (in this case, horizontal). We can clearly see that third class is the largest passenger class with slightly more than 50% of all passengers. We also can see easily determine visually that third class passengers are at more than twice as common as either of the other two categories, simply by comparing the height of the bars. We can also see that slightly more passengers were in first class than second class simply by comparing the heights of those two bars.
 
-::: {.callout-caution}
+::: {.callout-caution collapse="false"}
 ## Don't forget the +!
 
 To construct a figure with `ggplot2`, you string together multiple commands with the "+" sign. A very common mistake is to miss a "+" which will break the chain and end your plot. So, if your plot is not looking right, one of the first things to check is whether you missed a "+" somewhere. 
@@ -304,7 +304,7 @@ In the interactive *R* session below, use <tt>ggplot</tt> to construct a barplot
 :::
 --->
 
-::: {.callout-warning}
+::: {.callout-warning collapse="false"}
 #### Never use piecharts!
 
 You may have seen the distributions I am showing here also displayed using a piechart like @fig-piechart below. 
@@ -534,6 +534,66 @@ In @fig-hist-modality-2 above, we can see that Washington DC is a clear outlier 
 
 In large datasets, it can sometimes be very difficult to detect a single outlier on a histogram because the height of its bar will be so small. You probably wouldn't even notice the Return of the King outlier in the movies dataset if I hadn't labeled it. Later in this chapter, we will learn another graphical technique called the boxplot that can be more useful for detecting outliers in a quantitative variable.
 
+::: {.callout-tip collapse="false"}
+## Adding a pop of color
+
+You will notice that I added some color to many of the histograms in this section. How do you do that? As the code for @fig-hist-agepol-bin5 above showed, you can specify a fill and border color for the bars in `geom_histogram` with the `col` and `fill` arguments respectively. So for example, I could have done the histogram of age above with some brighter color choices:
+
+```{r}
+#| label: fig-hist-col1
+#| fig-cap: Histogram of age in the politics data with five year bins with some interesting color choices.
+
+ggplot(politics, aes(x=age))+
+  geom_histogram(binwidth=5, col="green", fill="yellow", 
+                 closed="left")+
+  labs(x="age")+
+  theme_bw()
+```
+
+You might be wondering how many color names *R* knows. You can quickly find out by typing `colors()` into the R console. This will give you a full list of `r length(colors())` color names that *R* knows. For example, lets see what the figure looks like with a fill color of "wheat" and border color of "steelblue."
+
+```{r}
+#| label: fig-hist-col2
+#| fig-cap: Histogram of age in the politics data with five year bins with some predefined colors.
+
+ggplot(politics, aes(x=age))+
+  geom_histogram(binwidth=5, col="steelblue", fill="wheat", 
+                 closed="left")+
+  labs(x="age")+
+  theme_bw()
+```
+
+If these color options are not enough for you, you can also specify a color using a hex code made up of six alphanumeric characters. You can find many [color picker apps](https://htmlcolorcodes.com/color-picker/) online that will give you a specific hex code. For example, lets say you wanted to use hex codes for the [Oregon Duck colors](https://teamcolorcodes.com/oregon-ducks-color-codes/#:~:text=The%20Oregon%20Ducks%20colors%20HEX,What%20is%20this%3F&text=The%20yellow%20HEX%20colour%20code,Ducks%20can%20be%20found%20below.):
+
+```{r}
+#| label: fig-hist-col-uo
+#| fig-cap: Histogram of age in the politics data with five year bins with some colors with school spirit.
+
+ggplot(politics, aes(x=age))+
+  geom_histogram(binwidth=5, col="#FEE123",fill="#154733", 
+                 closed="left")+
+  labs(x="age")+
+  theme_bw()
+```
+
+You can color many of the geoms we will use in ggplot the same way, although whether you use `fill` or `col` or both will depend on the geom. For example, we can also color barplots in the same way as histograms:
+
+```{r}
+#| label: fig-barplot-color
+#| fig-cap: Barplot of passenger class distribution on the Titanic, using a yummy color scheme.
+#| warning: false
+
+ggplot(titanic, aes(x=pclass, y=after_stat(prop), group=1))+
+  geom_bar(fill="plum", col="dodgerblue")+                                                
+  labs(x="passenger class", y="percent")+                     
+  scale_y_continuous(labels=scales::percent)+                 
+  coord_flip()+                                               
+  theme_bw()                                                  
+```
+
+We will also learn later that we can use color as an aesthetic in the `aes` command. In that case, color will be used to tell us some important information and instead of choosing raw colors, we can instead choose a color palette. Look for more information on this approach in the next chapter.
+:::
+
 ## Measuring the Center of a Distribution
 
 In the previous section, we just looked at a distribution to try and gauge its center. But what do we really mean by the term "center?" We often think about this center intuitively as representing the "typical" or "average" value on a given variable. However, we can define this idea of average in multiple ways. In this section, we will move from a basic visual sense of center to more precise statistical measures of center that can be calculated for quantitative variables. Specifically, we will learn how to measure the **mean**, **median**, and **mode**. 
@@ -587,7 +647,7 @@ mean(movies$metascore)
 
 We can see that the mean Metacritic score of romantic movies in 2017 (58) was slightly higher the mean for all the movies in our dataset (`r round(mean(movies$metascore),1)`), but not by much.
 
-::: {.callout-note}
+::: {.callout-note collapse="false"}
 ## Learning equation symbols
 
 We won't focus too much on formulas in this course, but it is helpful to know some basics of the way mathematical formulas are represented in statistics.
@@ -660,7 +720,7 @@ ggplot(movies, aes(x=metascore))+
   theme_bw()
 ```
 
-::: {.callout-note}
+::: {.callout-note collapse="false"}
 ## The modal category
 
 Interestingly, while it does not make sense to think about a mean or a median for categorical variables, we can use the idea of the mode for categorical variables. The most common category is often referred to as the **modal category**. If you want to quickly identify the modal category for a categorical variable, you can wrap a `table` command inside a `sort` command with the `decreasing=TRUE` argument to see the top category at the left.
@@ -767,7 +827,7 @@ How do the results for the mean and median compare? What does this suggest about
 
 :::
 
-::: {.callout-warning}
+::: {.callout-warning collapse="false"}
 ## Only calculate statistics for quantitative variables
 
 It only makes sense to calculate the mean and median of quantitative variables. You cannot add up the values for categorical variables because categorical values don't have numeric values. Rather, they have categories. Notice that you will get an "NA" value and a warning if you try to calculate summary statistics for categorical variables: 
@@ -799,7 +859,7 @@ quantile(sex$age, p=c(.27,.57))
 
 27% of the sample were younger than 36 years of age and 57% of the sample were younger than 54 years of age. 
 
-::: {.callout-note}
+::: {.callout-note collapse="false"}
 ## What is the `c()` command?
 
 You will notice that for the second argument of `quantile` I fed in `c(.27,.57)`. What does the `c` stand for here? It stands for the word *concatenate* in this case. This command allows us to feed in a bunch of numbers (or words and other things) and combine them together into a *vector*. You can think of this vector as just a list of numbers. In this case, I used it to feed in two different percentile values I wanted. If I wanted the 25th, 50th, and 75th percentiles instead, I would have used `c(.25, .5, .75)`. We won't have to use `c()` very much in the course, but it is a handy *R* command to know.

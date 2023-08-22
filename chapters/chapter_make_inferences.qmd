@@ -30,7 +30,7 @@ To take another example from our General Social Survey (GSS) data on sexual freq
 tapply(sex$sexf, sex$marital, mean)
 ```
 
-Married respondents had sex 2.5 (56.1-53.5) times more per year than never married individuals. We don't want to draw this conclusion just for our sample. Rather, we want to know what the relationship is between marital status and sexual frequency in the US population as a whole. In other words, we want to **infer** from our sample to the population. Figure \@ref(fig:chart-inference) shows this process graphically. 
+Married respondents had sex 7.01 (46.45-53.46) fewer times per year than never married individuals in this sample. We don't want to draw this conclusion just for our sample, though. Rather, we want to know what the relationship is between marital status and sexual frequency in the US population as a whole. In other words, we want to **infer** from our sample to the population. @fig-inference shows this process graphically. 
 
 ```{r}
 #| label: fig-inference
@@ -40,10 +40,10 @@ par(mar=c(0,0,0,0))
 plot(-2,-2, xlim=c(0,10), ylim=c(0,10), xaxt="n", yaxt="n", bty="n", xlab="", ylab="")
 rect(6,1,10,9, col="skyblue")
 text(8,5,"US Population", cex=1.2)
-text(8,4,expression(mu[1]-mu[2]%~~%2.5))
+text(8,4,expression(mu[1]-mu[2]%~~%-7.01))
 rect(0,3,4,7, col="yellow")
 text(2,5,"GSS Sample", cex=1.2)
-text(2,4,expression(bar(x)[1]-bar(x)[2]==2.5))
+text(2,4,expression(bar(x)[1]-bar(x)[2]==-7.01))
 arrows(6,4,4,4)
 text(5,3.5,"Draw a sample", cex=0.7)
 arrows(4,6,6,6)
@@ -54,19 +54,19 @@ The large blue rectangle is the population that we want to know about. Within th
 
 We typically don't have data on the entire population, which is why we need to draw a sample in the first place. Therefore, these population parameters are unknown. To estimate what they are, we draw a sample as shown by the smaller yellow square. In this sample, we can calculate the sample mean difference in sexual frequency between married and never married individuals, $\bar{x}_1-\bar{x}_2$. We refer to a measurement in the sample as a **statistic**. We represent these statistics with roman letters to distinguish them from the corresponding value in the population.
 
-**The statistic is always an estimate of the parameter**. In this case, $\bar{x}_1-\bar{x}_2$ is an estimate of $\mu_1-\mu_2$. We can infer from the sample to the population and conclude that our best guess as to the true mean difference in the population is the value we got in the sample.
+*The statistic is always an estimate of the parameter*. In this case, $\bar{x}_1-\bar{x}_2$ is an estimate of $\mu_1-\mu_2$. We can infer from the sample to the population and conclude that our best guess as to the true mean difference in the population is the value we measured in the sample.
 
-The sample mean difference may be our best guess as to the true value in the population, but how confident are we in that guess? Intuitively, if I only had a sample of 10 people I would be much less confident than if I had a sample of 10,000 people. **Statistical inference** is the technique of *quantifying* our uncertainty in the estimate. If you have ever read the results of a political poll, you will be familiar with the term "margin of error." This is a measure of statistical inference.
+The sample mean difference may be our best guess as to the true value in the population, but how confident are we in that guess? Intuitively, if I only had a sample of 10 people I would be much less confident than if I had a sample of 10,000 people. To formalize this intuition, we use **statistical inference**. Statistical inference is the technique of *quantifying* our uncertainty in our sample estimate. If you have ever read the results of a political poll, you will be familiar with the term "margin of error." This is a measure of statistical inference.
 
-Why might our sample produce inaccurate results? There are two sources of **bias** that could result in our sample statistic being different from the true population parameter. The first form of bias is **systematic bias**. Systematic bias occurs when something about the procedure for generating the sample produces a systematic difference between the sample and the population. Sometimes, systematic bias results from the way the sample is drawn. For example, if I sample my friends and colleagues on their voting behavior, I will likely introduce very large systematic bias in my estimate of who will win an election because my friends and colleagues are more likely than the general population to hold similar views to my own. Systematic bias can also result from the way questions are worded, the characteristics of interviewers, the time of day interviews are conducted, etc. Systematic bias can often be minimized in well-designed and executed scientific surveys. Statistical inference cannot do anything to account for systematic bias.
+Why might our sample produce inaccurate results? There are two sources of **bias** that could result in our sample statistic being different from the true population parameter. The first form of bias is **systematic bias**. Systematic bias occurs when something about the procedure for generating the sample produces a systematic difference between the sample and the population. Sometimes, systematic bias results from the way the sample is drawn. For example, if I sample my friends and colleagues on their voting behavior, I will likely introduce very large systematic bias in my estimate of who will win an election because my friends and colleagues are more likely than the general population to hold views similar to my own. Systematic bias can also result from the way questions are worded, the characteristics of interviewers, the time of day interviews are conducted, etc. Systematic bias can often be minimized in well-designed and executed scientific surveys. Statistical inference cannot do anything to account for systematic bias.
 
-The second form of bias is **random bias**. Random bias occurs when the sample statistic is different from the population parameter, just by random chance due to the actual sample that was drawn. In other words, even if there is no systematic bias in my survey design, I can get a bad estimate simply due to the bad luck of drawing a really unusual sample. Imagine that I am interested in estimating mean wealth in the United States and I happen to draw Bill Gates in my sample. I will dramatically overestimate mean wealth in the US. Random bias affects every sample, regardless of how well-designed and executed. 
+The second form of bias is **random bias**. Random bias occurs when the sample statistic is different from the population parameter just by random chance. In other words, even if there is no systematic bias in my survey design, I can get a bad estimate simply due to the bad luck of drawing a really unusual sample. Imagine that I am interested in estimating mean wealth in the United States and I happen to draw Bill Gates in my sample. I will dramatically overestimate mean wealth in the US.
 
 In practice, the sample statistic is extremely unlikely to be *exactly* equal to the population parameter, so some degree of random bias is always present in every sample. However, this random bias will become less important as the sample size increases. In the previous example, Bill Gates is going to bias my results much more if I draw a sample of 10 people, than if I draw a sample of 100,000 people. Our goal with statistical inference is to more precisely quantify how bad that random bias *could* be in our sample.
 
 Notice the word "could" in the previous sentence. The tricky part about statistical inference is that while we know that random bias could be causing our sample statistic to be very different from the population parameter, we never know for sure whether random bias had a big effect or a small effect in our particular sample, because we don't have the population parameter with which we could compare it. Keep this issue in mind in the next sections, as it plays a key role in how we understand our procedures of statistical inference. 
 
-It is also important to keep in mind that statistical inference only works when you are actually drawing a sample from a larger population that you want to draw conclusions about. In some cases, our data either constitute a unique event, as in the Titanic case, that cannot be properly considered a sample of something larger or the data actually constitute the entire population of interest, as is the case in our dataset on movies. Although you will occasionally still see people use inferential measures on such data, it is technically inappropriate because there is no larger population to make inferences about.
+It is also important to keep in mind that statistical inference only works when you are actually drawing a sample from a larger population that you want to draw conclusions about. In some cases, our data either constitute a unique event, as in the Titanic case, that cannot be properly considered a sample of something larger or the data actually constitute the entire population of interest, as is the case in our dataset on movies and crime rates. Although you will occasionally still see people use inferential measures on such data, it is technically inappropriate because there is no larger population to make inferences about.
 
 ## The Concept of the Sampling Distribution
 
@@ -83,11 +83,11 @@ The Sample Distribution
 The Sampling Distribution
 : Imagine all the possible samples of size 100 that I could have drawn from the US population. Its a tremendously large number. If I had all those samples, I could calculate the sample mean of years of education for each sample. Then, I would have the mean years of education in every possible sample of size 100 that I could have drawn from the population. The sampling distribution is the distribution of all of these possible sample means. More generally, the sampling distribution is the distribution of the desired sample statistic in all possible samples of size $n$. 
 
-The sampling distribution is much more abstract than the other two distributions, but is key to understanding statistical inference. When we draw a sample and calculate a sample statistic from this sample, we are in effect reaching into the sampling distribution and pulling out a value. Therefore, the sampling distribution give us information about how variable our sample statistic might be as a result of randomness in the sampling. 
+The sampling distribution is much more abstract than the other two distributions, but is key to understanding statistical inference. When we draw a sample and calculate a sample statistic from this sample, we are in effect reaching into the sampling distribution and pulling out a value. Therefore, the sampling distribution give us information about how variable our sample statistic might be as a result of randomness in the sampling process.
 
 ### Example: class height
 
-As an example, lets use some data on a recent class that took this course. I will treat this class of `r sum(!is.na(students$height))` students as a population that I would like to know something about. In this case, I would like to know the mean height of the class. In most cases, the population distribution is unknown but in this case, I know the height of all `r sum(!is.na(students$height))` students because of surveys they all took at the beginning of the term. Figure @fig-hist-student-height-pop shows the population distribution of height in the class:
+As an example, lets use some data on a recent class that took this course. I will treat this class of `r sum(!is.na(students$height))` students as a population that I would like to know something about. In this case, I would like to know the mean height of the class. In most cases, the population distribution is unknown but in this case, I know the height of all `r sum(!is.na(students$height))` students because of surveys they all took at the beginning of the term. @fig-hist-student-height-pop shows the population distribution of height in the class:
 
 ```{r}
 #| label: fig-hist-student-height-pop
@@ -101,11 +101,11 @@ ggplot(students, aes(x=height))+
 
 The population distribution of height is somewhat bimodal which is typical, because we are mixing the heights of men and women. The population mean of height ($\mu$) is `r round(mean(students$height, na.rm=TRUE),3)` inches. 
 
-Lets say I lost the results of the student survey and I wanted to know the mean height of the class. I could take a random sample of two students in order to calculate the mean height. Lets say I drew a sample of two people who were 68 and 74 inches respectively in height. I would estimate a sample mean of 71 inches which in this case would be too high. Lets say I took another sample of two students and ended up with a mean height of 66 which would be too low. Lets say I repeat this procedure until I had sampled all possible combinations of two students out of the twenty in the class.
+Lets say I lost the results of this student census and I wanted to know the mean height of the class. I could take a random sample of two students in order to calculate the mean height. Lets say I drew a sample of two people who were 68 and 74 inches respectively in height. I would estimate a sample mean of 71 inches, which in this case would be far too high. Lets say I took another sample of two students and ended up with a mean height of 66 which would be pretty close, but a little low. Lets say I repeat this procedure until I had sampled all possible combinations of two students out of the fourty-two in the class.
 
-How many samples would this be? On the first draw from the population of `r sum(!is.na(students$height))` students there are `r sum(!is.na(students$height))` possible results. On the second draw, there are `r sum(!is.na(students$height))-1` possible results, because I won't re-sample the student I selected the first time. This gives me `r sum(!is.na(students$height))`*`r sum(!is.na(students$height))-1`=`r sum(!is.na(students$height))*(sum(!is.na(students$height))-1)` possible combinations of `r sum(!is.na(students$height))` students in two draws. However, half of these draws are just mirror images of the other draws where I swap the first and second draw. Since I don't care about the order, I actually have `r sum(!is.na(students$height))*(sum(!is.na(students$height))-1)`/2=`r sum(!is.na(students$height))*(sum(!is.na(students$height))-1)/2` possible samples.
+How many samples would this be? On the first draw from the population of `r sum(!is.na(students$height))` students there are `r sum(!is.na(students$height))` possible results. On the second draw, there are `r sum(!is.na(students$height))-1` possible results, because I won't re-sample the student I selected the first time. This gives me `r sum(!is.na(students$height))`*`r sum(!is.na(students$height))-1`=`r sum(!is.na(students$height))*(sum(!is.na(students$height))-1)` possible combinations of `r sum(!is.na(students$height))` students in two draws. However, half of these draws are just mirror images of the other draws where I swap who is drawn first and second. Since I don't care about the order of the sampling, I actually have `r sum(!is.na(students$height))*(sum(!is.na(students$height))-1)`/2=`r sum(!is.na(students$height))*(sum(!is.na(students$height))-1)/2` possible samples.
 
-I have used a computer routine to actually calculate the sample means in all `r sum(!is.na(students$height))*(sum(!is.na(students$height))-1)/2` of those possible samples. The distribution of these sample means then gives us the sampling distribution of mean height for samples of size 2. Figure \@ref(fig:hist-samplingd-size2) shows a histogram of that distribution.
+I have used a computer routine to actually calculate the sample means in all `r sum(!is.na(students$height))*(sum(!is.na(students$height))-1)/2` of those possible samples. The distribution of these sample means then gives us the sampling distribution of mean height for samples of size 2. @fig-hist-samplingd-size2 shows a histogram of that distribution.
 
 ```{r}
 #| label: fig-hist-samplingd-size2
@@ -121,7 +121,6 @@ ggplot(data.frame(means2), aes(x=means2))+
 When I randomly draw one sample of size 2 and calculate its mean, I am effectively reaching into this distribution and pulling out one of these values. Note that many of the means are clustered around the true population mean of  `r round(mean(students$height, na.rm=TRUE),1)` inches, but in a few cases I can get extreme overestimates or extreme underestimates. 
 
 What if I were to increase the sample size? I have used the same computer routine to calculate the sampling distribution for samples of size 3, 4, and 5. @fig-compare-samplingd shows the results. 
-
 
 ```{r}
 #| label: fig-compare-samplingd
@@ -182,20 +181,21 @@ temp <- data.frame(size=c(rep("n=2", length(means2)),
                           rep("n=5", length(means5))),
                    means=c(means2, means3, means4, means5))
 
-ggplot(temp, aes(x=means, y=..density.., fill=size))+
+ggplot(temp, aes(x=means, y=after_stat(density), fill=size))+
   geom_density(data=subset(temp, size=="n=5"), alpha=0.6)+
   geom_density(data=subset(temp, size=="n=4"), alpha=0.6)+
   geom_density(data=subset(temp, size=="n=3"), alpha=0.6)+
   geom_density(data=subset(temp, size=="n=2"), alpha=0.6)+
   geom_vline(xintercept = mean(students$height), color="red", linewidth=2, alpha=0.7)+
+  scale_fill_viridis_d(direction = -1)+
   labs(x="mean height")+
   xlim(58, 76)+
   theme_bw()
 ```
 
-There are three thing to note here. First, each sampling distribution seems to have most of the sample means clustered (where the peak is) around the true population mean of `r round(mean(students$height, na.rm=TRUE),1)`. In fact, the mean of each of these sampling distributions is exactly the true population parameter, as I will show below. Second, the spread of the distributions is shrinking as the sample size increases. You can see that the when the sample size increases, the tails of the distribution are "pulled in" and more of the sample means are closer to the center. This indicates that we are less likely to draw a sample mean that is extremely different from the population mean in larger samples. Third, the shape of the distribution at larger sample sizes is becoming more symmetric and "bell-shaped." 
+There are three thing to note here. First, each sampling distribution seems to have most of the sample means clustered (where the peak is) around the true population mean of `r round(mean(students$height, na.rm=TRUE),1)`. In fact, the mean of each of these sampling distributions is exactly the true population parameter, as I will show below. Second, the spread of the distributions is shrinking as the sample size increases. You can see that when the sample size increases, the tails of the distribution are "pulled in" and more of the sample means are closer to the center. This indicates that we are less likely to draw a sample mean that is extremely different from the population mean in larger samples. Third, the shape of the distribution at larger sample sizes is becoming more symmetric and "bell-shaped." 
 
-Lets take a look at the mean and standard deviation of these sampling distributions:
+@tbl-student-sample shows the means and standard deviations of these sampling distributions.
 
 ```{r echo=FALSE}
 #| label: tbl-student-sample
@@ -210,20 +210,21 @@ names <- c("Population Distribution",
            "Sampling Distribution (n=4)",
            "Sampling Distribution (n=5)")
 tibble(names, means, sds) |>
-  gt()
+  gt() |>
+  cols_label(names="Distribution", means="Mean", sds="SD")
 ```
 
 Note that the mean of each sampling distribution is identical to the true population mean. This is not a coincidence. The mean of the sampling distribution of sample means is always itself equal to the population mean. In statistical terminology, this is the definition of an **unbiased statistic**. Given that we are trying to estimate the true population mean, it is reassuring that the "average" sample mean we should get is the true population mean. 
 
-Also note that the standard deviation of the sampling distributions gets smaller with increasing sample size. This is the mathematically way of seeing the shrinking of the spread that we observed graphically. In larger sample sizes, we are less likely to draw a sample mean far away from the true population mean. 
+Also note that the standard deviation of the sampling distributions gets smaller with increasing sample size. This is mathematical confirmation of the shrinking of the spread that we observed graphically. In larger sample sizes, we are less likely to draw a sample mean far away from the true population mean. 
 
 ### Central limit theorem and the normal distribution
 
-The patterns we are seeing here are well known to statisticians. In fact, they are patterns that are predicted by the most important theorem in statistics, the **central limit theorem**. We won't delve into the technical details of this theorem. We can generally interpret the central limit theorem to say:
+The patterns we are seeing here are well known to statisticians. In fact, they are patterns that are predicted by the most important theorem in statistics, the **central limit theorem**. We won't delve into the technical details of this theorem, but we can generally interpret the central limit theorem to say:
 
 > As the sample size increases, the sampling distribution of a sample mean becomes a **normal distribution**. This normal distribution will be centered on the true population mean $\mu$ and with a standard deviation equal to $\sigma/\sqrt{n}$, where $\sigma$ is the population standard deviation. 
 
-What is this "normal" distribution? The name is somewhat misleading because there is nothing particularly normal about the normal distribution. Most real-world distributions don't look normal, but the normal distribution is central to statistical inference because of the central limit theorem. The normal distribution is a bell-shaped, unimodal, symmetric distribution. It has two characteristics that define its exact shape. The mean of the normal distribution define where its center is and the standard deviation of the normal distribution defines its spread. 
+What is this "normal" distribution? The name is somewhat misleading because there is nothing particularly normal about the normal distribution. Most real-world distributions don't look normal, but the normal distribution is central to statistical inference because of the central limit theorem. The normal distribution is a bell-shaped, unimodal, and symmetric distribution. It has two characteristics that define its exact shape. The mean of the normal distribution define its center and the standard deviation defines its spread. 
 
 Lets look at the normal sampling distribution of the mean to become familiar with it. 
 
@@ -263,23 +264,28 @@ The distribution is symmetric and bell shaped. The center of the distribution is
 
 It is easy to get confused by the number of standard deviations being thrown around in this section. There are three standard deviations we need to keep track of to properly understand what is going on here. Each of these standard deviations is associated with one of the types of distributions I introduced at the beginning of this section. 
 
-1. $\sigma$: the **population standard deviation**. In our example, this would be the standard deviation of height for all `r sum(!is.na(students$height))` students which is `r sd(students$height, na.rm=TRUE)`. Typically, like other values in the population, this number is unknown.
-2. $s$: the **sample standard deviation**. In our example, this would be the standard deviation of height from a particular sample of a given size from the class. This number can be calculated for the sample that you have, using the techniques we learned earlier in the class. 
-3. $\sigma/\sqrt{n}$: The **standard deviation of the sampling distribution of the sample mean**. We divide the population standard deviation $\sigma$ by the square root of the sample size. In general, we refer to the standard deviation of the sampling distribution as the **standard error**, for short. So remember that when I refer to the "standard error" I am using shorthand for the "standard deviation of the sampling distribution." 
+$\sigma$ ("sigma")
+: the **population standard deviation**. In our example, this would be the standard deviation of height for all `r sum(!is.na(students$height))` students which is `r round(sd(students$height, na.rm=TRUE), 3)`. Typically, like other values in the population, this number is unknown.
+
+$s$
+: the **sample standard deviation**. In our example, this would be the standard deviation of height from a particular sample of a given size from the class. This number can be calculated for the sample that you have, using the techniques we learned earlier in the class. 
+
+$\sigma/\sqrt{n}$
+: The **standard deviation of the sampling distribution of the sample mean**. We divide the population standard deviation $\sigma$ by the square root of the sample size. In general, we refer to the standard deviation of the sampling distribution as the **standard error**, for short. So remember that when I refer to the "standard error" I am using shorthand for the "standard deviation of the sampling distribution." 
 
 #### Other sample statistics
 
 In the example here, I have focused on the sample mean as the sample statistic of interest. However, the logic of the central limit theorem applies to several other important sample statistics of interest to us. In particular, the sampling distributions of:
 
-1. means
-2. proportions
-3. mean differences
-4. proportion differences
-5. correlation coefficients
+* means
+* proportions
+* mean differences
+* proportion differences
+* correlation coefficients
 
-all become normal as the sample size increases. Thus, this normal distribution becomes critically important in making statistical inferences. 
+all become normal as the sample size increases. Thus, this normal distribution is critically important in making statistical inferences for a wide variety of statistics. 
 
-Note that the standard error formula $\sigma/\sqrt{n}$ only applies to the sampling distribution of sample means. Other sample statistics have different formulas for their standard errors, which I will introduce in the next section. 
+Note that the standard error formula $\sigma/\sqrt{n}$ only applies to the sampling distribution of sample means. Other sample statistics use different formulas for their standard errors, which I will introduce in the next section. 
 
 ### What can we do with the sampling distribution?
 
@@ -358,11 +364,11 @@ If this all seems a bit confusing, you are perfectly normal. As I said, this is 
 
 ### Calculating the confidence interval for the sample mean
 
-Okay, lets try calculating a confidence interval. Lets try this out for age in the politics dataset. The formula is:
+Okay, lets try calculating a confidence interval for age in the politics dataset. The formula is:
 
 $$\bar{x}\pm1.96(\sigma/\sqrt{n})$$
 
-Oh wait, we can't do it! We don't know the value of  the population standard deviation $\sigma$.  As I explained in the last section, we are going to have to do a little "fudging" here. Instead of $\sigma$, we can use our sample standard deviation $s$. However, doing so will have consequences. Here is our new formula:
+Oh wait, we can't do it because we don't know the value of the population standard deviation $\sigma$!  As I explained in the last section, we are going to have to do a little "fudging" here. Instead of $\sigma$, we can use our sample standard deviation $s$. However, doing so will have consequences. Here is our new formula:
 
 $$\bar{x} \pm t*(s\sqrt{n})$$
 
@@ -397,11 +403,11 @@ xbar+t*se
 xbar-t*se
 ```
 
-We are 95% confident that the  mean age among all US adults is between 48.97 and 50.03 years of age. As you can see, the large sample of nearly 6,000 respondents produces a very tight confidence interval. 
+We are 95% confident that the  mean age among all US adults is between 48.97 and 50.02 years of age. As you can see, the large sample of nearly 6,000 respondents produces a very tight confidence interval. 
 
 ### Calculating the confidence interval for other sample statistics
 
-As noted in the previous section, the sampling distribution of other sample statistics such as proportions, mean differences, and regression slopes is also normally distributed in large enough samples. This means that we can use the same approach to construct confidence intervals for other sample statistics. The general form of the confidence interval is:
+As noted in the previous section, the sampling distribution of other sample statistics such as proportions, proportion differences, and mean differences is also normally distributed in large enough samples. This means that we can use the same approach to construct confidence intervals for other sample statistics. The general form of the confidence interval is:
 
 $$\texttt{(sample statistic)} \pm t*\texttt{(standard error)}$$ 
 
@@ -418,7 +424,7 @@ Correlation Coefficient  $\sqrt{\frac{1-r^2}{n-2}}$                             
 : Cheat sheet of equations for calculating standard errors and degrees of freedom {#tbl-cheat-sheet}
 
 
-I know some of that math might look intimidating but I will go through an example of each case below to show you how it works for each case. 
+I know some of that math might look intimidating but I will go through an example of each case below to show you how each formula works. 
 
 ### Example with proportions
 
@@ -427,13 +433,13 @@ As an example, lets use the proportion of respondents who do not believe in anth
 ```{r}
 #| label: calculate-phat-prop
 table(politics$globalwarm)
-n <- 1180+3058
-p_hat <- 1180/n
+n <- 1183+3054
+p_hat <- 1183/n
 n
 p_hat
 ```
 
-About 27.8% of the respondents in our sample are climate change deniers. What can we conclude about the proportion in the US population? First, lets figure out the t-statistic. We use the same $n-1$ for degrees of freedom:
+About 27.9% of the respondents in our sample are climate change deniers. What can we conclude about the proportion in the US population? First, lets figure out the t-statistic. We use the same $n-1$ for degrees of freedom:
 
 ```{r}
 # calculate-tstat-prop
@@ -445,9 +451,9 @@ Our sample is large enough that we are basically using 1.96. Now we need to calc
 
 $$\sqrt{\frac{\hat{p}*(1-\hat{p})}{n}}$$
 
-The term $hat{p}$ is the standard way to represent the sample proportion, which in this case is 0.279. So, our formula is:
+The term $\hat{p}$ is the standard way to represent the sample proportion, which in this case is 0.279. So, our formula is:
 
-$$\sqrt{\frac{0.278*(1-0.278)}{4238}}$$
+$$\sqrt{\frac{0.279*(1-0.279)}{4237}}$$
 
 We can calculate this in *R*:
 
@@ -465,41 +471,41 @@ p_hat+t_stat*se
 p_hat-t_stat*se
 ```
 
-We are 95% confident that the true percentage of climate change deniers in the the US population is between 26.5% and 29.2%. 
+We are 95% confident that the true percentage of climate change deniers in the the US population is between 26.6% and 29.3%. 
 
 ### Example with mean differences
 
-Using our popularity data, what is the mean difference in popularity (number of friend nominations) between frequent smokers and those who do not smoke frequently? 
+Using the popularity data, what is the mean difference in number of friend nominations between frequent smokers and those who do not smoke frequently? 
 
 ```{r}
 #| label: calculate-mean-diff
-tab <- tapply(popularity$nominations, popularity$smoker, mean)
-tab
-mean_diff <- 4.796992 - 4.506699
+tapply(popularity$nominations, popularity$smoker, mean)
+mean_diff <- 4.781109 - 4.509383
 mean_diff
 ```
 
-In our sample data, frequent smokers had 0.290 more friends on average than those who did not smoke frequently. What is the confidence interval for that value in the population? We start by calculating the t-statistic for this confidence interval. We use the size of the smaller group minus one for the degrees of freedom.
+In our sample data, frequent smokers had 0.272 more friends on average than those who did not smoke frequently. What is the confidence interval for that value in the population? We start by calculating the t-statistic for this confidence interval. We use the size of the smaller group minus one for the degrees of freedom.
 
 ```{r}
 #| label: calculate-tstat-mdiff
 table(popularity$smoker)
-n1 <- 3732
-n2 <- 665
+n1 <- 3730
+n2 <- 667
 t_stat <- qt(.975, n2-1)
 t_stat
 ```
 
-The value is pretty close to 1.96 but a little bigger. Now we need to calculate the standard error. The formula is: 
+Now we need to calculate the standard error. The formula is: 
 
 $$\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}$$
-We already have $n_1$ and $n_2$, so we just need to get the standard deviation of friend nominations for the two groups to get $s_1$ and $s_2$. We can do this with another tapply command, but changing from `mean` to `sd` in the third argument.
+
+We already have $n_1$ and $n_2$, so we just need to get the standard deviation of friend nominations for the two groups to get $s_1$ and $s_2$. We can do this with another `tapply` command, but changing from `mean` to `sd` in the third argument.
 
 ```{r}
 #| label: calculate-se-mdiff
 tapply(popularity$nominations, popularity$smoker, sd)
-s1 <- 3.652224
-s2 <- 3.901188
+s1 <- 3.655234
+s2 <- 3.885764
 se <- sqrt(s1^2/n1+s2^2/n2)
 se
 ```
@@ -511,22 +517,22 @@ Now we have all the pieces to put together the confidence interval:
 mean_diff - t_stat*se
 mean_diff + t_stat*se
 ```
-We are 95% confident that in the population of US adolescents, those who smoke frequently have between 0.03 fewer to 0.61 more friend nominations, on average, than those who do not smoke frequently. Note that because our confidence interval contains both negative and positive value, we cannot be confident about whether smoking is truly associated with having more or less friends. The direction of the relationship between the two variables is uncertain.
+We are 95% confident that in the population of US adolescents, those who smoke frequently have between 0.05 fewer to 0.59 more friend nominations, on average, than those who do not smoke frequently. Note that because our confidence interval contains both negative and positive values, we cannot be confident about whether smoking is truly associated with having more or less friends. The direction of the relationship between the two variables is uncertain.
 
 ### Example with proportion differences
 
-Lets continue to use the Add Health data. Do we observe a gender difference in smoking behavior in our sample?
+Lets continue to use the popularity data. Do we observe a gender difference in smoking behavior in our sample?
 
 ```{r}
 #| label: calculate-prop-diff
 prop.table(table(popularity$smoker, popularity$gender), 2)
-p_hat_f <- 0.1465106
-p_hat_m <- 0.1564593
+p_hat_f <- 0.1469441
+p_hat_m <- 0.1569378
 p_hat_diff <- p_hat_m-p_hat_f
 p_hat_diff
 ```
 
-In our sample, about 14.7% of girls were frequent smokers and about 15.6% of boys were frequent smokers. The percentage of boys who smoke is about 1% higher than the percentage of girls. Do we think this moderate difference in the sample is true in the population? 
+In our sample, about 14.7% of girls were frequent smokers and about 15.7% of boys were frequent smokers. The percentage of boys who smoke is about 1% higher than the percentage of girls. Do we think this moderate difference in the sample is true in the population? 
 
 Lets start again by calculating the appropriate t-statistic for our confidence interval. We use the same procedure as for mean differences above, choosing the size of the smaller group for the degrees of freedom. However, its important to note that our groups are now boys and girls, not smokers and non-smokers.
 
@@ -563,7 +569,7 @@ We are 95% confident that in the population of US adolescents, between 1.1% fewe
 
 ### Example with correlation coefficient
 
-Lets stick with the Add Health data. What is the correlation between GPA and the number of friend nominations that a student receives?
+Lets stick with the popularity data. What is the correlation between GPA and the number of friend nominations that a student receives?
 
 ```{r}
 #| label: calculate-r
@@ -579,6 +585,7 @@ For the t-statistic, we use $n-2$ for the degrees of freedom:
 #| label: calculate-tstat-r
 n <- nrow(popularity)
 t_stat <- qt(.975, n-2)
+t_stat
 ```
 
 For the standard error, the formula is:
@@ -600,21 +607,21 @@ r - t_stat*se
 r + t_stat*se
 ```
 
-We are 95% confident that the true correlation coefficient between GPA and friend nominations in the population of US adolescents is between 0.139 and 0.197. While there is some difference in the strength of that relationship, we are pretty confident that the correlation is moderately positive.
+We are 95% confident that the true correlation coefficient between GPA and friend nominations in the population of US adolescents is between 0.125 and 0.183. While there is some difference in the strength of that relationship, we are pretty confident that the correlation is moderately positive. Unlike in the previous two cases, we can be confident of its direction.
 
 ## Hypothesis Tests
 
 In social scientific practice, hypothesis testing is far more common than confidence intervals as a technique of statistical inference. Both techniques are fundamentally derived from the sampling distribution and produce similar results, but the methodology and interpretation of results is very different. 
 
-In hypothesis testing, we play a game of make believe. Remember that the fundamental issue we are trying to work around is that we don't know the value of the true population parameter and thus we don't know where the center is for the sampling distribution of the sample statistic. In hypothesis testing, we work around this issue by boldly asserting what we think the true population parameter. We then test whether the data that we got are reasonably consistent with that assertion. 
+In hypothesis testing, we play a game of make believe. Remember that the fundamental issue we are trying to work around is that we don't know the value of the true population parameter and thus we don't know where the center is for the sampling distribution of the sample statistic. In hypothesis testing, we work around this issue by boldly asserting the value of the true population parameter. We then test whether the data that we got are reasonably consistent with that assertion. 
 
 ### Example: Coke winners
 
-Lets take a fairly straightforward example. Coca-Cola used to run promotions where a certain percentage of bottle caps were claimed to win you another free coke. In one such promotion, when I was in graduate school, Coca-Cola ran a promotion where they claimed that 1 in 12 bottles were winners. If this is true, then 8.3% (1/12=0.083) of all the coke bottles in every grocery store and mini mart should be winners. 
+Lets take a fairly straightforward example. Coca-Cola used to run promotions where a certain percentage of bottle caps were claimed to win you another free coke. In one such promotion, when I was in graduate school, Coca-Cola ran a promotion where they claimed that 1 in 12 bottles were winners. If this is true, then 8.3% (1/12=0.083) of all the coke bottles in every grocery store and mini mart should contain winning bottle caps. 
 
 Being a grad student who needed to stay up late writing a dissertation fueled by caffeine and "sugar," I use to drink quite a few Cokes. After only receiving a few winners after numerous attempts, I began to get suspicious of the claim. I started collecting bottle caps to see if I could statistically find evidence of fraudulent behavior. 
 
-For the sake of this exercise, lets say I collected 100 coke bottle caps (I never got this high in practice, but its a nice round number) and that I only got five winners. My winning percentage is 5% which is lower than Coke's claim of 8.3%. 
+For the sake of this exercise, lets say I collected 100 Coke bottle caps (I never got this high in practice, but its a nice round number) and that I only got five winners. My winning percentage is 5% which is lower than Coke's claim of 8.3%. 
 
 The critical question is whether it is likely or unlikely that I would get a winning percentage this different from the claim in a sample of 100 bottle caps. That is what a hypothesis test is all about. We are asking whether the data that we got are likely under some assumption about the true parameter. If they are unlikely, then we reject that assumption. if they are not unlikely, then we do not reject the assumption. 
 
@@ -624,9 +631,14 @@ $$H_0: \rho=0.083$$
 
 I use the Greek letter $\rho$ as a symbol for the population proportion. I will use $\hat{p}$ to represent the sample proportion in my sample, which is 0.05. 
 
-Some standard statistical textbooks will also claim that there is an "alternative hypothesis." That alternative hypothesis is specified as "anything but the null hypothesis." In my opinion, this is incorrect because vague statements about "anything else" do not constitute an actual hypothesis about the data. We are testing only whether the data are consistent with the null hypothesis. No other hypothesis is relevant. 
+::: {.callout-note collapse="true"}
+## What about the alternative hypothesis?
 
-We got a sample proportion of 0.05 on a sample of 100.  **Assuming the null hypothesis is true**, what would the sampling distribution look like from which I pulled my 0.05? Note the part in bold above. We are now playing our game of make believe. 
+Some standard statistical textbooks also claim that there is an "alternative hypothesis." That alternative hypothesis is specified as "anything but the null hypothesis." In my view, this is incorrect because vague statements about "anything else" do not constitute an actual hypothesis about the data. We are testing only whether the data are consistent with the null hypothesis. No other hypothesis is relevant. 
+
+:::
+
+My sample of 100 had a winning proportion of 0.05.  **Assuming the null hypothesis is true**, what would the sampling distribution look like from which I pulled my 0.05? Note the part in bold above. We are now playing our game of make believe. 
 
 We know that on a sample of 100, the sample proportion should be normally distributed. It should also be centered on the true population proportion. Because we are assuming the null hypothesis is true, it should be centered on the value of 0.083. The standard error of this sampling distribution is given by:
 
@@ -656,9 +668,11 @@ To calculate how far away I am on some standard scale, I divide the distance by 
 
 $$\frac{0.05-0.083}{0.028}=\frac{-0.033}{0.028}=-1.18$$
 
-My sample proportion is 1.18 standard errors below the center of the sampling distribution. Is this an unlikely distance? To figure this out, we need to calculate the area in the lower tail of the sampling distribution past my red line. This number will tell us the proportion of all sample proportions that would be 0.05 or lower, assuming the null hypothesis is true. This standardized measure of how far is sometimes called the **test statistic** for a given hypothesis test. 
+My sample proportion is 1.18 standard errors below the center of the sampling distribution. This standardized measure of how far away from the center we are is sometimes called the **test statistic** for a given hypothesis test.  
 
-Calculating this area is not a trivial exercise, but *R* provides a straightforward command called `pt` which is somewhat similar to the `qt` command above. We just need to feed in how many standard errors our estimate is away from the center (-1.18) and the degrees of freedom. These degrees of freedom are identical to the ones used in confidence intervals (in this case, $n-1$, so 99). 
+Is this an unlikely distance? To figure this out, we need to calculate the area in the lower tail of the sampling distribution past my red line. This number will tell us the proportion of all sample proportions that would be 0.05 or lower, assuming the null hypothesis is true. 
+
+Calculating this area is not a trivial exercise, but *R* provides a straightforward command called `pt` which is somewhat similar to the `qt` command above. We just need to feed in how many standard errors our estimate is away from the center (-1.18) and the degrees of freedom. These degrees of freedom are identical to the ones used in confidence intervals (in this case, the sample statistic is a proportion so we use $n-1$, which equals 99). 
 
 ```{r}
 #| label: pt-command
@@ -706,13 +720,13 @@ arrows(2.5,4.5,0.5,10)
 text(0,11,"p-value=0.12+0.12=0.24 (24%)",pos=3)
 ```
 
-Assuming the null hypothesis is true, there is a 24% chance of getting a sample proportion as far from the true population mean or farther, just by random chance. We call this probability the **p-value**. The p-value is the ultimate goal of the hypothesis test. All hypothesis tests produce a p-value and it is the p-value that we will use to make a decision about our test.
+Assuming the null hypothesis is true, there is a 24% chance of getting a sample proportion this far from the true population proportion or farther, just by random chance. We call this probability the **p-value**. The p-value is the ultimate metric of the hypothesis test. All hypothesis tests produce a p-value and it is the p-value that we will use to make a decision about our test.
 
-What should that decision be? We have only two choices. If the p-value is low enough, then it is unlikely that we would have gotten this data or data more extreme, assuming the null hypothesis is true. Therefore, we **reject the null hypothesis**. If the p-value is not low enough, then it is reasonable that we would have gotten this data or data more extreme, assuming the null hypothesis is true. Therefore, we **fail to reject the null hypothesis**. Note that we NEVER accept or prove the null hypothesis. It is already our working assumption, so the best we can do for it is to fail to reject it and thus continue to use it as our working assumption. 
+What should that decision be? We have only two choices. If the p-value is low enough, then it is unlikely that we would have gotten this data or data more extreme, assuming the null hypothesis is true. Therefore, we **reject the null hypothesis**. If the p-value is not low enough, then it is reasonable that we would have gotten this data or data more extreme, assuming the null hypothesis is true. Therefore, we **fail to reject the null hypothesis**. Note that we **never** accept or prove the null hypothesis. It is already our working assumption, so the best we can do is fail to reject it and thus continue to use it as our working assumption. 
 
-How low does the p-value need to be in order to reject it? There is no right answer here, because this is a subjective question. However, there is a generally agreed upon practice in the social sciences that we reject the null hypothesis when the p-value is at or below 0.05 (5%). Note that while there is general consensus around this number, it is an arbitrary cutpoint. The practical difference between a p-value of 0.049 and 0.051 is negligible, but under this arbitrary standard, we would make different decisions in each case. I would rather that you just learn to think about what the p-value represents and reach your own decision.
+How low does the p-value need to be in order to reject it? There is no right answer here, because this is a subjective question. However, there is a generally agreed upon practice in the social sciences that we reject the null hypothesis when the p-value is at or below 0.05 (5%). While there is general consensus around this number, it is an arbitrary cutpoint. The practical difference between a p-value of 0.049 and 0.051 is negligible, but under this arbitrary standard, we would make different decisions in each case. Its good to know the standards, but don't imbue them with a magical certainty. Its better to truly understand what a p-value represents and make your decisions accordingly.
 
-No reasonable scientist, however, would reject the null hypothesis with a p-value of 24% as we have in our Coke case. Nearly 1 in 4 samples of size 100 would produce a sample proportion this different  from the assumed true proportion of 8.3% just by random chance. I therefore do not have sufficient evidence to reject the null hypothesis that Coke is telling the truth. Note that I have not proved that Coke is telling the truth. I have only failed to produce evidence that they are lying. 
+No reasonable scientist, however, would reject the null hypothesis with a p-value of 24% as we have in this case. Nearly 1 in 4 samples of size 100 would produce a sample proportion this different  from the assumed true proportion of 8.3% just by random chance. I therefore do not have sufficient evidence to reject the null hypothesis that Coke is telling the truth. Note that I have not proved that Coke is telling the truth. I have only failed to produce evidence that they are lying. I'll get you next time, Coca-Cola!
 
 ### The general procedure of hypothesis testing
 
@@ -723,7 +737,8 @@ The general procedure of hypothesis testing is as follows:
 3. Calculate the **p-value** for the test statistic. The p-value is the probability of getting a sample statistic this far or farther (in absolute value) from the true population parameter, *assuming the null hypothesis is true*. 
 4. If the p-value is below some threshold (typically 0.05), **reject the null hypothesis**. Otherwise, **fail to reject the null hypothesis**. 
 
-#### Interpreting p-values correctly
+::: {.callout-note collapse="true"}
+## Interpreting p-values correctly
 
 P-values are widely misunderstood in practice. Studies have been done of practicing researchers across different disciplines where these researchers were asked to interpret a p-value from a multiple choice question and the majority get it wrong. Therefore, don't feel bad if you are having trouble understanding a p-value. You are in good company! Nonetheless, proper interpretation of a p-value is critically important for our understanding of what a hypothesis test does.
 
@@ -731,11 +746,21 @@ The reason many people get the interpretation of p-values wrong is that they wan
 
 Correctly interpreted, **the p-value is a probability statement about the data, not about the hypothesis**. Specifically, we are asking what the probability is of observing data this extreme or more extreme, assuming the null hypothesis is true. We are not making a probability statement about hypotheses. Rather we are assuming a hypothesis and then asking about the probability of the data. This difference may seem subtle, but it is in fact quite substantial in interpretation. 
 
-The reason why everyone (including you and me) struggles with this is that our brains want it to be the other way around. Ultimately by rejecting or failing to reject we are making statements about whether we believe the hypothesis or not, but we are not doing that directly by a probability statement about the hypothesis but rather a probability statement about the likelihood of the data given the hypothesis. 
+Its best to understand the p-value is a **conditional probability** which is sometimes written generally as:
+
+$$P(A|B)$$
+
+Which means the probability that $A$ happens given that $B$ happened. In this case, the p-value can be expresses as the probability of getting the data you got given the null hypotheis is true, or mathematically:
+
+$$P(data|H_0)$$
+
+The reason why everyone (including you and me) struggles with this is that our brains want it to be the other way around (e.g. $P(H_0|data)$). Ultimately by rejecting or failing to reject we are making statements about whether we believe the hypothesis or not, but we are not doing that directly by a probability statement about the hypothesis but rather a probability statement about the likelihood of the data given the hypothesis.
+
+:::
 
 ### Hypothesis tests of relationships
 
-The hypothesis tests that we care the most about in the sciences are hypothesis tests about relationships between variables. We want to know whether the association we are observing in the sample is true in the population. In all of these cases, our null hypothesis is that there is no association, and we want to know whether the association we observe in the sample is strong enough to reject this null hypothesis of no association. We can do hypothesis tests of this nature for both mean differences and regression slopes. 
+The hypothesis tests that we care the most about in the sciences are hypothesis tests about relationships between variables. We want to know whether the association we observe in the sample is true in the population. In all of these cases, our null hypothesis is that there is no association, and we want to know whether the association we observe in the sample is strong enough to reject this null hypothesis of no association. We can do hypothesis tests of this nature for mean differences, proportion differences, and correlation coefficients. 
 
 #### Example: mean differences
 
@@ -746,17 +771,17 @@ Lets look at differences in mean income (measured in $1000) by religion in the p
 tapply(politics$income, politics$relig, mean)
 ```
 
-I want to look at the difference between Evangelical Protestants and "Other Religions." The mean difference here is:
+I want to look at the difference between Mainline Protestants and Catholics. The mean difference here is:
 
-$$58.32606-60.75311=-2.42705$$
+$$81.62389-78.14887=3.475$$
 
-Evangelical Protestants make \$2,427 less than members of other religions, in my sample. 
+Mainline Protestants make \$3,475 more than Catholics in my sample. Do I believe this difference is real in the population?
 
-Let me set up a hypothesis test where the null hypothesis is that Roman Catholics and members of other religions have the same income, or in other words, the mean difference in income is zero:
+Let me set up a hypothesis test where the null hypothesis is that Mainline Protestants and Catholics have the same income in the population, or in other words, the mean difference in income is zero:
 
-$$H_0: \mu_c-\mu_o=0$$
+$$H_0: \mu_p-\mu_p=0$$
 
-Where $\mu_c$ is the population mean income of evangelical Protestants and $\mu_o$ is the population mean income of members of other religions. In order to figure out how far my sample mean difference of -2.427 is from 0, I need to find the standard error of the mean difference. The formula for this number is:
+Where $\mu_p$ is the population mean income of Mainline Protestants and $\mu_c$ is the population mean income of Catholics. In order to figure out how far my sample mean difference of 3.475 is from 0, I need to find the standard error of the mean difference. The formula for this number is:
 
 $$\sqrt{\frac{s_c^2}{n_c}+\frac{s_o^2}{n_o}}$$
 
@@ -766,22 +791,22 @@ I can calculate this in *R*:
 #| label: calculate-tstat-mdiff-hypo
 tapply(politics$income, politics$relig, sd)
 table(politics$relig)
-se <- sqrt(51.23396^2/917+56.37886^2/883)
--2.42705/se
+se <- sqrt(63.16744^2/787+66.60352^2/1021)
+3.475/se
 ``` 
 
-The t-statistic of -0.95 here is not very large. I am only 0.44 standard errors below 0 on the sampling distribution, assuming the null hypothesis is true. Lets go ahead and calculate the p-value for this t-statistic. Remember that I need to put in the negative version of this number to the `pt` command. I also need to use the smaller of the two sample sizes for my degrees of freedom:
+The t-statistic of 1.13 is not very large. I am only 1.13 standard errors above 0 on the sampling distribution, assuming the null hypothesis is true. Because I have not passed the critical 1.96 value, I know that my p-value is not going to be low enough. Lets go ahead and calculate the p-value exactly, though. Remember that I need to put in the negative version of this number to the `pt` command. I also need to use the smaller of the two sample sizes for my degrees of freedom:
 
 ```{r}
 #| label: calculate-pvalue-mdiff
-2*pt(-0.95, 883-1)
+2*pt(-1.132527, 787-1)
 ```
 
-In a sample of this size, there is an 34% chance of observing a mean income difference of $2,427 or more between evangelical Protestants and members of other religions, just by sampling error, assuming that there is no difference in income in the population. Therefore, I **fail to reject the null hypothesis** that evangelical Protestants and members of other religions make the same income. 
+In a sample of this size, there is an 26% chance of observing a mean income difference of $3,475 or more between Mainline Protestants and Catholics, just by sampling error, assuming that there is no difference in income between these groups in the population. Therefore, I **fail to reject the null hypothesis** that Mainline Protestants and Catholics make the same income. 
 
 #### Example of proportion differences
 
-Lets look at the difference in smoking behavior between white and black students in the Add Health data. Our null hypothesis is:
+Lets look at the difference in smoking behavior between white and black students in the popularity data. Our null hypothesis is:
 
 $$H_0: \rho_w-\rho_c=0$$
 In simple terms, our null hypothesis is that the same proportion of white and black adolescents smoke frequently. Lets look at the actual numbers from our sample:
@@ -789,19 +814,19 @@ In simple terms, our null hypothesis is that the same proportion of white and bl
 ```{r}
 #| label: calculate-pdiff-hypo
 prop.table(table(popularity$smoker, popularity$race),2)
-p_w <- 0.20439894
-p_b <- 0.05152838
+p_w <- 0.20494297
+p_b <- 0.05313589
 p_diff <- p_w-p_b
 p_diff
 ```
 
-About 20.4% of white students smoked frequently, compared to only 5.2% of black students. The difference in proportion is a large 15.3% in the sample. This would seem to contradict our null hypothesis. However, we need to confirm that a difference this large in a sample of our size is unlikely to happen by random chance. To do that we need to calculate the standard error, just as we learned to do it for proportion differences in the confidence interval section:
+About 20.5% of white students smoked frequently, compared to only 5.3% of black students. The difference in proportion is a large 15.2% in the sample. This would seem to contradict our null hypothesis. However, we need to confirm that a difference this large in a sample of our size is unlikely to happen by random chance. To do that we need to calculate the standard error, just as we learned to do it for proportion differences in the confidence interval section:
 
 ```{r}
 #| label: calculate-se-pdiff-hypo
 table(popularity$race)
-n_w <- 2637
-n_b <- 1145
+n_w <- 2630
+n_b <- 1148
 se <- sqrt((p_w*(1-p_w)/n_w)+(p_b*(1-p_b)/n_b))
 se
 ```
@@ -814,14 +839,26 @@ t_stat <- p_diff/se
 t_stat
 ```
 
-Wow, thats a lot. We can be pretty confident already without the final step of the p-value, but lets calculate it anyway. Remember ot always take the negative version of the t-statistic you calculated:
+Wow, thats a lot. We can be pretty confident already without the final step of the p-value, but lets calculate it anyway. Remember as always to take the negative version of the t-statistic you calculated:
 
 ```{r}
 #| label: calculate-pvalue-pdiff
-2*pt(-14.96485, n_b-1)
+2*pt(-14.76006, n_b-1)
 ```
 
-The p-value is astronomically small. In a sample of this size, the probability of observing a difference in the proportion frequent smokers between whites and blacks of 15.3% or larger if there is no difference in the population is less than 0.0000001%. Therefore, I **reject the null hypothesis** and conclude that white students are more likely to be frequent smokers than are black students. 
+The p-value is astronomically small. In a sample of this size, the probability of observing a difference in the proportion frequent smokers between white and black adolescents of 15.2% or larger if there is no difference in the population is less than 0.0000001%. Therefore, I **reject the null hypothesis** and conclude that white students are more likely to be frequent smokers than are black students. 
+
+::: {.callout-tip collapse="true"}
+## What number is 2.852712e-45?
+
+When you calculate p-values, you will sometimes get p-values that are so small *R* expresses them in scientific notation as for the example above. The `e-45` part of this results indicates that we multiple our value by $10^{-45}$, which is equivalent to moving the decimal place over 45 spaces to the left. The resulting number is:
+
+$$0.000000000000000000000000000000000000000000002852712$$
+
+Thats a really small number! If you see output in terms of scientific notation, then you are dealing with a very small number and you can safely reject the null hypothesis. In those cases, rather than write out th exact probability, I just write "less than 0.0000001%."
+
+:::
+
 
 #### Example of correlation coefficient
 
@@ -855,19 +892,17 @@ What is the probability of being that far away from zero for a sample of this si
 
 ```{r}
 #| label: calculate-pvalue-r
-2*pt(-8.334658, n-2)
+2*pt(-8.002166, n-2)
 ```
 
-The probability is very small. In a sample of this size, the probability is less than 0.00000001% of observing a correlation coefficient between parental income and friend nominations received of an absolute magnitude of 0.125 or higher when the true correlation is zero in the population. Therefore, we **reject the null hypothesis** and conclude that there is a positive correlation between parental income and popularity among US adolescents.
+The probability is very small. In a sample of this size, the probability is less than 0.00000001% of observing a correlation coefficient between parental income and friend nominations received of an absolute magnitude of 0.12 or higher when the true correlation is zero in the population. Therefore, we **reject the null hypothesis** and conclude that there is a positive correlation between parental income and popularity among US adolescents.
 
-#### Statistical Significance
+### Statistical Significance
 
 When a researcher is able to reject the null hypothesis of "no association," the result is said to be **statistically significant**. This is a somewhat unfortunate phrase that is sometimes loosely interpreted to indicate that the result is "important" in some vague scientific sense. 
 
 In practice, it is important to distinguish between substantive and statistical significance. In very large datasets, standard errors will be very small, and thus it is possible to observe associations that are very small in substantive size that are nonetheless statistically significant. On the flip side, in small datasets, standard errors will often be large, and thus it is possible to observe associations that are very large in substantive size but not statistically significant. 
 
-It is important to remember that "statistical significance" is a reference to statistical inference and not a direct measure of the actual magnitude of an association. I prefer the term "statistically distinguishable" to "statistically significant" because it more clearly indicates what is going on. In the previous example, we found that the income differences in our sample between Catholics and members of other religions are not statistically distinguishable from zero. We also found that the negative association in our sample between age and sexual frequency was statistically distinguishable from zero. Establishing whether an association is worthwhile in its substantive effect is a totally different exercise from establishing whether it is statistically distinguishable from zero. 
+It is important to remember that "statistical significance" is a reference to statistical inference and not a direct measure of the actual magnitude of an association. I prefer the term "statistically distinguishable" to "statistically significant" because it more clearly indicates what is going on. In one of the previous examples, we found that the income difference in the politics sample between Mainline Protestants and Catholics was not statistically distinguishable from zero. Establishing whether an association is worthwhile in its substantive effect is a totally different exercise from establishing whether it is statistically distinguishable from zero. 
 
 It is also important to remember that a statistically insignificant finding is not evidence of no relationship because we never accept the null hypothesis. We have just failed to find sufficient evidence of a relationship. No evidence of an association is not evidence of no association. 
-
-

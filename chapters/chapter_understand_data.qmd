@@ -92,7 +92,7 @@ load("sex.RData")
 
 `load` is an example of an *R* command (or function), which I will have more to say about in the next module. 
 
-::: {.callout-caution collapse="false"}
+::: {.callout-caution collapse="true"}
 ## Where is your data?
 
 This command will only work if the file is in the working directory shown at the top of the R console. Typically, your working directory will be the top-level directory of the projects we work in. If for example, your dataset files are in a subdirectory of the working directory called `input`, you would instead need to type:
@@ -126,7 +126,7 @@ mean(sex$educ)
 
 If you type this command in RStudio, you will notice that RStudio will start offering possible variable names as soon as you enter in the `$`.
 
-::: {.callout-caution collapse="false"}
+::: {.callout-caution collapse="true"}
 ## Dataset not found!
 
 One of the most common problems students first have when learning *R* looks something like:

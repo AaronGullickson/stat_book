@@ -32,7 +32,7 @@ tab
 
 The two-way table gives us the **joint distribution** of the two variables, which is the number of respondents who belong to a particular intersection of both variables. For example, we can see that 234 democrats did not believe in anthropogenic climate change while 1238 did. 
 
-::: {.callout-note collapse="false"}
+::: {.callout-note collapse="true"}
 ## Rows, Columns, and Dimensions
 
 Notice that the table is showing party affiliation on the rows and climate change belief on the columns. Which way *R* does this will depend on the order in which you entered the variables into the `table` command. The row variable always comes first, followed by the column variable. So, if I reversed the ordering, I would get:
@@ -134,7 +134,7 @@ We can use the `prop.table` command we saw in @sec-look-distributions to estimat
 prop.table(tab, 1)
 ```
 
-::: {.callout-warning collapse="false"}
+::: {.callout-warning collapse="true"}
 ## Never forget the denominator!
 
 To properly compare conditional distributions, you must *always* use proportions and never the raw values from the table. Groups can vary in size and thus the raw numbers may tell us little about the associations we are interested in, but rather just indicate which groups are larger or smaller. The reason we divide through by the marginal distribution is so that we put each group on a level playing field, by directly comparing the *proportions* of each group that fall into each of the categories of the other variable.
@@ -205,7 +205,7 @@ ggplot(politics, aes(x=globalwarm, y=after_stat(prop),
 
 In this figure, the colors indicate each party affiliation and we plot the bars for each different affiliation next to each other. This approach allows us to easily compare the proportion for each group. For example, I can see that Democrats have the largest proportion in the "Yes" column and Republicans have the smallest proportion.
 
-::: {.callout-tip collapse="false"}
+::: {.callout-tip collapse="true"}
 ## Controlling the color palette
 
 In the previous chapter, I showed you how to color geoms using the `fill` and `col` arguments. You will notice in the comparative barplot above that we are using color in a different way. Color is now one of the *aesthetics* that we use to add information to the plot, not just style. In this case, the fill color indicated which political party a given bar represents. When we use color in this way, we can't just define a single color. Instead we need to define a *color palette* that contains at least as many colors as we have categories (in this case four). If we don't specify a color palette, ggplot will use a default one.
@@ -392,7 +392,7 @@ $$\frac{234*666}{570*1238}=0.22$$
 
 I get a very different odds ratio, but that is because I am calculating something different. I am now calculating the odds ratio of being a denier rather than a believer. So I would say that the "the odds of *denial* of anthropogenic climate change among Democrats are only 22% as high as the odds for Republicans." In other words, the odds of being a denier are much lower among Democrats.
 
-::: {.callout-tip collapse="false"}
+::: {.callout-tip collapse="true"}
 ## Interpreting odds ratios less than one
 
 An odds ratio less than one, like the example above, indicates that the odds (in this case of climate change denial) get smaller for the indicated category (in this case, Democrats) rather than larger. Essentially, we are being told that to get the odds for Democrats, we multiply the odds for Republicans by 0.22. When you multiply by a number less than one, it gets smaller. 
@@ -465,7 +465,7 @@ If we want a quantitative measure of how genre and runtime are related we can ca
 
 We could have reversed that differencing to get $98.6-114.6=-16$. In this case, we would say that horror movies are 16 minutes *shorter* than action movies, on average. Either way, we get the same information. However, its important to keep track of which number applies to which category when you take the difference, so that you get the interpretation correct. 
 
-::: {.callout-note collapse="false"}
+::: {.callout-note collapse="true"}
 ## Don't forget to say "on average!"
 
 You will notice that when I interpret these mean differences, I always include the phrase "on average." It's important to include this to avoid overly deterministic and monolithic statements. In the previous example, while action movies have a higher mean movie runtime than horror movies, some horror movies are also long and some action movies are also short (as evidenced in @fig-compare-box-runtime-genre). The mean is, by intent, collapsing all of this individual level heterogeneity to get a summary measure. We don't want to incorrectly imply that all action movies are longer than all horror movies, but rather that, "on average," action movies are longer than horror movies.

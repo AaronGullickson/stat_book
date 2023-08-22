@@ -2,6 +2,7 @@ project:
   type: book
   pre-render:
     - scripts/check_packages.R
+  execute-dir: project
 
 book:
   title: "Statistical Analysis in Sociology"
@@ -13,6 +14,7 @@ book:
         - chapters/chapter_understand_data.qmd
         - chapters/chapter_look_distributions.qmd
         - chapters/chapter_measure_association.qmd
+        - chapters/chapter_make_inferences.qmd
 #   - part: "Going Further"
 #     chapters:
   appendices:

@@ -193,14 +193,14 @@ Faceting is one way to get a comparative barplot. Another approach is to use col
 ggplot(politics, aes(x=globalwarm, y=after_stat(prop),           
                      group=party, fill=party))+                    # <1>
   geom_bar(position = "dodge")+                                    # <2>
-  scale_y_continuous(labels = scales::percent)+                    # <3>
-  scale_fill_viridis_d()+
+  scale_y_continuous(labels = scales::percent)+                    
+  scale_fill_viridis_d()+                                          # <3>
   labs(x="belief in anthropogenic climate change", y=NULL,
        fill="party affiliation")+
   theme_bw()
 ```
 1. The first change from our previous barplots is that instead of `group=1` (all one group), I am now grouping by the `party` variable. This will calculate correct conditional distributions of the `globalwarm` variable by party affiliation. I also add another aesthetic here of `fill=party`. This means that the fill color of the bars will vary by party affiliation.
-2. I use `geom_bar` as usual. However, if I specify this geom without an argument, the bars for each party will end up stacked on top of each other, which is not what I want. The `position="dodge"` argument tells ggplot to stack these next to each other instead (thinking of dodging shapes in Tetris).
+2. I use `geom_bar` as usual. However, if I specify this geom without an argument, the bars for each party will end up stacked on top of each other, which is not what I want. The `position="dodge"` argument tells ggplot to stack these next to each other instead (think of dodging shapes in Tetris).
 3. If I want to control the color palette of my fill color I can specify a `scale_fill_*` command. In this case, I am using a built-in palette called [viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) that is known to be colorblind safe. The callout below provides more information on using other color schemes.
 
 In this figure, the colors indicate each party affiliation and we plot the bars for each different affiliation next to each other. This approach allows us to easily compare the proportion for each group. For example, I can see that Democrats have the largest proportion in the "Yes" column and Republicans have the smallest proportion.
@@ -269,7 +269,7 @@ You will then need to load this package with the library command before using on
 
 ```{r}
 #| label: fig-comp-barplot-color-wesanderson
-#| fig-cap: Distribution of belief in anthropogenic climate change by party affiliation, ANES 2016. Here I use one of the color palettes from the Wes Anderson Paletters for Moonrise Kingdom.
+#| fig-cap: Distribution of belief in anthropogenic climate change by party affiliation, ANES 2016. Here I use one of the color palettes from the Wes Anderson Palettes for Moonrise Kingdom.
 library(wesanderson)                                       # <1>
 ggplot(politics, aes(x=globalwarm, y=after_stat(prop),           
                      group=party, fill=party))+                    
@@ -390,13 +390,44 @@ tab |>
 
 $$\frac{234*666}{570*1238}=0.22$$
 
-I get a very different odds ratio, but that is because I am calculating something different. I am now calculating the odds ratio of being a denier rather than a believer. So I would say that the "the odds of denial of anthropogenic climate change among Democrats are only 22% of the odds for Republicans." In other words, the odds of being a denier are much lower among Democrats. 
+I get a very different odds ratio, but that is because I am calculating something different. I am now calculating the odds ratio of being a denier rather than a believer. So I would say that the "the odds of *denial* of anthropogenic climate change among Democrats are only 22% as high as the odds for Republicans." In other words, the odds of being a denier are much lower among Democrats.
 
-However, the information here is the same because the 0.22 here is exactly equal to 1/4.53. In other words, the odds ratio of denial is just the inverted mirror image of the odds ratio of belief. Its just important that you remember that when you calculate the cross-product, you are always calculating the odds ratio of being of the category of the first row being in the category of the first column, whatever category that may be. 
+::: {.callout-tip collapse="false"}
+## Interpreting odds ratios less than one
+
+An odds ratio less than one, like the example above, indicates that the odds (in this case of climate change denial) get smaller for the indicated category (in this case, Democrats) rather than larger. Essentially, we are being told that to get the odds for Democrats, we multiply the odds for Republicans by 0.22. When you multiply by a number less than one, it gets smaller. 
+
+In terms of interpretation, we can use two different approaches. In the first approach, we use this number directly and indicate that the odds of climate change denial for Democrats are only 22% as high as the odds for Republicans.
+
+Another approach is to more specifically call out the *negative* nature of the relationship by describing how much lower the odds are for Democrats compared to Republicans. If one group's odds are only 22% as high as another, how much lower are they, in percentage terms? The answer is to take $22-100$ to get $-78$. So, we would say that the odds of climate change denial are 78% lower among Democrats than Republicans.
+
+In general, we can use a simple formula to express the odds ratio in percentage difference terms. If we have an odds ratio given by $R$, then:
+
+$$100*(R-1)$$
+
+The table below shows some examples of how this formula can be applied to understand the percentage change in the odds of the outcome for a given odds ratio. 
+
+| R    | % change |
+|------|----------|
+| 0.1  | -90%     |
+| 0.2  | -80%     |
+| 0.5  | -50%     |
+| 1    |  0%      |
+| 1.1  |  10%     |
+| 1.25 |  25%     |
+| 1.5  |  50%     |
+| 2    |  100%    |
+| 4    |  300%    |
+
+While this approach can be useful, it also has limits in terms of the ease of interpretation when you get to high positive odds ratios. For example, an odds ratio of 2 is probably easier to interpret for most people as a "doubling" of the odds rather than a 100% increase in the odds. Similarly, an odds ratio of four is probably easier to interpret as a quadrupling of the odds. 
+
+:::
+
+Interestingly, if you take the original odds ratio of 4.53 and invert it by taking 1/4.53, you will get 0.22. The odds ratio of denial is just the inverted mirror image of the odds ratio of belief. So both of these numbers convey the same information. The important thing to remember for a correct interpretation is that you are always calculating the odds ratio of being of the category of the first row being in the category of the first column, whatever category that may be. 
 
 ## Mean Differences
 
-Measuring association between a quantitative and categorical variable is fairly straightforward. We want to look for differences in the distribution of the quantitative variable at different categories of the categorical variables. For example, if we were interested in the gender wage gap, we would want to compare the distribution of wages for women to the distribution of wages for men. There are two ways we can do this. First, we can graphically examine the distributions using the techniques we have already developed, particularly the boxplot. Second, we can compare summary measures like the mean across categories.
+Measuring association between a quantitative and categorical variable is fairly straightforward. We want to look for differences in the distribution of the quantitative variable at different categories of the categorical variable. For example, if we were interested in the gender wage gap, we would want to compare the distribution of wages for women to the distribution of wages for men. There are two ways we can do this. First, we can graphically examine the distributions using the techniques we have already developed, particularly the boxplot. Second, we can compare summary measures such as the mean of the quantitative variable across categories of the categorical variable.
 
 ### Graphically examining differences in distributions
 
@@ -412,14 +443,16 @@ ggplot(movies, aes(x=reorder(genre, runtime, median), y=runtime))+  # <1>
   theme_bw()
 ```
 1. The only real change we need to make to the code for a boxplot is to add a variable for the `x` aesthetic, which in this case is `genre`. However, in this case I am also going to use the `reorder` command to reorder the categories of genre by the median of the `runtime` variable. The syntax for this command is `reorder(category_variable, quantitative_variable, command)` where `category_variable` is the categorical variable we want to reorder, `quantitative_variable` is the variable we want to use to determine the new order, and `command` is the command we want to run on the `quantitative_variable` to determine the new ordering.
-2. In this case, I could put `x="genre"` but I feel like the names of this variable combined with the title are self-explanatory, so instead I use `x=NULL` to supress an x-axis label altogether.
+2. In this case, I could put `x="genre"` but I feel like the names of this variable combined with the title are self-explanatory, so instead I use `x=NULL` to suppress an x-axis label altogether.
 3. `coord_flip()` ensures that the genre labels won't run into each other on the x-axis.
 
-@fig-compare-box-runtime-genre now contains a lot of information. At a glance, I can see which genres had the longest median runtime and which had the shortest. But I can also see how much variation in runtime there is within movies by comparing the width of the boxes. For example, I can see that there is relatively little variation in runtime for animation movies, and the most variation in runtime among sci-fi/fantasy movies. I can also see some of the extreme outliers by genre, which are all in the direction of really long movies. 
+@fig-compare-box-runtime-genre now contains a lot of information. At a glance, I can see which genres had the longest median runtime and which had the shortest. For example, I can see that biographical movies are substantially longer on average than all other movie genres. At the other end of the spectrum, animation movies are, on average, the shortest.
+
+I can also see how much variation in runtime there is within movies by comparing the width of the boxes. For example, I can see that there is relatively little variation in runtime for animation movies, and the most variation in runtime among sci-fi/fantasy movies. I can also see some of the extreme outliers by genre, which are all in the direction of really long movies. 
 
 ### Comparing differences in the mean
 
-We can also establish a relationship by looking at differences in summary measures. Implicitly, we are already doing this in the comparative boxplot when we look at the median bars across categories. However, in practice it is more common to compare the mean of the quantitative variable across different categories of the categorical variable. In *R*, you can get the mean of one variable at different levels of a categorical variable using the `tapply` command like so:
+We can also establish a relationship by looking at differences in summary measures. Implicitly, we are already doing this in the comparative boxplot when we look at the median bars across categories. However, in practice it is more common to compare the mean of the quantitative variable across different categories of the categorical variable. These are sometimes referred to as **conditional means**. In *R*, you can get these conditional means using the `tapply` command like so:
 
 ```{r}
 #| label: command-tapply
@@ -430,7 +463,30 @@ The `tapply` command takes three arguments. The first argument is the quantitati
 
 If we want a quantitative measure of how genre and runtime are related we can calculate a **mean difference**. This number is simply the difference in means between any two categories. For example, action movies are 114.6 minutes long, on average, while horror movies are 98.6 minutes long, on average. The difference is $114.6-98.6=16$. Thus, we can say that, on average, action movies are 16 minutes longer than horror movies.
 
-We could have reversed that subtraction to get $98.6-114.6=-16$. In this case, we would say that horror movies are 16 minutes *shorter* than action movies. Either way, we get the same information. However, its important to keep track of which number applies to which category when you take the difference, so that you get the interpretation correct. 
+We could have reversed that differencing to get $98.6-114.6=-16$. In this case, we would say that horror movies are 16 minutes *shorter* than action movies, on average. Either way, we get the same information. However, its important to keep track of which number applies to which category when you take the difference, so that you get the interpretation correct. 
+
+::: {.callout-note collapse="false"}
+## Don't forget to say "on average!"
+
+You will notice that when I interpret these mean differences, I always include the phrase "on average." It's important to include this to avoid overly deterministic and monolithic statements. In the previous example, while action movies have a higher mean movie runtime than horror movies, some horror movies are also long and some action movies are also short (as evidenced in @fig-compare-box-runtime-genre). The mean is, by intent, collapsing all of this individual level heterogeneity to get a summary measure. We don't want to incorrectly imply that all action movies are longer than all horror movies, but rather that, "on average," action movies are longer than horror movies.
+
+This issue becomes even more important when we go from talking about movies to the kinds of social issues that sociologists often study. For example, lets compare the wages of men and women from the earnings data:
+
+```{r}
+tapply(earnings$wages, earnings$gender, mean)
+```
+
+We can see from the results that men make about $3.94 more an hour than women, on average. However, this does not mean there are not cases in the data where some women are making more than some men. There are lots of such cases! We want to capture the underlying social inequality here while also recognizing considerable underlying heterogeneity. The term "on average" allows us to do this.
+:::
+
+The `tapply` command can be used to get other statistics as well. We could, for example, calculate conditional medians rather than conditional means. The only thing that needs to be changed to do so, is the third argument:
+
+```{r}
+#| label: tapply-median
+tapply(movies$runtime, movies$genre, median)
+```
+
+We can use these numbers to calculate the median difference in runtime between genres. In this case, action movies are, on average, 13 minutes longer than horror movies (110-97).
 
 <!--
 
@@ -471,15 +527,13 @@ ggplot(mruntime, aes(x=genre, y=runtime))+
 
 ## Scatterplot and Correlation Coefficient
 
-The techniques for looking at the association between two quantitative variables are more developed than the other two cases, so we will spend more time on this topic. Additionally, the major approach here of ordinary least squares regression turns out to be a very flexible, extendable method that we will build on later in the term.
-
-When examining the association between two quantitative variables, we usually distinguish the two variables by referring to one variable as the **dependent variable** and the other variable as the **independent variable**. The dependent variable is the variable whose outcome we are interested in predicting. The independent variable is the variable that we treat as the predictor of the dependent variable. For example, lets say we were interested in the relationship between income inequality and life expectancy. We are interested in predicting life expectancy by income inequality, so the dependent variable is life expectancy and the independent variable is income inequality. 
-
-The language of dependent vs. independent variable is causal, but its important to remember that we are only measuring the association. That association is the same regardless of which variable we set as the dependent and which we set as the independent. Thus, the selection of the dependent and independent variable is more about which way it more intuitively makes sense to interpret our results.
+The case of quantitative variables is the most developed statistically because both measures are quantitative and therefore calculations are more straightforward. For graphical analysis of the association between the two variables, we construct a **scatterplot**. For a quantitative assessment of the association between the two variables, we calculate a **correlation coefficient.**
 
 ### The scatterplot
 
-We can examine the relationship between two quantitative variables by constructing a **scatterplot**. A scatterplot is a two-dimensional graph. We put the independent variable on the x-axis and the dependent variable on the y-axis. For this reason, we often refer generically to the independent variable as x and the dependent variable generically as y. 
+We can examine the relationship between two quantitative variables by constructing a **scatterplot**. A scatterplot is a two-dimensional graph. We put one variable on the x-axis and the other variable on the y-axis. We can put either variable on either axis, but we often describe the variable on the x-axis as the **independent variable** and the variable on the y-axis as the **dependent variable**. The dependent variable is the variable whose outcome we are interested in predicting. The independent variable is the variable that we treat as the predictor of the dependent variable. For example, lets say we were interested in the relationship between income inequality and life expectancy. We are interested in predicting life expectancy by income inequality, so the dependent variable is life expectancy and the independent variable is income inequality.
+
+The language of dependent vs. independent variable is causal, but its important to remember that we are only measuring the association. That association is the same regardless of which variable we set as the dependent and which we set as the independent. Thus, the selection of the dependent and independent variable is more about which way it more intuitively makes sense to interpret our results.
 
 To construct the scatterplot, we plot each observation as a point, based on the value of its independent and dependent variable. For example, lets say we are interested in the relationship between the median age of the state population and violent crime in our crime data. Our first observation, Alabama, has a median age of 37.8 and a violent crime rate of 378 crimes per 100,000. This is plotted in @fig-scatter-onepoint below. 
 
@@ -496,24 +550,29 @@ ggplot(crimes, aes(x=median_age, y=violent_rate))+
   theme_bw()
 ```
 
-If I repeat that process for all of my observations, I will get a scatterplot that looks like:
+Note that I put median age on the x-axis here and crime rates on the y-axis because I am thinking of the age of the population as predicting, or explaning, crime rates, rather than vice versa. 
+
+If I repeat the process for all of my observations, I will get a scatterplot that looks like:
 
 ```{r}
 #| label: fig-scatter-age-violent
 #| fig-cap: Scatterplot of median age by the violent crime rate for all US states
+#| echo: false
 ggplot(crimes, aes(x=median_age, y=violent_rate))+
   geom_point()+
+  annotate("text",x=1.025*crimes$median_age[9], y=1.05*crimes$violent_rate[9], label="Washington DC")+
+  annotate("text",x=1.025*crimes$median_age[45], y=1.05*crimes$violent_rate[45], label="Utah")+
   labs(x="median age in state", y="violent crimes per 100,000 population")+
   theme_bw()
 ```
 
-What are we looking for when we look at a scatterplot? There are four important questions we can ask of the scatterplot. First, what is the **direction** of the relationship. We refer to a relationship as **positive** if both variables move in the same direction. if y tends to be higher when x is higher and y tends to be lower when x is lower, then we have a positive relationship. On the other hand, if the variables move in opposite directions, then we have a **negative** relationship.  If y tends to be lower when x is higher and y tends to be higher when x is lower, then we have a negative relationship. In the case above, it seems like we have a generally negative relationship. States with higher median age tend to have lower violent crime rates.
+What are we looking for when we look at a scatterplot? There are four important questions we can ask of the scatterplot. First, what is the **direction** of the relationship? We refer to a relationship as **positive** if both variables move in the same direction. if $y$ tends to be higher when $x$ is higher and $y$ tends to be lower when $x$ is lower, then we have a positive relationship. On the other hand, if the variables move in opposite directions, then we have a **negative** relationship.  If $y$ tends to be lower when $x$ is higher and $y$ tends to be higher when $x$ is lower, then we have a negative relationship. In the case above, it seems like we have a generally negative relationship. States with higher median age tend to have lower violent crime rates.
 
 Second, is the relationship **linear**? I don't mean here that the points fall exactly on a straight line (which is part of the next question) but rather does the general shape of the points appear to have any "curve" to it. If it has a curve to it, then the relationship would be non-linear. This issue will become important later, because our two primary measures of association are based on the assumption of a linear relationship. In this case, there is no evidence that the relationship is non-linear.
 
 Third, what is the **strength** of the relationship. If all the points fall exactly on a straight line, then we have a very strong relationship. On the other hand, if the points form a broad elliptical cloud, then we have a weak relationship. In practice, in the social sciences, we never expect our data to conform very closely to a straight line. Judging the strength of a relationship often takes practice. I would say the relationship above is of moderate strength.
 
-Fourth, are there **outliers**? We are particularly concerned about outliers that go against the general trend of the data, because these may exert a strong influence on our later measurements of association. In this case, there are two clear outliers, Washington DC and Utah. Washington DC is an outlier because it has an extremely high level of violent crime relative to the rest of the data. Its median age tends to be on the younger side, so its placement is not inconsistent with the general trend. Utah is an outlier that goes directly against the general trend because it has one of the lowest violent crime rates and the youngest populations. This is, of course, driven by Utah's heavily Mormon population, who both have high rates of fertility (leading to a young population) and whose church communities are able to exert a remarkable degree of social control over these young populations.
+Fourth, are there **outliers**? We are particularly concerned about outliers that go against the general trend of the data, because these may exert a strong influence on our later measurements of association. In this case, there are two clear outliers labeled on the plot - Washington DC and Utah. Washington DC is an outlier because it has an extremely high level of violent crime relative to the rest of the data. Its median age tends to be on the younger side, so its placement is not inconsistent with the general trend. Utah is an outlier that goes directly against the general trend because it has one of the lowest violent crime rates and the youngest populations. This is, of course, driven by Utah's heavily Mormon population, who have high rates of fertility (leading to a young population) and whose church communities are able to exert a remarkable degree of social control over these young populations.
 
 #### Constructing scatterplots in *R*
 
@@ -533,8 +592,8 @@ ggplot(crimes, aes(x=poverty_rate, y=property_rate))+                  # <1>
 Sometimes with large datasets, scatterplots can be difficult to read because of the problem of **overplotting**. This happens when many data points overlap, so that its difficult to see how many points are showing. For example:
 
 ```{r}
-#| label: scatter-overplot
-#| fig-cap: An example of the problem of overplotting where points are being plotted on top of each other
+#| label: fig-scatter-overplot
+#| fig-cap: An example of the problem of overplotting where points are being plotted on top of each other.
 ggplot(movies, aes(x=runtime, y=metascore))+
   geom_point()+
   labs(x="movie runtime in minutes", y="metascore rating")+
@@ -546,8 +605,8 @@ Because so many movies are in the 90-120 minute range, it is difficult to see th
 One way to address this is to allow the points to be semi-transparent, so that as more and more points are plotted in the same place, the shading will become darker. We can do this in `geom_point` by setting the `alpha` argument to something less than one but greater than zero:
 
 ```{r}
-#| label: scatter-overplot-alpha
-#| fig-cap: An example of the problem of overplotting where points are being plotted on top of each other
+#| label: fig-scatter-overplot-alpha
+#| fig-cap: Semi-transparency helps us to better see the density of points and the underlying relationship.
 ggplot(movies, aes(x=runtime, y=metascore))+
   geom_point(alpha=0.2)+                                      # <1>
   labs(x="movie runtime in minutes", y="metascore rating")+
@@ -570,7 +629,7 @@ Because age is discrete all points are stacked up in vertical bars making it dif
 
 ```{r}
 #| label: fig-scatter-jitter
-#| fig-cap: Jittering helps with overplotting but its still difficult to see how dense points are for most of the plot
+#| fig-cap: Jittering helps with overplotting but with so many observations, its still difficult to understand the density of points.
 ggplot(earnings, aes(x=age, y=wages))+
   geom_jitter()+
   labs(x="age", y="hourly wage")+
@@ -590,13 +649,15 @@ ggplot(earnings, aes(x=age, y=wages))+
 
 ### The correlation coefficient
 
-We can measure the association between two quantitative variables with the correlation coefficient, *r*. The formula for the correlation coefficient is:
+While graphical analysis is always a good first step to measuring association, it can sometimes be difficult to judge the actual degree of association in scatterplots. This is particularly true with large datasets or when the distribution of one or both variables is heavily skewed. To get a more concrete sense of the degree of association, we calculate the **correlation coefficient**, alsoe known as *r*.
+
+The formula for the correlation coefficient is:
 
 $$r=\frac{1}{n-1}\sum_{i=1}^n (\frac{x_i-\bar{x}}{s_x}*\frac{y_i-\bar{y}}{s_y})$$
 
 That looks complicated, but lets break it down step by step. We will use the association between median age and violent crimes as our example.
 
-The first step is to subtract the means from each of our x and y variables. This will give us the distance above or below the mean for each variable.
+The first step is to subtract the means from each of our $x$ and $y$ variables. This will give us the distance above or below the mean for each variable.
 
 ```{r}
 #| label: r-calc-diff
@@ -604,7 +665,7 @@ diffx <- crimes$median_age-mean(crimes$median_age)
 diffy <- crimes$violent_rate-mean(crimes$violent_rate)
 ```
 
-The second step is to divide these differences from the mean of x and y by the standard deviation of x and y, respectively. 
+The second step is to divide these differences from the mean of $x$ and $y$ by the standard deviation of $x$ and $y$, respectively. 
 
 ```{r}
 #| label: r-calc-std
@@ -612,19 +673,19 @@ diffx.sd <- diffx/sd(crimes$median_age)
 diffy.sd <- diffy/sd(crimes$violent_rate)
 ```
 
-Now each of your x and y values have been converted from their original form into the number of standard deviations above or below the mean. This is often called **standarization**. By doing this, we have put both variables on the same scale and have removed whatever original units they were measured in (in our case, years of age and crimes per 100,000). 
+Now each of your $x$ and $y$ values has been converted from its original form into the number of standard deviations above or below the mean. This is often called **standarization**. By doing this, we have put both variables on the same scale and have removed whatever original units they were measured in (in our case, years of age and crimes per 100,000). 
 
-The third step is to to multiply each converted value of x by each converted value of y. 
+The third step is to to multiply each standardized value of $x$ by each standardized value of $y$. 
 
 ```{r}
 #| label: r-calc-product
 product <- diffx.sd*diffy.sd
 ```
 
-Why do we do this? First consider this scatterplot of our standardized x and y:
+Why do we do this? First consider this scatterplot of our standardized $x$ and $y$:
 
 ```{r}
-#| label: scatter-r-std
+#| label: fig-scatter-r-std
 #| fig-cap: Where a point falls in the four quadrants of this scatterplot indicate whether it provides evidence for a positive or negative relationship.
 #| echo: false
 temp <- tibble(diffx.sd, diffy.sd)
@@ -643,7 +704,7 @@ ggplot(temp, aes(x=diffx.sd, y=diffy.sd, color=sign))+
   guides(color="none")
 ```
 
-Points shown in blue have either both positive or both negative x and y values. When you take the product of these two numbers, you will get a positive product. This is evidence of a positive relationship. Points shown in red have one positive and one negative x and y value. When you take the product of these two numbers, you will get a negative product. This is evidence of a negative relationship.
+Points shown in blue have either both positive or both negative $x$ and $y$ values. When you take the product of these two numbers, you will get a positive product. This is evidence of a positive relationship. Points shown in red have one positive and one negative $x$ and $y$ value. When you take the product of these two numbers, you will get a negative product. This is evidence of a negative relationship.
 
 The final step is to add up all this evidence of a positive and negative relationship and divide by the number of observations (minus one). 
 
@@ -699,6 +760,8 @@ ggplot(correlations, aes(x=x, y=y))+
 # animate(a, duration=60, nframes=400, fps=20, end_pause=5)
 ```
 
-Third, *r* is a **unitless** measure of association. It can be compared across different variables and different datasets in order to make a comparison of the strength of association. For example, the correlation coefficient between unemployment and violent crimes is 0.45. Thus, violent crimes are more strongly correlated with unemployment than with median age (0.44>0.30).  The association between median age and property crimes is -0.36, so median age is more strongly related to property crimes than violent crimes (0.36>0.30).  
+In @fig-correlations-strength, I am only showing you positive relationships, but remember that the same thing happens in reverse when *r* is negative. A more negative value of *r* in dicates a stronger relationship than a less negative value of *r*. An *r* of -1 fits a perfect straight line of a negative relationship. So, the absolute value of *r* is what matters in establishing the strength of the relationship.
 
-There are some important cautions when using the correlation coefficient. First, the correlation coefficient will only give a proper measure of association when the underlying relationship is **linear**. if there is a non-linear (curved) relationship, then *r* will not correctly estimate the association. Second, the correlation coefficient can be affected by **outliers**. We will explore this issue of outliers and influential points more in later sections.  
+Third, *r* is a **unitless** measure of association. It can be compared across different variables and different datasets in order to make a comparison of the strength of association. For example, the correlation coefficient between unemployment and violent crimes is 0.53. Thus, violent crimes are more strongly correlated with unemployment than with median age (0.53>0.38).  The association between median age and property crimes is -0.49, so median age is more strongly related to property crimes than violent crimes (0.49>0.38).  
+
+There are also some important cautions when using the correlation coefficient. First, the correlation coefficient will only give a proper measure of association when the underlying relationship is **linear**. If there is a non-linear (curved) relationship, then *r* will not correctly estimate the association. Second, the correlation coefficient can be affected by **outliers**. We will explore this issue of outliers and influential points more in later chapters.  

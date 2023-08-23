@@ -1,0 +1,1218 @@
+# Building Models
+
+Up to this point, we have learned the elementary components of a good statistical analysis. However, the typical social scientist doesn't spend that much time with these elementary components. Instead, most social scientific analysis depends on building **statistical model**. A statistical model is a formal mathematical representation of how we think variables might be related to one another. By building models, we can better understand the relationships between variables and how these relationships are affected by other variables. We will focus on model building in some form or another for all the remaining modules of this course. 
+
+We will begin with the simplest kind of model: we just try to fit a straight line through a set of points on a scatterplot. Although this approach may not seem very sophisticated, it forms the basis for more advanced modeling techniques we will learn later. After understanding this basic model, often called the *OLS regression model** we will move on to a variety of techniques we can use to build more complicated models that are both more realistic and more informative. 
+
+Throughout this module, we will focus primarily on issues of interpretation. We are now starting to learn the techniques that you will see presented in real world social science research. Being able to interpret and understand this work is a key objective of this course. 
+
+Slides for this module can be found [here](stat_slides/module5_slides_building_models.html).
+
+```{r}
+#| label: load-libs-data
+#| include: false
+library(here)
+source(here("scripts","check_packages.R"))
+source(here("scripts","load_example_data.R"))
+```
+
+## The OLS Regression Line
+
+@fig-scatter-age-violent-line shows a scatterplot of the relationship between median age and violent crime rates:
+
+```{r}
+#| label: fig-scatter-age-violent-line
+#| fig-cap: Scatterplot of median age and violent crime rates across US states, with a best-fitting straight line drawn through points.
+#| echo: false
+ggplot(crimes, aes(x=median_age, y=violent_rate))+
+  geom_smooth(method="lm", se=FALSE)+
+  geom_point()+
+  labs(x="median age in state", y="violent crimes per 100,000 population")+
+  theme_bw()
+```
+
+I have also plotted a line through those points. When you were trying to determine the direction of the relationship many of you were probably imagining a line going through the points already. Of course, if we just tried to "eyeball" the best line, we would get many different results. The line I have graphed above, however, is the best fitting line, according to standard statistical criteria. It is the best-fitting line because it minimizes the total distance from all of the points collectively to the line. This line is called the **ordinary least squares regression line** ( or OLS regression line, for short). This fairly simply concept of fitting the best line to a set of points on a scatterplot is the workhorse of social science statistics and is the basis for most of the models that we will explore in this module.
+
+### The Formula for a Line
+
+Remember the basic formula for a line in two-dimensional space? In algebra, you probably learned something like this:
+
+$$y=a+bx$$
+
+The two numbers that relate $x$ to $y$ are $a$ and $b$. The number $a$ gives the **y-intercept**. This is the value of $y$ when $x$ is zero. The number $b$ gives the **slope** of the line, sometimes referred to as the "rise over the run." The slope indicates the change in $y$ for a one-unit increase in $x$. 
+
+The OLS regression line above also has a slope and a y-intercept. But we use a slightly different syntax to describe this line than the equation above. The equation for an OLS regression line is:
+
+$$\hat{y}_i=b_0+b_1x_i$$
+
+On the right-hand side, we have a linear equation (or function) into which we feed a particular value of $x$ ($x_i$). On the left-hand side, we get not the actual value of $y$ for the $i$th observation, but rather a **predicted value** of $y$. The little symbol above the $y$ is called a "hat" and it indicates the "predicted value of $y$." We use this terminology to distinguish the actual value of $y$ ($y_i$) from the value predicted by the OLS regression line ($\hat{y}_i$). 
+
+The y-intercept is given by the symbol $b_0$. The y-intercept tells us the predicted value of $y$ when $x$ is zero. The slope is given by the symbol $b_1$. The slope tells us the predicted change in $y$ for a one-unit increase in $x$. In practice, the slope is the more important number because it tells us about the association between $x$ and $y$. Unlike the correlation coefficient, this measure of association is not unitless. We get an estimate of how much we expect $y$ to change in terms of its units for a one-unit increase in $x$. 
+
+For the scatterplot in Figure \@ref(fig:scatter-age-violent-line) above, the slope is -25.6 and the y-intercept is 1343.9. We could therefore write the equation like so:
+
+$$\hat{\texttt{crime rate}_i}=1343.9-25.6(\texttt{median age}_i)$$
+
+We would interpret our numbers as follows:
+
+* The model predicts that a one-year increase in age within a state is associated with 25.6 fewer violent crimes per 100,000 population, on average. (the slope)
+* The model predicts that in a state where the median age is zero, the violent crime rate will be 1343.9 crimes per 100,000 population, on average. (the intercept)
+
+There is a lot to digest in these interpretations and I want to return to them in detail, but first I want to address a more basic question. How did I know that these are the right numbers for the best-fitting line? 
+
+### Calculating the Best-Fitting Line
+
+The slope and intercept of the OLS regression line are determined based on addressing one simple criteria: minimize the distance between the actual points and the line. More formally, we choose the slope and intercept that produce the **minimum sum of squared residuals (SSR)**.
+
+A **residual** is the vertical distance between an actual value of $y$ for an observation and its predicted value:
+
+$$residual_i=y_i-\hat{y}_i$$
+
+These residuals are also sometimes called **error terms**, because the larger they are in absolute value, the worse is our prediction. Take a look at the @fig-scatter-reside below which shows the residuals graphically as vertical distances between the actual point and the line. 
+
+
+```{r}
+#| label: fig-scatter-reside
+#| fig-cap: Scatterplot with best-fitting line shown in blue and residuals shown in red.
+#| echo: false
+model <- lm(violent_rate~median_age, data=crimes)
+augment(model) |>
+  ggplot(aes(x=median_age, y=violent_rate))+
+  geom_smooth(method="lm", se=FALSE)+
+  geom_segment(aes(xend=median_age, yend=.fitted), color="red")+
+  geom_point()+
+  labs(x="median age in state", y="violent crimes per 100,000 population")+
+  theme_bw()
+```
+
+Unless the points all fall along an exact straight line, there is no way for me to eliminate these residuals altogether, but some lines will produce higher residuals than others. What I am aiming to do is minimize the sum of squared residuals which is given by:
+
+$$SSR = \sum_{i=1}^n(y_i-\hat{y}_i)^2$$
+
+I square each residual and then sum them up. By squaring, I eliminate the problem of some residuals being negative and some positive. 
+
+To see how this all works, you can play around with the interactive example below which allows you to guess slope and intercept for a scatterplot and then see how well you did in minimizing the sum of squared residuals.
+
+Fortunately, we don't have to figure out the best slope and intercept by trial and error, as in the exercise above. There are relatively straightforward formulas for calculating the slope and intercept. They are:
+
+$$b_1=r\frac{s_y}{s_x}$$
+
+$$b_0=\bar{y}-b_1*\bar{x}$$
+
+The *r* here is the correlation coefficient. The slope is really just a re-scaled version of the correlation coefficient. We can calculate this with the example above like so:
+
+```{r}
+slope <- cor(crimes$median_age, crimes$violent_rate)*sd(crimes$violent_rate)/sd(crimes$median_age)
+slope
+```
+
+I can then use that slope value to get the y-intercept:
+
+```{r}
+mean(crimes$violent_rate)-slope*mean(crimes$median_age)
+```
+
+While this code will work to calculate the slope and intercept, it is quite cumbersome. In the next section, I introduce the `lm` command, which will make estimating linear models much easier and more flexible.
+
+### Using the `lm` command to calculate OLS regression lines
+
+The `lm` command stands for "linear model" and can be used to run a variety of linear models that we will learn including the basic one we are estimating currently.
+
+In order to run the `lm` command, you need to input a formula. The structure of this formula looks like `dependent~independent` where `dependent` and `independent` should be replaced by your specific variables. The tilde (`~`) sign indicates the relationship. So, if we wanted to use `lm` to calculate the OLS regression line we just looked at above, I would do the following:
+
+```{r}
+#| label: command-lm
+model1 <- lm(crimes$violent_rate~crimes$median_age)
+```
+
+Please keep in mind that **the dependent variable always goes on the left-hand side of this equation.** You will get very different answers if you reverse the ordering. 
+
+In this case, I have entered in the variable names using the `data$variable` syntax, but `lm` also offers you a more streamlined way of specifying variables, by including a `data` option separately so that you only have to put the variable names in the formula, like so:
+
+```{r}
+#| label: command-lm-data
+model1 <- lm(violent_rate~median_age, data=crimes)
+```
+
+Because I have specified `data=crimes`, *R* knows that the variables "Violent" and "MedianAge" refer to variables within this dataset. The result will be the same as the previous command, but this approach makes it easier to read the formula itself. 
+
+I have saved the output of the `lm` command into a new object that I have called "model1". You can call this object whatever you like.  This is out first real example of the "object-oriented" nature of *R*. I can apply a variety of functions to this object in order to extract information about the relationship. If I want to get the most information, I can run a `summary` on this model. 
+
+```{r}
+#| label: summary-model
+summary(model1)
+```
+
+There is a lot information here and we actually don't know what most of it means yet. All we want is the intercept and slope. These numbers are given by the two numbers in the "Estimate" column of the "Coefficients" section. The intercept is 1436.532 and the slope is -27.564. 
+
+We could also run the `coef` command which will give us just the slope and intercept of the model. 
+
+```{r}
+coef(model1)
+```
+
+This result is much more compact and will do for our purposes at the moment. 
+
+### Adding an OLS regression line to a plot
+
+You can easily add an OLS regression line to a scatterplot in `ggplot`. We can do this using the `geom_smooth` function. However we also need to specify that our method of smoothing is "lm" (for linear model) with the `method="lm"` argument. Here is the code for the example earlier: 
+
+```{r}
+#| label: fig-scatter-age-violent-line2
+#| fig-cap: Use geom_smooth to plot an OLS regression line with or without a confidence interval band.
+#| echo: false
+ggplot(crimes, aes(x=median_age, y=violent_rate))+
+  geom_smooth(method="lm", se=TRUE)+
+  geom_point()+
+  labs(x="median age in state", y="violent crimes per 100,000 population")+
+  theme_bw()
+```
+
+You will notice that @fig-scatter-age-violent-line2 also adds a band of grey. This is the confidence interval band for my line and is drawn by default. We will discuss issues of inference for the OLS regression line below. If you want to remove this you can change the `se` argument in `geom_smooth` to FALSE.
+
+<!---
+<div class = "dcl">
+
+#### Try it out
+
+In the interactive *R* session below, Create a scatterplot showing the relationship between a student's parental income and the number of friend nominations they receive using the popularity dataset and then add the best fitting line to your plot. Keep the following in mind:
+
+1. You must combine together different elements of ggplot, in this case <tt>ggplot</tt> itself and <tt>geom_boxplot</tt> with a plus sign to display correctly.
+2. Be sure to add nice labels for your x axis by adding a <tt>labs</tt> command.
+3. You will observe significant issues with overplotting, so you should use <tt>geom_jitter</tt> and the <tt>alpha</tt> argument to help see patterns in the data. 
+4. Use <tt>geom_smooth</tt> to add the line. Don't forget to specify the <tt>method</tt>.
+
+Does the best-fitting line surprise you? What did you expect it to look like?
+<iframe src="dcl_interactives/ols_line.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+
+</div>
+--->
+
+### The OLS regression line as a model
+
+You will note that I saved the output of my `lm` command above as model. The `lm` command itself stands for "linear model." What do I mean by this term "model?" When we talk about "models" in statistics, we are talking about modeling the relationship between two or more variables in a formal mathematical way. In the case of the OLS regression line, we are predicting the dependent variable as a **linear function** of the independent variable. 
+
+Just as the general term model is used to describe something that is not realistic but rather an idealized representation, the same is true of our statistical models. We certainly don't believe that our linear function provides a correct interpretation of the exact relationship between our two variables. Instead we are trying to abstract from the details and fuzziness of the relationship to get a "big picture" of what the relationship looks like. 
+
+However, we always have to consider that our model is not a very good representation of the relationship. The most obvious potential problem is if the relationship is non-linear and yet we fit the relationship by a linear model, but there can be other problems as well. I will discuss these more below and the next few sections of this module will give us techniques for building better models. However, we first need to focus on how to interpret the results we just got. 
+
+### Interpeting Slopes and Intercepts
+
+Learning to properly interpret slopes and intercepts (especially slopes) is the number one most important thing you will learn all term, because of how common the use of OLS regression is in social science statistics. You simply cannot pass the class unless you can interpret these numbers. So take the time to be careful in interpretation here. 
+
+#### Interpreting Slopes
+
+In abstract terms, the slope is always the predicted change in $y$ for a one unit increase in $x$. However, this abstract definition will simply not do when you are dealing with specific cases. You need to think about the units of $x$ and $y$ and interpret the slope in concrete terms. There are also a few other caveats to consider.
+
+Take the interpretation I used above for the -27.6 slope of median age as a predictor of violent crime rates. My interpretation was:
+
+> The **model predicts** that a **one year increase in age** within a state **is associated** with **27.6 fewer violent crimes per 100,000 population**, **on average**.
+
+There are multiple things going on in this sentence that need to be addressed. First, lets address the phrase "model predicts." The idea of a model is something we will explore more later, but for now I will say that when we fit a line to a set of points to predict $x$ by $y$, we are applying a model to the data. In this case, we are applying a model that relates $y$ to $x$ by a simple linear function. All of our conclusions are dependent on this being a good model. Prefacing your interpretation with "the model predicts..." highlights this point. 
+
+Second, a "one year increase in age" indicates the meaning of a one unit increase in $x$. Never literally say a "one unit increase in $x$." Think about the units of $x$ and describe the change in $x$ in these terms. 
+
+Third, I use "is associated with" to indicate the relationship. This phrase is intentionally passive. We want to avoid causal language when we describe the relationship. Saying something like "when $x$ increases by one $y$ goes up by $b_1$" may sound more intuitive, but it also implies causation. The use of "is associated with" here indicates that the two variables are related without implicitly implying that one causes the other. Using causal language is the most common mistake in describing the slope. 
+
+Fourth, "27.6 fewer violent crimes per 100,000 population" is the expected change in $y$. Again, you always have to consider the unit scale of your variables. In this case, $y$ is measured as the number of crimes per 100,000 population, so a decrease of 27.6 means 27.6 fewer violent crimes per 100,000 population. 
+
+Fifth, I append the term "on average" to the end of my interpretation. This is because we know that our points don't fall on a straight line and so we don't expect a deterministic relationship between median age and violent crime. Rather, we think that if we were to take a group of states that had one year higher median age than another group of states, the average difference between the groups would be -27.6. 
+
+Lets try a couple of other examples to see how this works. I will use the `lm` command to calculate the slopes and intercepts, which I explain in the section below. First, lets look at the association between age and sexual frequency (I will explain the code I use here later in this section).
+
+```{r}
+coef(lm(sexf~educ, data=sex))
+```
+
+The slope here is -0.67. Education is measured in years and sexual frequency is measured as the number of sexual encounters per year. So, the interpretation of the slope should be: 
+
+> The model predicts that a one year increase in education is associated with 0.67 fewer sexual encounters per year, on average. 
+
+There is a positive, but quite small, association in real terms. The expected difference in sexual frequency between a college graudate (16 years of education) and a high scholl graduate (12 years of education) is about 2.68 sexual encounters per year (-0.67*4).
+
+Now, lets take the relationship between movie runtimes and metascore ratings:
+
+```{r}
+coef(lm(metascore~runtime, data=movies))
+```
+
+
+The slope is 0.295. Runtime is measured in minutes. The metascore is an abstract rating system between 0 and 100, so we can just refer to its units as "points."
+
+> The model predicts that a one minute increase in movie runtime length is associated with a 0.295 point increase in the movie's metascore rating, on average.
+
+Longer movies tend to have higher ratings. We may rightfully question the assumption of linearity for this relationship however. It seems likely that really long movies may suffer from viewer fatigue, so its possible the relationship may be non-linear. 
+
+<!--- TODO: callout for fitting smoothers to look at nonlinearity --->
+
+
+#### Interpreting Intercepts
+
+Intercepts give the predicted value of $y$ when $x$ is zero. Again you should never interpret an intercept in these abstract terms but rather in concrete terms based on the unit scale of the variables involved. What does it mean to be zero on the $x$ variable? 
+
+In our example of the relationship of median age to violent crime rates, the intercept was 1436.5 Our independent variable is median age and the dependent variable is violent crime rates, so:
+
+> The model predicts that in a state where the median age is zero, the violent crime rate would be 1436.5 crimes per 100,000 population, on average. 
+
+Note that I use the same "model predicts" and "on average" prefix and suffix for the intercept as I used for the slope. Beyond that I am just stating the predicted value of $y$ (crime rates) when $x$ is zero in the concrete terms of those variables. 
+
+Is it realistic to have a state with a median age of zero? No, its not. You will never observe a US state with a median age of zero. This is a common situation that often confuses students. In cases when zero falls outside the range of the independent variable, the intercept is not a particularly useful number because it does not tell us about a realistic situation. The intercept's only "job" is to give a number that allows the line to go through the points on the scatterplot at the right level. You can see this in the interactive exercise above if you select the correct slope and then vary the intercept. 
+
+In general making predictions for values of $x$ that fall outside the range of $x$ in the observed data is problematic. This approach often leads to intercepts which don't make a lot of sense. This problem with zero being outside the range of data is also evident in the other two examples of slopes from the previous section. When looking at the relationship between education and sexual frequency, no respondents are actually at zero years of education and no movies are at zero minutes of runtime. 
+
+In truth, to fit the line correctly, we only need the slope and one point along the line. It is convenient to choose the point where $x=0$ but there is no reason why we could not choose a different point. It is actually quite easy to calculate a different predicted value along the line by **re-centering** the independent variable.
+
+To re-center the independent variable $x$, we just need to to subtract some constant value $a$ from all the values of $x$, like so:
+
+$$x^*=x-a$$
+The zero value on our new variable $x^*$ will indicates that we are at the value of $a$ on the original variable $x$. If we then use $x^*$ in the OLS regression line rather than $x$, the intercept will give us the predicted value of $y$ when $x$ is equal to $a$. 
+
+Lets try this out on the model predicting violent crimes by median age. We will create a new variable where we subtract 35 from the median age variable and use that in the regression model.
+
+```{r}
+crimes$median_age_recenter <- crimes$median_age-35
+coef(lm(violent_rate~median_age_recenter, data=crimes))
+```
+
+The intercept now gives me the predicted violent crime rate in a state with a median age of 35. In effect, I have moved my y-intercept from zero to thirty-five as is shown in @fig-ols-move-intercept below. 
+
+```{r}
+#| label: fig-ols-move-intercept
+#| fig-cap: Re-centering the independent variable moves the intercept but does not change the slope.
+#| echo: false
+ggplot(crimes, aes(x=median_age, y=violent_rate))+
+  geom_segment(x=0, y=800, xend=35, yend=800,
+               arrow=arrow(length=unit(0.1, "inches")), 
+               color="grey40")+
+  geom_segment(x=0, y=400, xend=35, yend=400,
+               arrow=arrow(length=unit(0.1, "inches")), 
+               color="grey40")+
+  geom_segment(x=0, y=1200, xend=35, yend=1200,
+               arrow=arrow(length=unit(0.1, "inches")), 
+               color="grey40")+
+  geom_vline(xintercept = c(0,35), linetype=2)+
+  geom_smooth(method="lm", se=FALSE, fullrange=TRUE)+
+  geom_point(alpha=0.7)+
+  geom_point(x=0, y=1436.5, color="red", size=3)+
+  geom_point(x=35, y=471.77960, color="red", size=3)+
+  annotate(x=3, y=1436.5, geom="label", label="1436.5")+
+  annotate(x=37.5, y=471.77960, geom="label", label="471.8")+
+  xlim(0,45)+
+  scale_x_continuous(breaks=c(0,5,10,15,20,25,30,35,40,45),
+                     labels=paste(c(0,5,10,15,20,25,30,35,40,45),
+                                  c(0,5,10,15,20,25,30,35,40,45)-35,
+                                  sep="\n"))+
+  labs(x="median age in state on original scale and re-centered", y="violent crimes per 100,000 population")+
+  theme_bw()
+```
+
+Its also possible to re-center an independent variable in the `lm` command without creating a whole new variable. If you surround the re-centering in the `I()` function within the formula, *R* will interpret the result of whatever is inside the `I()` function as a new variable. Here is an example based on the previous example:
+
+```{r}
+coef(lm(violent_rate~I(median_age-35), data=crimes))
+```
+
+<!---
+<div class = "dcl">
+
+#### Try it out
+
+In the interactive *R* session below, create a linear model predicting hourly wages by age where you re-center age on 40. Keep the following in mind:
+
+1. You will need to fill in the formula part of the <tt>lm</tt> command below. Remember that your dependent variable (in this case wages) goes on the left side of the <tt>~</tt>.
+2. Use the <tt>I(x-number)</tt> syntax as shown above to re-center age in the model formula.
+
+How would you interpret the intercept in the model output?
+<iframe src="dcl_interactives/lm_recenter.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+
+</div>
+--->
+
+### How good is $x$ as a predictor of $y$?
+
+If I selected a random observation from the dataset and asked you to predict the value of $y$ for this observation, what value would you guess? Your best guess would be to guess the mean of y because this is the case where your average error would be smallest. This error is defined by the distance between the mean of y and the selected value, $y_i-\bar{y}$. 
+
+Now, lets say instead of making you guess randomly I first told you the value of another variable $x$ and gave you the slope and intercept predicting $y$ from $x$. What is your best guess now? You should guess the predicted value of $\hat{y}_i$ from the regression line because now you have some additional information. There is no way that having this information could make your guess worse than just guessing the mean. The question is how much better do you do than guessing the mean. Answering this question will give us some idea of how good $x$ is as a predictor of $y$. 
+
+We can do this by separating, or *partitioning* the total possible error in our first case when we guessed the mean, into the part accounted for by $x$ and the part that is unaccounted for by $x$. 
+
+I demonstrate this partitioning for one observation in our crime data (the state of Alaska) with the scatterplot in @fig-scatter-partition-variance below.
+
+```{r}
+#| label: fig-scatter-partition-variance
+#| fig-cap: We can parition the total distance (in red) between an observation's value on the dependent variable and the mean (the dotted horizontal line) into the part accounted for by the model (in gold) and the residual (in green) that is unaccounted for by the model.
+#| echo: false
+model <- lm(violent_rate~median_age, data=crimes)
+crimes$fitted <- model$fitted.values
+
+ggplot(crimes, aes(x=median_age, y=violent_rate))+
+  geom_smooth(method="lm", se=FALSE, color="grey30")+
+  geom_hline(yintercept = mean(crimes$violent_rate), linetype=2)+
+  geom_segment(data=subset(crimes, state=="Alaska"),
+               aes(x=median_age-0.05, xend=median_age-0.05), 
+               yend=mean(crimes$violent_rate), 
+               color="red", size=1)+
+  geom_segment(data=subset(crimes, state=="Alaska"),
+               aes(x=median_age+0.05, xend=median_age+0.05,
+                   y=fitted), 
+               yend=mean(crimes$violent_rate), 
+               color="goldenrod", size=1)+
+  geom_segment(data=subset(crimes, state=="Alaska"),
+               aes(x=median_age+0.05, xend=median_age+0.05,
+                   y=violent_rate, yend=fitted), 
+               color="darkgreen", size=1)+
+  geom_point(alpha=0.2)+
+  geom_point(data=subset(crimes, state=="Alaska"), size=2)+
+  annotate(geom="text", x=33.2, y=820, label="Alaska")+
+  labs(x="median age in state", y="violent crimes per 100,000 population")+
+  theme_bw()
+```
+
+The distance in red is the total distance between the observed violent crime rate in the state of Alaska and the mean violent crime rate across all states (given by the dotted line). If I were instead to use the OLS regression line predicting the violent crime rate by median age, I would predict a higher violent crime rate than average for Alaska because of its relatively low median age, but I would still predict a crime rate that is too low relative to the actual crime rate. The red line can be partitioned into th gold line which is the improvement in my estimate and the green line which is the error that remains in my prediction from the model. If I could then repeat this process for all of the states, I could calculate the percentage of the total red lines that the gold lines cover. This would give me an estimate of how much I reduce the error in my prediction by using the regression line rather than the mean to predict a state's violent crime rate. 
+
+In practice, we actually need to square those vertical distances because some are negative and some are positive and then we can sum them up over all the observations. So we get the following formulas:
+
+* Total variation: $SSY=\sum_{i=1}^n (y_i-\bar{y})^2$
+* Explained by model: $SSM=\sum_{i=1}^n (\hat{y}_i-\bar{y})^2$
+* Unexplained by model: $SSR=\sum_{i=1}^n (y_i-\hat{y}_i)^2$
+
+The proportion of the variation in $y$ that is explainable or accountable by variation in $x$ is given by $SSM/SSY$. 
+
+This looks like a kind of nasty calculation, but it turns out there is a much simpler way to calculate this proportion. If we just take our correlation coefficient $r$ and square it. We will get this proportion. This measure is often called "r squared" and can be interpreted as the proportion of the variation in $y$ that is explainable or accountable by variation in $x$. 
+
+In the example above, we can calculate R squared:
+
+```{r}
+cor(crimes$median_age, crimes$violent_rate)^2
+```
+About 14.3% of the variation in violent crime rates across states can be accounted for by variation in the median age across states.  
+
+### Inference for OLS Regression models
+
+When working with sample data, our usual issues of statistical inference apply to regression models. In this case, our primary concern is the estimate of the regression slope because the slope measures the relationship between $x$ and $y$. We can think of an underlying OLS regression model in the population: 
+
+$$\hat{y}_i=\beta_0+\beta_1x_i$$
+
+We use Greek "beta" values because we are describing unobserved parameters in the population. The null hypothesis in this case would be that the slope is zero indicating no relationship between $x$ and $y$:
+
+$$H_0:\beta_1=0$$
+
+In our sample, we have a sample slope $b_1$ that is an estimate of $\beta_1$. We can apply the same logic of hypothesis testing and ask whether our $b_1$ is different enough from zero to reject the null hypothesis. We just need to find the standard error for this sample slope and the degrees of freedom to use for the test and we can do this manually.
+
+However, I have good news for you. You don't have to do any of this by hand because the `lm` function does it for you automatically. Lets look at the full output of the model predicting violent crime rates from median age again using the `summary` command:
+
+```{r}
+model <- lm(violent_rate~median_age, data=crimes)
+summary(model)
+```
+
+The "Coefficients" table in the middle gives us all the information we need. The first column gives us the sample slope of -27.564. The second column gives us the standard error for this slope of 9.632. The third column gives us the t-statistic derived by dividing the first column by the second column. The final column gives us the p-value for the hypothesis test. In this case, there is about a 0.6% chance of getting a sample slope this large on a sample of 51 cases if the true value in the population is zero. Of course, in this case its nonsensical because we don't have a sample, but the numbers here will be valuable in cases with real sample data. 
+
+### Regression Line Cautions
+
+OLS regression models can be very useful for understanding relationships, but they do have some important limitations that you should be aware of when you are doing statistical analysis. 
+
+There are three major limitations/cautions to be aware of when using OLS regression:
+
+1. OLS regression only works for linear relationships.
+2. Outliers can sometimes exert heavy influence on estimates of the relationship
+4. Don't extrapolate beyond the scope of the data.
+
+#### Linearity
+
+By definition, an OLS regression line is a straight line. If the underlying relationship between x and y is non-linear, then the OLS regression line will do a poor job of measuring that relationship.
+
+One common case of non-linearity is the case of diminishing returns in which the slope gets weaker at higher values of x. @fig-nonlinearity demonstrates a class case of non-linearity in the relationship between a country's life expectancy and GDP per capita.
+
+```{r}
+#| label: fig-nonlinearity
+#| fig-cap: Scatterplot of GDP per capita and life expectancy across countries, 2007.
+#| echo: false
+ggplot(subset(gapminder, year==2007), aes(x=gdpPercap, y=lifeExp))+
+  geom_point()+
+  labs(x="GDP per capita in US dollars", 
+       y="life expectancy",
+       caption="source: Gapminder, 2007")+
+  ylim(30,90)+
+  scale_x_continuous(labels = scales::dollar)+
+  theme_bw()
+```
+
+The relationship is clearly a strongly positive one, but also one of diminishing returns where the positive relationship seems to plateau at higher levels of GDP per capita. This makes sense because the same absolute increase in country wealth at low levels of life expectancy can be used to reduce the incidence of well-understood infectious and parasitic diseases, whereas the same absolute increase in country wealth at high levels of life expectancy must try to reduce the risk of less understood diseases like cancer. You get more bang for your buck when life expectancy is low. 
+
+Figure \@ref(fig:nonlinearity2) shows what happens if we try to fit a line to this data.
+
+```{r}
+#| label: fig-nonlinearity2
+#| fig-cap: Fitting a line to a non-linear relationship will cause systematic errors in your prediction.
+#| echo: false
+ggplot(subset(gapminder, year==2007), aes(x=gdpPercap, y=lifeExp))+
+  geom_smooth(method="lm", se=FALSE)+
+  geom_point(alpha=0.5)+
+  labs(x="GDP per capita in US dollars", 
+       y="life expectancy",
+       caption="source: Gapminder, 2007")+
+  ylim(30,90)+
+  annotate("label", x=10000, y=75, label="Underestimate")+
+  annotate("label", x=2000, y=50, label="Overestimate")+
+  annotate("label", x=45000, y=80, label="Overestimate")+
+  scale_x_continuous(labels = scales::dollar)+
+  theme_bw()
+```
+
+Clearly a straight line is a poor fit. We systematically overestimate life expectancy at low and high GDP per capita and underestimate life expectancy in the middle. 
+
+It is possible, in some circumstances, to correct for this problem of non-linearity but we will not explore those options in this chapter For now, its just important to be aware of the problem and if you see clear non-linearity then you should question the use of an OLS regression line. 
+
+<!--- TODO: actually put smoothing bit here --->
+
+#### Outliers and Influential Points
+
+An outlier is an **influential point** if removing this observation from the dataset substantially changes the slope of the OLS regression line. You can try the interactive exercise below to see how removing points changes the slope of your line (click on a point a second time to add it back). Can you identify any influential points?
+
+```{r shiny-app-influentialpoints, echo=FALSE}
+knitr::include_app("https://aarongullickson.shinyapps.io/influentialpoints/", height="800px")
+```
+
+For the case of median age, Utah and DC both have fairly strong influences on the shape of the line. Removing DC makes the relationship weaker, while removing Utah makes the relationship stronger. Outliers will tend to have the strongest influence when their placement is inconsistent with the general pattern. In this case, Utah is very inconsistent with the overall negative effect because it has both low median age and low crime rates. 
+
+Lets say that you have identified an influential point. What then? In truth there is only so much you can do. You cannot remove a valid data point just because it is an influential point. There are two cases where it would be legitimate to exclude the point. First, if you have reason to believe that the observation is an outlier because of a data error, then it would be acceptable to remove it. Second, if you have a strong argument that the observation does not belong with the rest of the cases, because it is logically different, then it might be OK to remove it.
+
+In our case, there is no legitimate reason to remove Utah, but there probably is a legitimate reason to remove DC. Washington DC is really a city and the rest of our observations are states that contain a mix of urban and rural population. Because crime rates are higher in urban areas, DC's crime rates look very exaggerated compared to states. Because of this "apples and oranges" problem, it is probably better to remove DC. If our unit of analysis was cities, on the other hand, then DC should remain. 
+
+In large datasets (1000+ observations), its unusual that a single point or even a small cluster of points will exert much influence on the shape of the line. The concern about influential points is mostly a concern in small datasets like the crime dataset. 
+
+#### Thou Doth Extrapolate Too Much
+
+Its dangerous enough to assume that a linear relationship holds for your data (see the first point in this chapter). Its doubly dangerous to assume that this linear relationship holds beyond the scope of your data. Lets take the relationship between sexual frequency and age. We saw in the previous module that the slope here is -1.3 and the intercept is 108. The intercept itself is outside the scope of the data because we only have data on the population 18 years and older. It would be problematic to make predictions about the sexual frequency of 12 year olds, let alone zero-year olds. 
+
+Another trivial example would be to look at the growth rate of children 5-15 years of age by correlating age with height. It would be acceptable to use this model to predict the height of a 14 year old, but not a 40 year old.  We expect that this growth will eventually end sometime outside the range of our data when individuals reach their final adult height. If we extrapolated the data, we would predict that 40 year olds would be very tall. 
+
+## The Power of Controlling for Other Variables
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/sHicSbJu78U")
+```
+
+In the previous module, I showed that the OLS regression line predicting sexual frequency by years of education was 0.03. So in my dataset, there is a very small positive association between sexual frequency and years of education. 
+
+Its possible that this is a causal effect. We could even spin stories about why we think such a positive association (a very small one) might exist. Maybe more educated people appear sexier to the opposite sex. Maybe more educated people take better care of themselves and thus are healthier and more able to have sex. Maybe more educated people are just more sexually liberated. 
+
+Before we get carried away however its important to consider whether our results might be **spurious**. Its possible that the positive association between years of education and sexual frequency is driven by a third variable that we haven't accounted for. This is a common problem in research using observational data. Association does not necessarily mean causation because of the potential for other variables to account for our observed association (and because of the possibility of reverse causation). We refer to such variables as **lurking** or **confounding** variables. 
+
+In this case, the potentially confounding variable that we need to consider is age. Lets look at the association between age and each of our other variables (sexual frequency and education). 
+
+```{r}
+cor(sex$sexf,sex$age)
+cor(sex$educ,sex$age)
+```
+
+Age is negatively correlated with sexual frequency. We have observed this relationship before and it is not terribly surprising. Older people have less sex, on average. The negative correlation between age and years of education is perhaps a little more surprising. Older people have less education than younger people, on average. This may seem surprising to you because as you get older you have more opportunity to complete more education. However, you have to remember that the data we have are a snapshot in time. We are not tracking individuals over time as they age, but rather looking at differences between older and younger people at a single point in time. This kind of data is often called a **cross-sectional** dataset. Because we are looking at a single point in time, the age differences really reflect differences in **birth cohorts** or what people often loosely call "generations." Remember that this dataset is from 2004. The difference between a 20 year old and a 60 year old is that the 20 year old was born in 1984 and the 60 year old was born in 1944. 
+
+Because we are comparing birth cohorts, the differences in educational attainment reflect history more than life cycle. Older cohorts were less educated than younger birth cohorts. On average, you will be more educated than your parents and your parents were more educated than your grandparents. Thus, the correlation between age and education is negative. 
+
+These two negative correlations suggest a **spurious** reason why we might observe a positive association between sexual frequency and education. Younger people have more education and younger people have more sex. Thus, when we look at the relationship between sexual frequency and education, we see a positive association but that positive association is indirectly driven by youth and the association of youth with both education and sex. 
+
+How can we examine whether this potential spurious explanation is accurate? It turns out that we can add more than one independent variable to an OLS regression model at the same time. The mathematical structure of such a model would be:
+
+$$\hat{frequency}_i=b_0+b_1(education_i)+b_2(age_i)$$
+
+We now have two different "slopes", $b_1$ and $b_2$. These two slopes give the association of education and age, respectively, on sexual frequency, while **controlling for the other independent variable**. We now have what is called a **multivariate** OLS regression model. 
+
+This "controlling" concept is a key point that I will return to below, but first I want to try to think graphically about what this model is doing. In the case of bivariate regression, we thought of fitting a line to a scatterplot in two-dimensional space. We are doing something similar here, but since we now have three variables, our scatterplot is in three dimensions. Figure \@ref(fig:scatter-3d) shows an interactive three-dimensional plot of the three variables. 
+
+```{r scatter-3d, echo=FALSE, fig.cap="Interactive 3d scatterplot of years of education, age, and sexual frequency"}
+model <- lm(sexf~age+educ, data=sex)
+temp <- expand.grid(educ=0:25, age=18:100)
+fit <- predict(model, temp)
+fit2 <- matrix(fit, 26, 83)
+
+plot_ly(x=jitter(sex$educ,10), y=jitter(sex$age,10), z=jitter(sex$sexf,10)) %>%
+  add_markers() %>%
+  add_surface(x=0:25, y=18:100, z=t(fit2), color=I("grey")) %>%
+  layout(scene=list(xaxis=list(title="years of education"),
+                    yaxis=list(title="age"),
+                    zaxis=list(title="sexual frequency")))
+```
+
+The dependent variable is shown on the vertical (z) axis and the two independent variables are shown on the "width" and "depth" axes (x and y). The flat plane shown is defined by the OLS regression model equation above. So, rather than fitting a straight line through the data, I am fitting a plane. Note however that if you rotate the 3d scatterplot to hide the age "depth" dimension, it will then look like a two-dimensional scatterplot between years of education and sexual frequency. In this case, the the edge of the plane would indicate the slope between years of education and sexual frequency. Similarly, I could rotate it the other way to look at the relationship between age and sexual frequency. 
+
+How do I know what are the best values for $b_0$, $b_1$, and $b_2$ that define my plane? The logic is the same as for bivariate OLS regression: I choose values that minimize the sum of squared residuals (SSR):
+
+$$SSR=\sum_{i=1}^n (\hat{y}_i-y_i)^2$$
+
+SSR is a measure of how far the predicted values of the dependent variable are from the actual values, so we want the intercept and slopes that minimizes this error. Unlike the bivariate case, however, there is no simple formula that I can give you for the slope and intercept, without some knowledge of matrix algebra. However, R can calculate the correct numbers for you easily. I am not concerned with your technical ability to calculate these numbers by hand, but I do want you to understand why those are the "best" numbers. **They are the best  numbers because they minimize the sum of the squared residuals for the model**. 
+
+We can calculate this model in *R* just by adding another variable to our model in the `lm` command:
+
+```{r}
+model <- lm(sexf~educ+I(age-18), data=sex)
+coef(model)
+```
+
+Note that as I did in the previous module, I am re-centering age on 18 years so that I have reasonable value for the interpretation of the intercept. In equation form, our model will look like:
+
+$$\hat{frequency}_i=91.06-0.43(education_i)-1.30(age_i-18)$$
+
+### Interpreting results in a multivariate OLS regression models
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/AkRer3eTsAA")
+```
+
+How do we interpret the results?
+
+- **Intercept**: The model predicts that **18-year old individuals** at **with no education** will have 91.06 sexual encounters per year, on average.
+- **Education Slope**: The model predicts that, **holding age constant**, an additional year of education is associated with 0.43 fewer sexual encounters per year, on average. 
+- **Age Slope**: The model predicts that, **holding education constant**, an additional year of age is associated with 1.3 fewer sexual encounters per year, on average. 
+
+The intercept is now the predicted value **when all independent variables are zero**. My interpretation of the slopes is almost identical to the bivariate case, except for one very important addition.  I am now estimating the effect of each independent variable on the dependent variable while **holding constant all other independent variables**. You could also say "controlling for all other independent variables."
+
+What does it mean to "hold other variables constant?" It means that when we look at the effect of one independent variable, we are looking at how the predicted value of the dependent variable changes while keeping all the other variables the same. For instance, the education effect above is the effect of a one year increase in education *among individuals of the same age*. Because we are looking at the effect of education among individuals of the same age, age should no longer have a confounding effect on our estimate of the effect of education. Thus holding constant/controlling for other variables helps to remove the potential spurious effect of those variables as confounders.
+
+Note how the effect of education on sexual frequency changed once I included age as a control variable.  Before controls, I estimated a slightly positive slope (0.03) but now I am estimating a substantial negative slope (-0.43). So my understanding of the relationship between education and sexual frequency is completely reversed. *When you compare individuals of the same age*, more educated individuals have less sex, on average, than less educated individuals. 
+
+#### Crime example
+
+Lets build a regression model where we predict the property crime rate in a state by the percent of adults in the state without a high school diploma and the median age of the state's residents.
+
+```{r}
+summary(lm(Property~PctLessHS+MedianAge, data=crimes))
+```
+
+Note that I am giving you the full output of summary now, but we can find the slopes and intercept by looking at the Estimate column of the "Coefficients" table. "Coefficients" is another term for slopes and intercepts because that it the technical term for these values in the regression model equation. 
+
+The model is:
+
+$$\hat{\texttt{crime}}_i=5137+69(\texttt{pct less hs}_i)-83(\texttt{median age}_i)$$
+
+The model predicts that, comparing two states with the same median age of residents, a one percent increase in the percent of the state with less than a high school diploma is associated with an increase of 69 property crimes per 100,000, on average. The model predicts that, comparing two states with the same percentage of adults without a high school diploma, a one year increase in the median age of a state's residents is associated with a decrease of 83 property crimes per 100,000, on average. 
+
+Note that we also get the $R^2$ value from the summary command. In multivariate models, the $R^2$ value always tells you what proportion of the variation in the dependent variable is accountable for by variation in all of the independent variables combined. In this case $R^2$ is 0.2495. About 25% of the variation in property crime rates across states is accountable for by variation in the percent of adults without a high school diploma and the median age of residents across states. 
+
+### Including more than two independent variables
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/yleq5RTnq-c")
+```
+
+If we can include two independent variables in a regression model, why stop there? Why not include three or four or more? The number of independent variables you can include is only limited by the sample size (you can never have more independent variables than the sample size minus one), although in practice we generally stop well short of this limit for pragmatic reasons. 
+
+Lets take the model above predicting property crime rates by percent of adults with less than a high school diploma and the median age of residents. Lets add the poverty rate as another predictor:
+
+```{r}
+summary(lm(Property~PctLessHS+MedianAge+Poverty, data=crimes))
+```
+
+The model predicts:
+
+- A one percent increase in the percent of adults in a state without a high school diploma is associated with 0.05 more property crimes per 100,000, on average, **holding constant the median age of residents and the poverty rate in a state**. This result is about as close to zero as you will find.  
+- A one year increase in the median age of a state's residents is associated with 73 fewer property crimes per 100,000, on average, **holding constant the percent of adults without a high school diploma and the poverty rate in a state**. 
+- A one percent increase in a state's poverty rate is associated with 98 more crimes per 100,000, on average, **holding constant the percent of adults without a high school diploma and the median age of residents in a state**. 
+- 34% of the variation in property crime rates across states can be accounted for by variation in the percent of adults without a high school diploma, residents' median age, and the poverty rates across states.
+
+When I interpret the models now, I am holding constant the other two variables when I estimate the effect of each. Note that controlling for the poverty rate has a huge effect on the education variable whose effect goes from a substantial positive effect to basically zero effect. What does this tell us? Poverty rates and high school dropout rates are positively correlated and so when you don't control for poverty rates, it looks like the high school dropout rate predicts crime because states with high high school dropout rates have high poverty rates and high poverty rates predict property crime rates. Once you control for the poverty rate, you see that it is economic deprivation not educational deprivation that is driving the crime rate. 
+
+In general, the form of the multivariate regression model is:
+
+$$\hat{y}_i=b_0+b_1x_{i1}+b_2x_{i2}+b_3x_{i3}+\ldots+b_px_{ip}$$
+
+The intercept is given by $b_0$. This is the predicted value of $y$ when all of the independent variables are zero. The remaining $b$'s give the slopes for all of the variables up through the $p$th variable. Each of these gives the predicted change in $y$ for a unit increase in that independent variable, **holding all other independent variables constant**. 
+
+### How to read a table of regression results
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/5PN7I_WuXJ4")
+```
+
+In academic journal articles and books, the results of OLS regression models are represented in a fairly standard way. In order to understand how to read these articles, you need to understand this presentation style. Its not immediately intuitive for everyone. Table \@ref(tab:model-table-example) below shows the typical style. In this table, I am reporting three regression models with the property crime rates as the dependent variable and three different independent variables.  
+
+```{r model-table-example, echo=FALSE, results="asis"}
+m1 <- lm(Property~PctLessHS, data=crimes)
+m2 <- lm(Property~PctLessHS+MedianAge, data=crimes)
+m3 <- lm(Property~PctLessHS+MedianAge+Poverty, data=crimes)
+htmlreg(list(m1, m2, m3),
+        custom.coef.names=c("Intercept",
+                            "Percent Less than HS", 
+                            "Median Age",
+                            "Poverty Rate"),
+        custom.gof.names = c("R-squared","N"),
+        caption="(\\#tab:model-table-example) OLS regression models predicting violent crime rates for US states",
+        caption.above=TRUE,
+        digits=2,
+        star.symbol='&#42;',
+        custom.note = "%stars. Standard errors in parenthesis.",
+        include.adjrs=FALSE, include.rmse=FALSE,
+        doctype = FALSE)
+```
+
+When reading this table and others like it, keep the following issues in mind:
+
+* The first question you should ask is "what is the dependent variable?" This is the outcome that we are trying to predict. Typically, the dependent variable will be listed in the title of the table. In this case, the title tells you that the dependent variable is property crime rates and the unit of analysis is US states.
+*  The independent variables are listed on the rows of the table. In this case, I have independent variables of percent less than HS, median age, and the poverty rate. As I will explain below, just because an independent variable is listed here does not mean that it is actually included in all models.
+* Models are listed in each column of the table. If numbers are listed for the row of a particular independent variable then that variable is included in that particular model. In this case, I have three different models. The first model only has numbers listed for Percent less than HS, so that is the only independent variable in the first model. The second model has numbers listed for Percent less than HS and Median Age, so both of these variables are included in the model. The third model includes all three variables in the model. Remember that in each case the dependent variable is the property crime rate. 
+* Within each cell with numbers listed there is a lot going on. We are primarily interested in the main number listed at the top. This number is the slope (or intercept in the case of the "Constant" row). The number in parenthesis is the standard error for each slope in the model. You could use this standard error and the slope estimate above it to calculate t-statistics and p-values exactly. However, the asterisks give you an easy visual short cut to determine the rough size of the p-value. These asterisks indicate if the p-value is below a certain level, as shown in the notes at the bottom. The cut-offs of 0.05, 0.01, and 0.001 used here are pretty standard for the discipline. So an asterisks generally means that the result is "statistically significant." However, its important to keep in mind as noted above that these cut-offs are ultimately arbitrary and should never be confused with the substantive size of the effect itself.
+* At the bottom, you typically get a number of summary measures of the model. The only two we care about are the number of observations and the $R^2$ of the model.
+
+The advantage of organizing the table in this fashion is that we can easily see how the relationship between a given independent variable and the dependent variable changes as we add in other control variables by just looking at the numbers across a row. For example, we can see from Model 1 that the percent of the population with less than a high school diploma is initially pretty strongly positively related to violent crime rates. A one percentage point increase in this variable is associated with 78.83 more violent crimes per 100,000 population, on average. Controlling for the median age of the population in Model 2reduces this effect slightly but we still see a strong relationship. However, once we control for the poverty rate in a state the percent less than high school diploma effect completely vanishes (it becomes 0.05 which is effectively zero in this case). The poverty rate, on the other hand, has a big positive association with violent crime rates.
+
+What is going on here? It seems that the percent of the population with less than a high school diploma is only indirectly related to violent crime rates by its positive association with the poverty rate. But high poverty rates are much more directly responsible for high violent crime rates. In other words, a low high school completion rate predicts higher poverty rates and higher poverty rates predict more violent crimes, but a low high school completion rate does not directly predict more violent crimes. 
+
+## Including Categorical Variables as Predictors
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/Nj_cRVzZRQw")
+```
+
+To this point, we only know how to include quantitative variables into OLS regression models. However, it turns out you can use a fairly easy trick to include categorical variables as independent variables in OLS regression models. By including categorical variables as independent variables, we expand considerably the range of things that we can do with OLS regression models.  The most difficult part of this trick is correctly interpreting your results. 
+
+### Indicator variables
+
+As an example, I am going to look at the relationship between religious affiliation and sexual frequency. To keep our example simple I am going to **dichotomize** the religious affiliation variable, which means I am going to collapse it into two categories, rather than the six categories in the dataset. I will use a simply dichotomy of "Not Religious/Religious." In R, I can create this variable like so:
+
+```{r}
+sex$norelig <- sex$relig=="None"
+```
+
+This is technically a **boolean** variable, which means it takes a TRUE or FALSE value. For our purposes, TRUE is a non-religious person. 
+
+We already know how to look at the relationship between sexual frequency and this dichotomized religious affiliation variable. We can look at the mean differences in sexual frequency across our two categories:
+
+```{r}
+tapply(sex$sexf, sex$norelig, mean)
+59.84862-48.33671
+```
+
+The non-religious have sex 11.5 more times per year than the religious, on average. Hallelujah?
+
+We can represent this same mean difference in a regression model framework by using an indicator variable. An indicator variable is a variable that only takes a value of zero or one. It takes a value of one when the observation is in the indicated category and a zero otherwise. Mathematically, we would say:
+
+$$nonrelig_i=\begin{cases}
+  1 & \text{if non-religious}\\
+  0 & \text{otherwise}
+  \end{cases}$$
+  
+The **indicated category** is the category which gets a one on the indicator variable. In this case the indicated category is non-religious. The **reference category** is the category that gets no indicator variable. In this case, that is just the religious group. Later on, we will see that this can become slightly more complicated. You can think of the indicator variable as an on/off switch where 1 indicates that it is "on" (i.e. the observation belongs to the indicated category) and 0 indicates that it is "off" (i.e. the observation does not belong to the indicated category).
+
+What would happen if we put this indicator variable into a regression model predicting sexual frequency like so:
+
+$$\hat{frequency}_i=b_0+b_1(nonrelig_i)$$
+
+How would we interpret the slope and intercept for such a model? Figure \@ref(fig:scatter-dichotomous) shows a scatterplot of this relationship.
+
+```{r scatter-dichotomous, echo=FALSE, fig.cap="A scatterplot of the religious indicator variable by sexual frequency. Points are jittered to avoid overplotting. The mean for each group is plotted in red."}
+ggplot(sex, aes(x=as.numeric(norelig), y=sexf))+
+  geom_smooth(method="lm", se=FALSE)+
+  geom_jitter(alpha=0.1, width=0.1, height=5)+
+  geom_point(x=0, y=48.33671, color="red", size=3)+
+  geom_point(x=1, y=59.84862, color="red", size=3)+
+  annotate("label", x=0.1, y=68, label="mean for\nreligious group")+
+  annotate("label", x=0.9, y=79, label="mean for\nreligious group")+
+  annotate("label", x=0.5, y=30, label="The slope is 11.5,\nthe mean difference\nbetween the groups")+
+  scale_x_continuous(breaks = c(0,1), labels=c("0=religious","1=non-religious"))+
+  labs(x="religious indicator variable", y="sexual frequency")+
+  theme_bw()
+```
+
+Notice that all of the points align vertically either at the 0 or 1 on the x-axis. This is because the indicator variable can only take these two values. I have jittered points slightly to avoid overplotting. I have also plotted the means of the two groups in red dots and the OLS regression line for the scatterplot in blue. It turns out, that in order to be the best-fitting line, this OLS regression line must connect the two dots that represent the mean of each group. 
+
+What will the slope of this line be? If we go up "one unit" on the non-religious indicator variable we have gone from a religious person to a non-religious person and the change in predicted sexual frequency is equal to the mean difference of 11.5 between the groups. The intercept is given by the value at zero which is just given by the mean sexual frequency among the religious of 48.3. So, the OLS regression line should look like:
+
+$$\hat{frequency}_i=48.3+11.5(nonrelig_i)$$
+
+I can calculate these same numbers in *R* with the `lm` command:
+
+```{r}
+coef(lm(sexf~norelig, data=sex))
+```
+
+The numbers are the same. More important than the numbers, however, is the interpretation of the numbers. The intercept is the mean of the dependent variable for the reference category. The slope is the mean difference between the reference category and the indicated category. In this case, I would say:
+
+- Religious individuals have sex 48.3 times per year, on average.
+- Non-religious individuals have sex 11.5 times more per year than non-religious individuals, on average.
+
+Note that I can derive the sexual frequency of the non-religious from these two numbers by taking the value for the non-religious and adding the mean difference to find out that non-religious individuals have sex 59.8 times per year, on average. 
+
+#### Reversing the indicator variable
+
+What if I switched my indicator variable so that the religious were indicated and the non-religious were the reference category? 
+
+$$relig_i=\begin{cases}
+  1 & \text{if religious}\\
+  0 & \text{otherwise}
+  \end{cases}$$
+
+Lets try it out in *R* and see (the `!=` below is computer lingo for "not equal to"):
+
+```{r}
+sex$religious <- sex$relig!="None"
+coef(lm(sexf~religious, data=sex))
+```
+
+Lets compare the two models:
+
+$$\hat{frequency}_i=48.3+11.5(nonrelig_i)$$
+$$\hat{frequency}_i=59.8-11.5(relig_i)$$
+
+Both models give me the exact same information, but from the perspective of a different reference group. The first model tells me the mean sexual frequency of the religious (48.3) and how much *more* sex the non-religious have on average (11.5). The second model tells me the mean sexual frequency of the non-religious (59.8) and how much *less* sex the religious have (-11.5). I can easily derive one model from the other, without actually having to calculate it in R. Therefore, which category you set as the reference category is really a matter of taste, rather than one of consequence. The results are the same either way. 
+
+### Categorical variables with more than two categories
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/RBgvaGnBLyA")
+```
+
+What if I have a categorical variable that has more than two categories? Lets expand the religious variable that I dichotomized back to its original scale. There are six different categories: Fundamentalist Protestant, Mainline Protestant, Catholic, Jewish, Other, and None:
+
+```{r}
+summary(sex$relig)
+```
+
+Lets look at the mean sexual frequency for each of these groups.
+
+```{r}
+round(tapply(sex$sexf, sex$relig, mean),1)
+```
+
+Figure \@ref(fig:compare-relig-means) plots these means on a number line to get a visual display of the differences:
+
+```{r compare-relig-means, echo=FALSE, fig.cap="The mean sexual frequency of each group arrayed on a vertical number line. The red lines indicate the distance between each group and the reference category of fundamentalist Protestant."}
+mdiffs <- round(tapply(sex$sexf, sex$relig, mean),1)
+par(mar=c(0.1,4,0,0.1))
+plot(rep(1,length(mdiffs)), mdiffs, cex=2, pch=21, bg="skyblue", bty="n", xaxt="n",
+     yaxt="n", xlab="", ylab="mean sexual frequency (per year)", ylim=c(35,65), xlim=c(0.8,2))
+axis(2, at=seq(from=35,to=65, by=5))
+text(rep(1,length(mdiffs)), c(mdiffs[1]*1.01,mdiffs[2:6]), pos=4,
+     paste(names(mdiffs),"(",mdiffs,")"))
+arrows(0.85, mdiffs[1], 0.85, mdiffs[2], length=0.05, col="red")
+arrows(0.875, mdiffs[1], 0.875, mdiffs[3], length=0.05, col="red")
+arrows(0.9, mdiffs[1], 0.9, mdiffs[4], length=0.05, col="red")
+arrows(0.925, mdiffs[1], 0.925, mdiffs[5], length=0.05, col="red")
+arrows(0.95, mdiffs[1], 0.95, mdiffs[6], length=0.05, col="red")
+abline(h=mdiffs[1], lty=2, col="red")
+```
+
+Nones and others clearly have much higher mean sexual frequency than the remaining religious groups and Jews have much lower mean sexual frequency. The three Christian groups cluster in the middle, although mainline protestants have a lower mean sexual frequency than the other two. 
+
+This plot also shows the mean differences between the groups, with fundamentalist Protestants set as the reference category. The vertical distances from the dotted red line (the mean of fundamentalist Protestants) give the mean differences between each religious group and fundamentalist Protestants. So we can see that "Nones" have sex 10.2 more times per year than fundamentalist Protestants, on average, and mainline Protestants have sex 5.4 fewer times per year, on average, than fundamentalist Protestants. 
+
+We can use the same logic of indicator variables we developed above to represent the mean differences between groups observed here in a regression model framework. However, because we now have six categories, we will need five indicator variables. You always need **one less indicator variable than the number of categories**.  The category which doesn't get an indicator variable is your reference category. As per the graph above, I will make Fundamentalist Protestants my reference category. Therefore, I need one indicator variable for each of the other five categories:
+
+$$main_i=\begin{cases}
+  1 & \text{if main}\\
+  0 & \text{otherwise}
+  \end{cases}$$
+  
+$$catholic_i=\begin{cases}
+  1 & \text{if catholic}\\
+  0 & \text{otherwise}
+  \end{cases}$$
+  
+$$jewish_i=\begin{cases}
+  1 & \text{if jewish}\\
+  0 & \text{otherwise}
+  \end{cases}$$
+  
+$$other_i=\begin{cases}
+  1 & \text{if other religion}\\
+  0 & \text{otherwise}
+  \end{cases}$$
+
+$$none_i=\begin{cases}
+  1 & \text{if no religion}\\
+  0 & \text{otherwise}
+  \end{cases}$$
+
+ Now lets put these variables into an OLS regression model:
+
+$$\hat{frequency}_i=b_0+b_1(main_i)+b_2(catholic_i)+b_3(jewish_i)+b_4(other_i)+b_5(none_i)$$
+
+We can figure out how all this works by getting the predicted value for the member of a specific group. That respondent should get a 1 for the variable where they are a member and a zero on all other variables. For example, a fundamentalist protestant should get a zero on all of these variables:
+
+$$\hat{frequency}_i=b_0+b_1(0)+b_2(0)+b_3(0)+b_4(0)+b_5(0)=b_0$$
+
+So, the intercept is the predicted value for fundamentalist Protestants. Similarly we could calculate the predicted value for mainline Protestants:
+
+$$\hat{frequency}_i=b_0+b_1(1)+b_2(0)+b_3(0)+b_4(0)+b_5(0)=b_0+b_1$$
+
+The difference between the two is $b_1$, so this "slope" gives the mean difference between mainline and fundamentalist Protestants. We could do the same thing for Catholics:
+
+$$\hat{frequency}_i=b_0+b_1(0)+b_2(1)+b_3(0)+b_4(0)+b_5(0)=b_0+b_2$$
+
+The mean difference between Catholics and fundamentalist Protestants is given by $b_2$.
+
+In general, each of the "slopes" is the mean difference between the indicated category and the **reference category**. In this case, the reference category is fundamentalist Protestants so each of the slopes gives the mean difference between that religious category and fundamentalist Protestant, just like the graph above. 
+
+R is fairly intelligent about handling all of these indicator variables and you don't actually have to create these five different variables. If you put a categorical variable into your regression formula, R will know to treat it as a set of indicator categories. The only catch is that R will already have a default category set as the reference. It just so happens that in our GSS data, fundamentalist Protestants are already set as the reference. So I can run this model by:
+
+```{r}
+model <- lm(sexf~relig, data=sex)
+round(coef(model),2)
+```
+
+You can tell which category is the reference by which category is left out here. Note how the coefficients (given by the estimates column) match the mean differences I calculated above in the graph. We are simply reproducing these mean differences in a regression model framework.
+
+### Categorical and quantitative variables combined in a single model
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/DllN6ulaqh4")
+```
+
+
+If all we are doing is reproducing mean differences between categories, what good is this method? After all, we already know how to do that. The major advantage of putting these mean differences into a regression model framework is that we can **control for other potentially confounding variables**. 
+
+These sexual frequency differences by religious affiliation are a prime example. Lets take a look at the age differences between religious affiliations:
+
+```{r}
+round(tapply(sex$age, sex$relig, mean),1)
+```
+
+Notice how closely these age differences mirror the differences in sexual frequency. Others and nones are the youngest, while Jews are the oldest. Among Christians, mainline Protestants are older than fundamentalist Protestants and Catholics. We also know from prior work that age has a negative effect on sexual frequency. This should make us suspicious that some (or all) of the observed differences in sexual frequency between religious groups simply reflect age differences between those groups. 
+
+We can easily address this issue by simply including age as a control variable in our model:
+
+```{r}
+model <- lm(sexf~relig+age, data=sex)
+round(coef(model),2)
+```
+
+We now interpret those slopes as the mean difference in sexual frequency between fundamentalist Protestants and the indicated category, **among individuals of the same age**. So for example, we would interpret the 2.69 on "None" as:
+
+> The model predicts that, among individuals of the same age, those with no religious preference have sex 2.69 more times per year than fundamentalist protestants, on average.
+
+We would also interpret the age effect controlling for religious affiliation like so:
+
+> The model predicts, that holding religious affiliation constant, a one year increase in age is associated with 1.28 fewer instances of sex per year, on average. 
+
+Table \@ref(tab:model-relig-sex) below helps to highlight the change in the effects once age is controlled.
+
+```{r model-relig-sex, echo=FALSE, results="asis"}
+m1 <- lm(sexf~relig, data=sex)
+m2 <- lm(sexf~relig+age, data=sex)
+htmlreg(list(m1, m2),
+        custom.coef.names=c("Intercept",
+                            "Mainline Protestant",
+                            "Catholic",
+                            "Jewish",
+                            "Other",
+                            "None",
+                            "Age"),
+        custom.gof.names = c("R-squared","N"),
+        caption="(\\#tab:model-relig-sex) OLS regression models predicting sexual frequency",
+        caption.above=TRUE,
+        digits=2,
+        star.symbol='&#42;',
+        custom.note = "%stars. Standard errors in parenthesis. Reference category is fundamentalist Protestant",
+        include.adjrs=FALSE, include.rmse=FALSE,
+        doctype = FALSE)
+```
+
+All of the coefficients (except for Catholic, which was tiny anyway) have declined substantially in size. The mean differences from fundamentalist Protestants for both Jews and other religions have basically disappeared and the "None" effect has been severely reduced. In other words, almost all or all of the observed differences in sexual frequency by religious affiliation were indirectly a product of underlying age differences between religious affiliations. If you were just about ready to convert to a different religion to get laid more often, you may want to hold off for the moment. 
+
+<!---
+<div class = "dcl">
+
+#### Try it out
+
+In the interactive *R* session below, lets try creating a full linear model. We are going to predict hourly wages by the following independent variables:
+
+1. Age, re-centered on 40
+2. Number of children, not re-centered
+3. Gender
+4. Highest educational degree
+
+Keep the following in mind:
+
+1. You will need to fill in the formula part of the <tt>lm</tt> command below. Remember that your dependent variable (in this case wages) goes on the left side of the <tt>~</tt>.
+2. Use the <tt>I(x-number)</tt> syntax as shown above to re-center age in the model formula.
+
+How would you interpret all of the slopes and intercepts in the model output? Are you surprised by any of the results.
+<iframe src="dcl_interactives/lm_categorical.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+
+</div>
+--->
+
+
+## Interaction Terms
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/0SGm6XPLTLA")
+```
+
+By definition, a linear model is an **additive** model. As you increase or decrease the value of one independent variable you increase or decrease the predicted value of the dependent variable by a set amount, **regardless of the other values of the independent variable**. This is an assumption built into the linear model by its additive form, and it may misrepresent some relationships where independent variables **interact** with one another to produce more complicated effects. In particular, in this section, we want to know whether the effect (i.e. the slope) of one independent variable varies by the value of another independent variable. 
+
+### The nature of additive models
+
+As an example for this section, I am going to look at the relationship between movie genre, runtime, and tomato meter ratings. To simplify things, I am going to only look at these relationships for two genres: action and comedy. I can limit my movies dataset to these two genres with the following command:
+
+```{r}
+movies.short <- subset(movies, Genre=="Comedy" | movies$Genre=="Action")
+```
+
+Now lets look at a simple model where genre and runtime both predict Tomato Meter ratings.
+
+```{r}
+round(coef(lm(TomatoMeter~Genre+Runtime, data=movies.short)),2)
+```
+
+Genre is a categorical variable and action movies are set as the reference category. In equation form, the model looks like: 
+
+$$\hat{meter}_i=-1.75+4.43(comedy_i)+0.31(runtime_i)$$
+
+I can interpret my slopes as follows:
+
+- The model predicts that when comparing movies of the same runtime, comedies have Tomato Meter ratings 4.43 percentage points higher than action movies, on average.
+- The model predicts that, holding constant movie genre, a one minute increase in movie runtime is associated with a 0.31 percentage point increase in the Tomato Meter rating, on average. 
+
+This is an additive model. If we move from an action movie to a comedy of the same runtime, our predicted Tomato Meter rating goes up by 4.43, **regardless of the actual value of runtime**. If we increase movie runtime by one minute while keeping genre the same, our predicted Tomato Meter rating goes up by 0.41, **regardless of whether that genre is action or comedy**. 
+
+It may help to graphically visualize the nature of this additive relationship. We can do this by plotting lines showing the relationship between runtime and Tomato Meter ratings separately for our two different genres of action and comedy. The line for action movies is given by:
+
+$$\hat{meter}_i=-1.75+4.43(0)+0.41(runtime_i)=-1.75+0.41(runtime_i)$$
+
+The line for comedy movies is given by:
+
+$$\hat{meter}_i=-1.75+4.43(1)+0.41(runtime_i)=2.68+0.41(runtime_i)$$
+
+Each line has an intercept and a slope. Notice that the intercepts are different but the slopes are the same. That means we have two parallel lines at different levels. Figure \@ref(fig:plot-nointeractiontwogenre) overlays these two parallel lines on top of a scatterplot of movie runtime by tomato meter for these two genres. 
+
+```{r plot-nointeractiontwogenre, echo=FALSE, fig.cap="Predicted Tomato Meter by runtime for two genres based on an additive OLS regression model. The lines must be parallel."}
+model <- lm(TomatoMeter~Runtime+Genre, data=subset(movies, Genre=="Action" | Genre=="Comedy"))
+temp <- expand.grid(Runtime=75:185, Genre=c("Action","Comedy"))
+temp$TomatoMeter <- predict(model, temp)
+ggplot(subset(movies, Genre=="Action" | Genre=="Comedy"),
+       aes(x=Runtime, y=TomatoMeter, color=Genre))+
+  geom_line(data=temp)+
+  geom_point(alpha=0.2)+
+  labs(x="runtime in minutes", y="Tomato Meter")+
+  theme_bw()
+```
+
+The parallel lines are an assumption of the OLS regression model structure we have used. There are two consequences of this assumption. First, At every single level of runtime, the predicted Tomato Meter difference between comedy and action movies is exactly 4.62. This can be seen on the graph by the consistent gap between the blue and red line. Second, the effect of runtime on the Tomato Meter rating is assumed to be the same for action and comedy movies. This can be seen on the graph by the fact that both lines have the exact same slope. 
+
+Although these may seem like two different issues, they are really the same issue from different perspectives. If we were to allow the slopes of the blue and red line to be different, then the gap between them would not be static. The questions is how can we allow the slopes of the two lines to be different. This is where the concept of the **interaction term** comes in. 
+
+### The interaction term
+
+An interaction term is a variable that is constructed from two other variables by multiplying those two variables together. In our case, we can easily construct an interaction term as follows:
+
+```{r}
+movies.short$comedy <- movies.short$Genre=="Comedy"
+movies.short$interaction <- movies.short$Runtime*movies.short$comedy
+```
+
+In this case, I had to create a real indicator variable for comedy before I could multiply them, but then I just multiply this indicator variable by movie runtime. Now lets add this interaction term to the model:
+
+```{r}
+model <- lm(TomatoMeter~Runtime+comedy+interaction, data=movies.short)
+round(coef(model), 2)
+```
+
+We now have an additional "slope" for the interaction term. Lets write this model out in equation form to try to figure out what is going on here. 
+
+$$\hat{meter}_i=-14.45+24.36(comedy_i)+0.52(runtime_i)-0.19(runtime_i*comedy_i)$$
+
+
+Remember that the interaction term is just a literal multiplication of the two other variables. To figure out how this all works, lets once again separate this into two lines predicting Tomato Meter by runtime, for comedies and action movies separately.
+
+For action movies, the equation is:
+
+$$\hat{meter}_i=-14.45+24.36(0)+0.52(runtime_i)-0.19(runtime_i*0)=-14.45+0.52(runtime_i)$$
+
+For comedy movies, the equation is:
+
+$$\hat{meter}_i=-14.45+24.36(1)+0.52(runtime_i)-0.19(runtime_i*1)=(-14.45+24.36)+(0.52-0.19)(runtime_i)=9.91+0.33(run_i)$$
+
+We now have two lines with different intercept and **different slopes**. The interaction term has allowed the effect of runtime on the Tomato Meter to vary by type of genre. In this case, the interaction term tells us how much smaller the slope is for comedy movies than for action movies. We can also just plot the lines to see how it looks, as I have done in Figure \@ref(fig:plot-interaction-twogenre).
+
+```{r plot-interaction-twogenre, echo=FALSE, fig.cap="An interaction term allows for non-parallel lines, and thus different effects of runtime on tomato meter ratings by genre"}
+ggplot(subset(movies, Genre=="Action" | Genre=="Comedy"),
+       aes(x=Runtime, y=TomatoMeter, color=Genre))+
+  geom_smooth(method="lm", se=FALSE)+
+  geom_point(alpha=0.2)+
+  labs(x="runtime in minutes", y="Tomato Meter")+
+  theme_bw()
+```
+
+The pattern here is fairly clear. Short comedies get better ratings than short action movies, while long comedies get worse ratings than long action movies. Put another way, comedies get less "return" in terms of their ratings when increasing their length than do action movies. This can be seen by the much steeper slope for action movies. 
+
+### Interpreting interaction terms
+
+Interpreting interaction terms can be tricky, because the inclusion of an interaction term **also changes the meaning of other slopes in the model**. The slopes for the two variables that make up the interaction term are called the **main effects**. In our example, those two variables are runtime and the comedy indicator variable and the main effects of these variables are 0.52 and 24.36, respectively. The most important rule to remember is that when an interaction term is in a model, the main effects are only the expected effects **when the other variable involved in the interaction is zero**. This is because the interaction implies that the effects of the two variables are not constant but rather change depending on the value of the other variable in the interaction term. Therefore, we can only interpret effects at a particular value of the other variable. So I would interpret these main effects as follows:
+
+- The model predicts that **among action movies**, a one minute increase in movie runtime is associated with a 0.52 point increase in the Tomato Meter rating, on average. 
+- The model predicts that **among movies with zero minutes of runtime** (outside the scope of data of course), comedies are predicted to have Tomato Meter ratings 24.36 points higher than action movies, on average.
+
+Notice that I did not have to say I was controlling for the other variable. I am doing more than controlling when I include an interaction term. I am conditioning the effect of one variable on the value of another. That is why I instead use the phrase "among observations that are zero on the other variable." Note that you could also include other non-interacted variables in this model as well, like maturity rating, in which case you would also need to indicate that you controlled for those variables. 
+
+Interpreting interaction terms themselves can also be tricky because they are the difference in the effect of on variable depending on the value of another. One approach is to interpret this difference in effect directly. In this case, we would say:
+
+- The model predicts that the predicted increase in Tomato Meter ratings for a one minute increase in movie runtime is 0.19 points smaller for comedy movies than for action movies, on average.
+
+You have to be careful with this type of interpretation. In this case, both slopes were still positive so I can talk about how the effect was smaller. However, in some cases, the slopes may end up in different directions entirely which would require a somewhat different interpretation. 
+Another approach is to actually calculate the slope for the indicated category (comedies) and interpret it directly:
+
+- The model predicts that **among comedy movies**, a one minute increase in movie runtime is associated with a 0.33 increase in the Tomato Meter rating, on average (which is lower than for action movies). 
+
+In short, you have to be careful and thoughtful when thinking about how to interpret interaction terms. 
+
+### Interaction terms in *R*
+
+In the example above, I created the interaction term manually, but I didn't actually need to do this. *R* has a shortcut method for calculating interaction terms:
+
+```{r}
+model <- lm(TomatoMeter~Runtime*Genre, data=movies.short) 
+round(coef(model),2)
+```
+
+The results are exactly the same as before. To include an interaction term between two variables I just have to connect them with a `*` rather than a `+` in the `lm` formula. By default, *R* will include each variable separately as well as their interaction. 
+
+<!---
+<div class = "dcl">
+
+#### Try it out
+
+In the interactive *R* session below, lets try a linear model that predicts hourly wages by number of children, gender, and the interaction between the two variables. 
+
+1. You will need to fill in the formula part of the <tt>lm</tt> command below. Remember that your dependent variable (in this case wages) goes on the left side of the <tt>~</tt>.
+2. Use the <tt>I(x-number)</tt> syntax as shown above to re-center age in the model formula.
+
+What does the interaction term tell you about different wage returns to children for men and women?
+<iframe src="dcl_interactives/lm_interact.html" frameborder="0" scrolling="no" style="width:100%;height:405px"></iframe>
+
+</div>
+--->
+
+
+### Interaction terms with multiple categories
+
+In the above example, I only compared comedy and action movies in order to keep the comparison simple, but it is possible to run the same analysis on the full movie dataset to see how runtime varies across all genres. 
+
+```{r}
+model <- lm(TomatoMeter~Runtime*Genre, data=movies)
+round(coef(model),2)
+```
+
+Thats a lot of numbers! There is a slope for each genre except action (10 in all) and an interaction between runtime and each genre except action (another 10 in all). What we are estimating here are 11 different lines (on for each genre) for the relationship between runtime and Tomato Meter rating. Because action movies are the reference, the main effect of runtime is the slope for action movies (0.52). The interaction terms show us how much larger or smaller the effect of runtime is for each given genre. So the effect is 0.39 smaller for dramas for a total effect of 0.13 (0.52-0.39). It is 0.32 larger for family movies for a total effect of 0.84 (0.52+0.32), and so forth. Similarly, the intercept is the intercept only for action movies. To get the intercept for other genres, we take the intercept value itself and add the main effect of genre. So for dramas the intercept is -14.45+59.5=45.05 and for family movies it is -14.45-29.06=-43.51. If we put all these slopes and intercepts together, we will get 11 lines as shown in Figure \@ref(fig:plot-fullinteraction-genre).
+
+```{r plot-fullinteraction-genre, echo=FALSE, fig.cap="Interaction terms allow each genre to get a different return from increasing runtime"}
+ggplot(movies,
+       aes(x=Runtime, y=TomatoMeter, color=Genre))+
+  geom_point(alpha=0.2)+
+  geom_smooth(method="lm", se=FALSE, fullrange=FALSE)+
+  labs(x="runtime in minutes", y="Tomato Meter")+
+  scale_color_brewer(palette = "Paired")+
+  theme_bw()
+```
+
+There is a lot going on here, but we can detect some interesting patterns. Almost all of the lines are positive indicating that longer movies tend to generally get better ratings. This is not true of Romances however, where there is a slight negative relationship between movie runtime and Tomato Meter ratings. Dramas also have a fairly flat slope and a high intercept, so they tend to outperform most other short movies but don't fare as well compared to other genres when they are longer. The steepest slope is for family movies, which apparently are horrible when short (think "Beethoven 6: Beethoven saves Christmas, again" or something), but do much better when longer. 
+
+### Interaction terms with two categorical variables
+
+```{r echo=FALSE}
+knitr::include_url("https://www.youtube.com/embed/rrCvp8z1cmA")
+```
+
+The examples so far have involved interacting a quantitative variable with a categorical variable which gives you a different line for each category of your categorical variable. However, we can also create an interaction term between two categorical variables. 
+
+As an example, lets look at differences in wages in the earnings dataset by race and education. To simplify things, I am going to dichotimize race into white/non-white and education into less than Bachelor's degree/Bachelor's degree or more, as follows:
+
+```{r added-vars-earnings}
+earnings$nwhite <- earnings$race!="White"
+earnings$college <- as.numeric(earnings$educ)>3
+```
+
+Lets look at mean wages across these combination of categories:
+
+```{r tapply-earnings-race-college}
+tapply(earnings$wages, earnings[,c("nwhite","college")], mean)
+```
+
+White college graduates make \$33.91 per hour, on average, while non-white college graduates make \$31.82 per hour, on average. Whites without a college degree make \$19.99, on average, while non-whites without a college degree make \$16.74, on average. If we put this in a table, I can show that there are four different ways to make comparisons between these numbers. 
+
+```{r table-earnings-race-college, echo=FALSE}
+tab <- round(tapply(earnings$wages, earnings[,c("nwhite","college")], mean),2)
+tab <- cbind(tab, tab[,2]-tab[,1])
+tab <- rbind(tab, tab[2,]-tab[1,])
+colnames(tab) <- c("No degree", "Bachelor's degree", "Difference")
+rownames(tab) <- c("White","Non-white","Difference")
+kable(tab, align=c("r","r","r"),
+      caption="Mean wages in dollars per hour by race and education") %>%
+  kable_styling(bootstrap_options = c("striped","hover")) %>%
+  column_spec(1, bold=TRUE) %>%
+  row_spec(3, bold=TRUE, color="white", background="#666") %>%
+  column_spec(4, bold=TRUE, color="white", background="#666")
+```
+
+If we look at the two differences along the far-right column, we are seeing the "returns" in terms of wages for a college degree separately for whites and non-whites. The return for whites is \$13.92 per hour and the return for non-whites is higher at \$15.08. If we look at the differences along the bottom row, we are seeing the racial inequality in wages separately for those with no degree and those with a college degree. Among those with no college degree, non-whites make \$3.25 less per hour than whites. Among those with a college degree, non-whites make \$2.09 less per hour than whites. The racial gap in wages gets smaller among those who have completed a college degree. 
+
+Now lets look at the difference in the differences. For the racial gap in wages this is given by -3.25-(-2.09)=1.16. For the returns to a college degree this is given by 15.08-13.92=1.16. The difference in the differences is the same! This is because we are looking at the same relationship in two different ways. If non-whites get a better return to college than whites, then the racial gap in wages must get smaller among the college-educated. Similarly, if the racial gap in wages gets smaller at the college level, it tells us that non-whites must get a better return on their college education. 
+
+This 1.16 number is basically an interaction term. We can interpret the number as the difference in returns to wages from a college degree between whites and non-whites. Alternatively, we can interpret the number as the difference in the racial wage gap between those with no degree and those with a college degree. Either way, we have the same information, with the same finding: greater educational attainment reduces racial inequality because minorities get a greater return on their college degrees. 
+
+Lets try modeling this relationship with an OLS regression model. First lets try a model without interaction terms:
+
+```{r model-additive-earnings-race-college}
+model <- lm(wages~nwhite+college, data=earnings)
+coef(model)
+```
+
+Lets put this into an equation framework:
+
+$$\hat{wages}_i=19.85-2.87(nwhite_i)+14.26(college_i)$$
+
+We can use this equation to fill in the predicted valued of the same table we calculated by hand above:
+
+```{r table-additive-earnings-race-college, echo=FALSE}
+tab <- cbind(c(19.85,"19.85-2.87=16.98",-2.87),
+      c("19.85+14.26=34.11","19.85-2.87+14.26=31.24",-2.87),
+      c(14.26,14.26,0))
+colnames(tab) <- c("No degree", "Bachelor's degree", "Difference")
+rownames(tab) <- c("White","Non-white","Difference")
+kable(tab, align=c("r","r","r"),
+      caption="Predicted wages in dollars per hour by race and education from an additive model") %>%
+  kable_styling(bootstrap_options = c("striped","hover")) %>%
+  column_spec(1, bold=TRUE) %>%
+  row_spec(3, bold=TRUE, color="white", background="#666") %>%
+  column_spec(4, bold=TRUE, color="white", background="#666")
+```
+
+The predicted values do not match the exact values above. More importantly, if you look at the differences, you can see that the returns to education are assumed to be identical for whites and non-whites (\$14.26) and the racial gap is assumed to be the same for those with no degree and those with a college degree (-\$2.87). This is the limitation of the additive model. We assume that the effects of race and college completion are not affected by each other. If we want to determine whether returns to college are different by race, we need to model the interaction term, as follows:
+
+```{r model-interactive-earnings-race-college}
+model <- lm(wages~nwhite*college, data=earnings)
+coef(model)
+```
+
+In equation form:
+
+$$\hat{income}_i=19.99-3.25(nwhite_i)+13.92(college_i)+1.16(nwhite_i*college_i)$$
+
+Lets use this model to get predicted values in our table:
+
+```{r table-interactive-earnings-race-college, echo=FALSE}
+tab <- cbind(c(19.99,"19.99-3.25=16.74",-3.25),
+      c("19.99+13.92=33.91","19.99-3.25+13.92+1.16=31.82",-2.09),
+      c(13.92,15.08,1.16))
+colnames(tab) <- c("No degree", "Bachelor's degree", "Difference")
+rownames(tab) <- c("White","Non-white","Difference")
+kable(tab, align=c("r","r","r"),
+      caption="Predicted wages in dollars per hour by race and education from an interactive model") %>%
+  kable_styling(bootstrap_options = c("striped","hover")) %>%
+  column_spec(1, bold=TRUE) %>%
+  row_spec(3, bold=TRUE, color="white", background="#666") %>%
+  column_spec(4, bold=TRUE, color="white", background="#666")
+```
+
+Our model now fits the data exactly and the differences are allowed to vary by the other category, so that we can see the differences in returns to college by race and the differences in the racial gap by education level. The interaction term itself of 1.16 is the same to what we calculated by hand. 
+
+If we were to interpret the intercept and slopes from the model above, we would say:
+
+* Whites with no college degree had mean wages of \$19.99 per hour. 
+* Among those with no college degree, non-whites earn \$3.25 less per hour than whites, on average. 
+* Among whites, those with a college degree have wages \$13.92 per hour higher on average than those without a college degree.
+* The returns to wages from a college degree are \$1.16 larger for non-whites than they are for whites, on average. 
+
+
+
+

@@ -6,9 +6,10 @@
 
 packages = c("here",
              "MASS",
-             "tidyverse", "janitor", "glue",
+             "tidyverse", "janitor", "glue","broom",
              "scales",
-             "gt", "gtExtras", "gganimate")
+             "gt", "gtExtras", "gganimate",
+             "gapminder")
 
 #packages = c("here","tidyverse", "broom","janitor","glue",
 #             "ggalt","scales","ggrepel","gganimate","gifski",

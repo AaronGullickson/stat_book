@@ -668,6 +668,7 @@ To this point, we only know how to include quantitative variables into OLS regre
 As an example, I am going to look at the relationship between religious affiliation and sexual frequency. To keep our example simple I am going to **dichotomize** the religious affiliation variable, which means I am going to collapse it into two categories, rather than the six categories in the dataset. I will use a simply dichotomy of "Not Religious/Religious." In R, I can create this variable like so:
 
 ```{r}
+#| label: create-norelig-var
 sex$norelig <- sex$relig=="None"
 ```
 
@@ -677,12 +678,12 @@ We already know how to look at the relationship between sexual frequency and thi
 
 ```{r}
 tapply(sex$sexf, sex$norelig, mean)
-59.84862-48.33671
+50.87262-45.64889
 ```
 
-The non-religious have sex 11.5 more times per year than the religious, on average. Hallelujah?
+The non-religious have sex 5.22 more times per year than the religious, on average. Hallelujah?
 
-We can represent this same mean difference in a regression model framework by using an indicator variable. An indicator variable is a variable that only takes a value of zero or one. It takes a value of one when the observation is in the indicated category and a zero otherwise. Mathematically, we would say:
+We can represent this same mean difference in a linear model framework by using an indicator variable. An indicator variable is a variable that only takes a value of zero or one. It takes a value of one when the observation is in the indicated category and a zero otherwise. Mathematically, we would say:
 
 $$nonrelig_i=\begin{cases}
   1 & \text{if non-religious}\\
@@ -695,17 +696,20 @@ What would happen if we put this indicator variable into a regression model pred
 
 $$\hat{frequency}_i=b_0+b_1(nonrelig_i)$$
 
-How would we interpret the slope and intercept for such a model? Figure \@ref(fig:scatter-dichotomous) shows a scatterplot of this relationship.
+How would we interpret the slope and intercept for such a model? @fig-scatter-dichotomous shows a scatterplot of this relationship.
 
-```{r scatter-dichotomous, echo=FALSE, fig.cap="A scatterplot of the religious indicator variable by sexual frequency. Points are jittered to avoid overplotting. The mean for each group is plotted in red."}
+```{r}
+#| label: fig-scatter-dichotomous
+#| fig-cap: A scatterplot of the religious indicator variable by sexual frequency. Points are jittered to avoid overplotting. The mean for each group is plotted in red.
+#| echo: false
 ggplot(sex, aes(x=as.numeric(norelig), y=sexf))+
   geom_smooth(method="lm", se=FALSE)+
   geom_jitter(alpha=0.1, width=0.1, height=5)+
-  geom_point(x=0, y=48.33671, color="red", size=3)+
-  geom_point(x=1, y=59.84862, color="red", size=3)+
+  geom_point(x=0, y=45.64889, color="red", size=3)+
+  geom_point(x=1, y=50.87262, color="red", size=3)+
   annotate("label", x=0.1, y=68, label="mean for\nreligious group")+
-  annotate("label", x=0.9, y=79, label="mean for\nreligious group")+
-  annotate("label", x=0.5, y=30, label="The slope is 11.5,\nthe mean difference\nbetween the groups")+
+  annotate("label", x=0.9, y=79, label="mean for\nnon-religious group")+
+  annotate("label", x=0.5, y=30, label="The slope is 5.22,\nthe mean difference\nbetween the groups")+
   scale_x_continuous(breaks = c(0,1), labels=c("0=religious","1=non-religious"))+
   labs(x="religious indicator variable", y="sexual frequency")+
   theme_bw()
@@ -715,20 +719,21 @@ Notice that all of the points align vertically either at the 0 or 1 on the x-axi
 
 What will the slope of this line be? If we go up "one unit" on the non-religious indicator variable we have gone from a religious person to a non-religious person and the change in predicted sexual frequency is equal to the mean difference of 11.5 between the groups. The intercept is given by the value at zero which is just given by the mean sexual frequency among the religious of 48.3. So, the OLS regression line should look like:
 
-$$\hat{frequency}_i=48.3+11.5(nonrelig_i)$$
+$$\hat{frequency}_i=45.65+5.22(nonrelig_i)$$
 
 I can calculate these same numbers in *R* with the `lm` command:
 
 ```{r}
+#| label: model-sexf-norelig
 coef(lm(sexf~norelig, data=sex))
 ```
 
 The numbers are the same. More important than the numbers, however, is the interpretation of the numbers. The intercept is the mean of the dependent variable for the reference category. The slope is the mean difference between the reference category and the indicated category. In this case, I would say:
 
-- Religious individuals have sex 48.3 times per year, on average.
-- Non-religious individuals have sex 11.5 times more per year than non-religious individuals, on average.
+- Religious individuals have sex 45.65 times per year, on average.
+- Non-religious individuals have sex 5.22 times more per year than non-religious individuals, on average.
 
-Note that I can derive the sexual frequency of the non-religious from these two numbers by taking the value for the non-religious and adding the mean difference to find out that non-religious individuals have sex 59.8 times per year, on average. 
+Note that I can derive the sexual frequency of the non-religious from these two numbers by taking the value for the non-religious and adding the mean difference to find out that non-religious individuals have sex 50.87 times per year, on average. 
 
 #### Reversing the indicator variable
 
@@ -742,22 +747,19 @@ $$relig_i=\begin{cases}
 Lets try it out in *R* and see (the `!=` below is computer lingo for "not equal to"):
 
 ```{r}
+#| label: model-sexf-relig
 sex$religious <- sex$relig!="None"
 coef(lm(sexf~religious, data=sex))
 ```
 
 Lets compare the two models:
 
-$$\hat{frequency}_i=48.3+11.5(nonrelig_i)$$
-$$\hat{frequency}_i=59.8-11.5(relig_i)$$
+$$\hat{frequency}_i=45.65+5.22(nonrelig_i)$$
+$$\hat{frequency}_i=50.87-5.22(relig_i)$$
 
-Both models give me the exact same information, but from the perspective of a different reference group. The first model tells me the mean sexual frequency of the religious (48.3) and how much *more* sex the non-religious have on average (11.5). The second model tells me the mean sexual frequency of the non-religious (59.8) and how much *less* sex the religious have (-11.5). I can easily derive one model from the other, without actually having to calculate it in R. Therefore, which category you set as the reference category is really a matter of taste, rather than one of consequence. The results are the same either way. 
+Both models give me the exact same information, but from the perspective of a different reference group. The first model tells me the mean sexual frequency of the religious (45.65) and how much *more* sex the non-religious have on average (5.22). The second model tells me the mean sexual frequency of the non-religious (50.87) and how much *less* sex the religious have (-5.22). I can easily derive one model from the other, without actually having to calculate it in *R*. Therefore, which category you set as the reference category is really a matter of taste, rather than one of consequence. The results are the same either way. 
 
 ### Categorical variables with more than two categories
-
-```{r echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/RBgvaGnBLyA")
-```
 
 What if I have a categorical variable that has more than two categories? Lets expand the religious variable that I dichotomized back to its original scale. There are six different categories: Fundamentalist Protestant, Mainline Protestant, Catholic, Jewish, Other, and None:
 
@@ -768,18 +770,21 @@ summary(sex$relig)
 Lets look at the mean sexual frequency for each of these groups.
 
 ```{r}
-round(tapply(sex$sexf, sex$relig, mean),1)
+round(tapply(sex$sexf, sex$relig, mean),2)
 ```
 
-Figure \@ref(fig:compare-relig-means) plots these means on a number line to get a visual display of the differences:
+@fig-compare-relig-means plots these means on a number line to get a visual display of the differences:
 
-```{r compare-relig-means, echo=FALSE, fig.cap="The mean sexual frequency of each group arrayed on a vertical number line. The red lines indicate the distance between each group and the reference category of fundamentalist Protestant."}
-mdiffs <- round(tapply(sex$sexf, sex$relig, mean),1)
+```{r}
+#| label: fig-compare-relig-means
+#| fig-cap: The mean sexual frequency of each group arrayed on a vertical number line. The red lines indicate the distance between each group and the reference category of fundamentalist Protestant.
+#| echo: false
+mdiffs <- round(tapply(sex$sexf, sex$relig, mean),2)
 par(mar=c(0.1,4,0,0.1))
 plot(rep(1,length(mdiffs)), mdiffs, cex=2, pch=21, bg="skyblue", bty="n", xaxt="n",
-     yaxt="n", xlab="", ylab="mean sexual frequency (per year)", ylim=c(35,65), xlim=c(0.8,2))
-axis(2, at=seq(from=35,to=65, by=5))
-text(rep(1,length(mdiffs)), c(mdiffs[1]*1.01,mdiffs[2:6]), pos=4,
+     yaxt="n", xlab="", ylab="mean sexual frequency (per year)", ylim=c(35,55), xlim=c(0.8,2))
+axis(2, at=seq(from=35,to=55, by=5))
+text(rep(1,length(mdiffs)), c(mdiffs[1]*0.99,mdiffs[2],mdiffs[3]*1,mdiffs[4],mdiffs[5]*1.01, mdiffs[6]), pos=4,
      paste(names(mdiffs),"(",mdiffs,")"))
 arrows(0.85, mdiffs[1], 0.85, mdiffs[2], length=0.05, col="red")
 arrows(0.875, mdiffs[1], 0.875, mdiffs[3], length=0.05, col="red")
@@ -789,11 +794,11 @@ arrows(0.95, mdiffs[1], 0.95, mdiffs[6], length=0.05, col="red")
 abline(h=mdiffs[1], lty=2, col="red")
 ```
 
-Nones and others clearly have much higher mean sexual frequency than the remaining religious groups and Jews have much lower mean sexual frequency. The three Christian groups cluster in the middle, although mainline protestants have a lower mean sexual frequency than the other two. 
+Nones clearly have much higher mean sexual frequency than the remaining religious groups and Jews have much lower mean sexual frequency. The three Christian groups are in the middle, although mainline protestants have a lower mean sexual frequency than the other two. 
 
-This plot also shows the mean differences between the groups, with fundamentalist Protestants set as the reference category. The vertical distances from the dotted red line (the mean of fundamentalist Protestants) give the mean differences between each religious group and fundamentalist Protestants. So we can see that "Nones" have sex 10.2 more times per year than fundamentalist Protestants, on average, and mainline Protestants have sex 5.4 fewer times per year, on average, than fundamentalist Protestants. 
+This plot also shows the mean differences between the groups, with Evangelical Protestants set as the reference category. The vertical distances from the dotted red line (the mean of Evangelical Protestants) give the mean differences between each religious group and Evangelical Protestants. So we can see that "Nones" have sex 4.05 more times per year than Evangelical Protestants, on average, and Mainline Protestants have sex 3.01 fewer times per year, on average, than Evangelical Protestants. 
 
-We can use the same logic of indicator variables we developed above to represent the mean differences between groups observed here in a regression model framework. However, because we now have six categories, we will need five indicator variables. You always need **one less indicator variable than the number of categories**.  The category which doesn't get an indicator variable is your reference category. As per the graph above, I will make Fundamentalist Protestants my reference category. Therefore, I need one indicator variable for each of the other five categories:
+We can use the same logic of indicator variables we developed above to represent the mean differences between groups observed here in a linear model framework. However, because we now have six categories, we will need five indicator variables. You always need **one less indicator variable than the number of categories**.  The category which doesn't get an indicator variable is your reference category. As per the graph above, I will make Evangelical Protestants my reference category. Therefore, I need one indicator variable for each of the other five categories:
 
 $$main_i=\begin{cases}
   1 & \text{if main}\\
@@ -824,69 +829,69 @@ $$none_i=\begin{cases}
 
 $$\hat{frequency}_i=b_0+b_1(main_i)+b_2(catholic_i)+b_3(jewish_i)+b_4(other_i)+b_5(none_i)$$
 
-We can figure out how all this works by getting the predicted value for the member of a specific group. That respondent should get a 1 for the variable where they are a member and a zero on all other variables. For example, a fundamentalist protestant should get a zero on all of these variables:
+We can figure out how all this works by getting the predicted value for the member of a specific group. That respondent should get a 1 for the variable where they are a member and a zero on all other variables. For example, a Evangelical Protestant should get a zero on all of these variables:
 
 $$\hat{frequency}_i=b_0+b_1(0)+b_2(0)+b_3(0)+b_4(0)+b_5(0)=b_0$$
 
-So, the intercept is the predicted value for fundamentalist Protestants. Similarly we could calculate the predicted value for mainline Protestants:
+So, the intercept is the predicted value for Evangelical Protestants. Similarly we could calculate the predicted value for Mainline Protestants:
 
 $$\hat{frequency}_i=b_0+b_1(1)+b_2(0)+b_3(0)+b_4(0)+b_5(0)=b_0+b_1$$
 
-The difference between the two is $b_1$, so this "slope" gives the mean difference between mainline and fundamentalist Protestants. We could do the same thing for Catholics:
+The difference between the two is $b_1$, so this "slope" gives the mean difference between Mainline and Evangelical Protestants. We could do the same thing for Catholics:
 
 $$\hat{frequency}_i=b_0+b_1(0)+b_2(1)+b_3(0)+b_4(0)+b_5(0)=b_0+b_2$$
 
-The mean difference between Catholics and fundamentalist Protestants is given by $b_2$.
+The mean difference between Catholics and Evangelical Protestants is given by $b_2$.
 
-In general, each of the "slopes" is the mean difference between the indicated category and the **reference category**. In this case, the reference category is fundamentalist Protestants so each of the slopes gives the mean difference between that religious category and fundamentalist Protestant, just like the graph above. 
+In general, each of the "slopes" is the mean difference between the indicated category and the **reference category**. In this case, the reference category is Evangelical Protestants so each of the slopes gives the mean difference between that religious category and Evangelical Protestant, just like the graph above. 
 
-R is fairly intelligent about handling all of these indicator variables and you don't actually have to create these five different variables. If you put a categorical variable into your regression formula, R will know to treat it as a set of indicator categories. The only catch is that R will already have a default category set as the reference. It just so happens that in our GSS data, fundamentalist Protestants are already set as the reference. So I can run this model by:
+*R* is fairly intelligent about handling all of these indicator variables and you don't actually have to create these five different variables. If you put a categorical variable into your linear formula, R will know to treat it as a set of indicator categories. The only catch is that R will already have a default category set as the reference. It just so happens that in our GSS data, Evangelical Protestants are already set as the reference. So I can run this model by:
 
 ```{r}
+#| label: model-relig-full
 model <- lm(sexf~relig, data=sex)
-round(coef(model),2)
+coef(model)
 ```
 
-You can tell which category is the reference by which category is left out here. Note how the coefficients (given by the estimates column) match the mean differences I calculated above in the graph. We are simply reproducing these mean differences in a regression model framework.
+You can tell which category is the reference by which category is left out here. Note how the coefficients (given by the estimates column) match the mean differences I calculated above in the graph. We are simply reproducing these mean differences in a linear model framework.
 
 ### Categorical and quantitative variables combined in a single model
 
-```{r echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/DllN6ulaqh4")
-```
-
-
-If all we are doing is reproducing mean differences between categories, what good is this method? After all, we already know how to do that. The major advantage of putting these mean differences into a regression model framework is that we can **control for other potentially confounding variables**. 
+If all we are doing is reproducing mean differences between categories, what good is this method? After all, we already know how to do that. The major advantage of putting these mean differences into a linear model framework is that we can **control for other potentially confounding variables**. 
 
 These sexual frequency differences by religious affiliation are a prime example. Lets take a look at the age differences between religious affiliations:
 
 ```{r}
-round(tapply(sex$age, sex$relig, mean),1)
+round(tapply(sex$age, sex$relig, mean), 1)
 ```
 
-Notice how closely these age differences mirror the differences in sexual frequency. Others and nones are the youngest, while Jews are the oldest. Among Christians, mainline Protestants are older than fundamentalist Protestants and Catholics. We also know from prior work that age has a negative effect on sexual frequency. This should make us suspicious that some (or all) of the observed differences in sexual frequency between religious groups simply reflect age differences between those groups. 
+Notice how closely these age differences mirror the differences in sexual frequency. Others and nones are the youngest, while Jews are the oldest. Among Christians, mainline Protestants are older than Evangelical Protestants and Catholics. We also know from prior examples that age has a negative effect on sexual frequency. This should make us suspicious that some (or all) of the observed differences in sexual frequency between religious groups simply reflect age differences between those groups. 
 
 We can easily address this issue by simply including age as a control variable in our model:
 
 ```{r}
 model <- lm(sexf~relig+age, data=sex)
-round(coef(model),2)
+coef(model)
 ```
 
-We now interpret those slopes as the mean difference in sexual frequency between fundamentalist Protestants and the indicated category, **among individuals of the same age**. So for example, we would interpret the 2.69 on "None" as:
+We now interpret those slopes as the mean difference in sexual frequency between Evangelical Protestants and the indicated category, **among individuals of the same age**. So for example, we would interpret the -3.11 on "None" as:
 
-> The model predicts that, among individuals of the same age, those with no religious preference have sex 2.69 more times per year than fundamentalist protestants, on average.
+> The model predicts that, among individuals of the same age, those with no religious preference have sex 3.11 fewer times per year than Evangelical Protestants, on average.
 
 We would also interpret the age effect controlling for religious affiliation like so:
 
-> The model predicts, that holding religious affiliation constant, a one year increase in age is associated with 1.28 fewer instances of sex per year, on average. 
+> The model predicts, that holding religious affiliation constant, a one year increase in age is associated with 0.84 fewer instances of sex per year, on average. 
 
-Table \@ref(tab:model-relig-sex) below helps to highlight the change in the effects once age is controlled.
+@tbl-model-relig-sex below helps to highlight the change in the effects once age is controlled.
 
 ```{r model-relig-sex, echo=FALSE, results="asis"}
+#| label: tbl-model-relig-sex
+#| tbl-cap: OLS regression models predicting sexual frequency.
+#| echo: false
+#| results: asis
 m1 <- lm(sexf~relig, data=sex)
 m2 <- lm(sexf~relig+age, data=sex)
-htmlreg(list(m1, m2),
+screenreg(list(m1, m2),
         custom.coef.names=c("Intercept",
                             "Mainline Protestant",
                             "Catholic",
@@ -895,16 +900,16 @@ htmlreg(list(m1, m2),
                             "None",
                             "Age"),
         custom.gof.names = c("R-squared","N"),
-        caption="(\\#tab:model-relig-sex) OLS regression models predicting sexual frequency",
+        caption="(\\#tab:model-relig-sex) ",
         caption.above=TRUE,
         digits=2,
         star.symbol='&#42;',
-        custom.note = "%stars. Standard errors in parenthesis. Reference category is fundamentalist Protestant",
+        custom.note = "%stars. Standard errors in parenthesis. Reference category is Evangelical Protestant",
         include.adjrs=FALSE, include.rmse=FALSE,
         doctype = FALSE)
 ```
 
-All of the coefficients (except for Catholic, which was tiny anyway) have declined substantially in size. The mean differences from fundamentalist Protestants for both Jews and other religions have basically disappeared and the "None" effect has been severely reduced. In other words, almost all or all of the observed differences in sexual frequency by religious affiliation were indirectly a product of underlying age differences between religious affiliations. If you were just about ready to convert to a different religion to get laid more often, you may want to hold off for the moment. 
+In model 2, the large advantage of the Nones and, to a lesser extent) Others has disappeared and they now have a lower sexual frequency than Evangelical Protestants (while holding constant age). The slightly higher frequency of Catholics also disappears and the much lower frequency for Jewish respondents becomes less severe (and neither result is statistically distinguishable from those for Evangelical Protestants). Age makes a huge difference in our interpretation of which religious affiliation is having sex more frequently. Once we "handicap" the results for age differences across groups, the religious affiliation with the highest sexual frequency is Evangelical Protestants.
 
 <!---
 <div class = "dcl">

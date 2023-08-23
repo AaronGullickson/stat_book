@@ -484,134 +484,136 @@ In large datasets (1000+ observations), its unusual that a single point or even 
 
 #### Thou Doth Extrapolate Too Much
 
-Its dangerous enough to assume that a linear relationship holds for your data (see the first point in this chapter). Its doubly dangerous to assume that this linear relationship holds beyond the scope of your data. Lets take the relationship between sexual frequency and age. We saw in the previous module that the slope here is -1.3 and the intercept is 108. The intercept itself is outside the scope of the data because we only have data on the population 18 years and older. It would be problematic to make predictions about the sexual frequency of 12 year olds, let alone zero-year olds. 
+Its dangerous enough to assume that a linear relationship holds for your data. Its doubly dangerous to assume that this linear relationship holds beyond the scope of your data. Lets take the relationship between sexual frequency and age. We saw in the previous module that the slope here is -1.3 and the intercept is 108. The intercept itself is outside the scope of the data because we only have data on the population 18 years and older. It would be problematic to make predictions about the sexual frequency of 12 year olds, let alone zero-year olds. 
 
 Another trivial example would be to look at the growth rate of children 5-15 years of age by correlating age with height. It would be acceptable to use this model to predict the height of a 14 year old, but not a 40 year old.  We expect that this growth will eventually end sometime outside the range of our data when individuals reach their final adult height. If we extrapolated the data, we would predict that 40 year olds would be very tall. 
 
 ## The Power of Controlling for Other Variables
 
-```{r echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/sHicSbJu78U")
-```
-
-In the previous module, I showed that the OLS regression line predicting sexual frequency by years of education was 0.03. So in my dataset, there is a very small positive association between sexual frequency and years of education. 
-
-Its possible that this is a causal effect. We could even spin stories about why we think such a positive association (a very small one) might exist. Maybe more educated people appear sexier to the opposite sex. Maybe more educated people take better care of themselves and thus are healthier and more able to have sex. Maybe more educated people are just more sexually liberated. 
-
-Before we get carried away however its important to consider whether our results might be **spurious**. Its possible that the positive association between years of education and sexual frequency is driven by a third variable that we haven't accounted for. This is a common problem in research using observational data. Association does not necessarily mean causation because of the potential for other variables to account for our observed association (and because of the possibility of reverse causation). We refer to such variables as **lurking** or **confounding** variables. 
-
-In this case, the potentially confounding variable that we need to consider is age. Lets look at the association between age and each of our other variables (sexual frequency and education). 
+What factors predict how many Oscar awards a movie will receive. Lets try a simple model that predicts Oscar awards from movie runtime.
 
 ```{r}
-cor(sex$sexf,sex$age)
-cor(sex$educ,sex$age)
+#| label: lm-awards-runtime
+coef(lm(awards~I(runtime-mean(runtime)), data=movies))
 ```
 
-Age is negatively correlated with sexual frequency. We have observed this relationship before and it is not terribly surprising. Older people have less sex, on average. The negative correlation between age and years of education is perhaps a little more surprising. Older people have less education than younger people, on average. This may seem surprising to you because as you get older you have more opportunity to complete more education. However, you have to remember that the data we have are a snapshot in time. We are not tracking individuals over time as they age, but rather looking at differences between older and younger people at a single point in time. This kind of data is often called a **cross-sectional** dataset. Because we are looking at a single point in time, the age differences really reflect differences in **birth cohorts** or what people often loosely call "generations." Remember that this dataset is from 2004. The difference between a 20 year old and a 60 year old is that the 20 year old was born in 1984 and the 60 year old was born in 1944. 
+Note that I am re-centering runtime on its mean, so that the intercept is more meaningful, but my real interest is in the slope. This model predicts that a one minute increase in movie runtime is associated with an increase of 0.0075 Oscar awards, on average. This may seem like a very small positive association, but remember that most movies earn no Oscar awards and so that the average Oscar awards per movie in the dataset are `r round(mean(movies$awards), 3)`. So, even small increases such as this slope can be meaningful.
 
-Because we are comparing birth cohorts, the differences in educational attainment reflect history more than life cycle. Older cohorts were less educated than younger birth cohorts. On average, you will be more educated than your parents and your parents were more educated than your grandparents. Thus, the correlation between age and education is negative. 
+It may seem odd that runtime itself increases a movie's chances at an Oscar. Certainly, we may worry about the implied incentive for Hollywood producers to make their movies longer! We already know that runtime is associated with a movie getting better reviews, so we may wonder whether this association that we are observing between runtime and Oscar awards is simply the indirect result of longer movies being more likely to be better movies and better movies being more likely to get Oscars.
 
-These two negative correlations suggest a **spurious** reason why we might observe a positive association between sexual frequency and education. Younger people have more education and younger people have more sex. Thus, when we look at the relationship between sexual frequency and education, we see a positive association but that positive association is indirectly driven by youth and the association of youth with both education and sex. 
+To put this in formal terms, we are concerned that the relationship between runtime and Oscar awards might be **spurious**. In general, spuriousness is the idea that the observed association between two variables is driven by an underlying third variable that we haven't accounted for. This is a common problem in research using observational data. Association does not necessarily mean causation because of the potential for other variables to account for our observed association (and because of the possibility of reverse causation). We refer to such variables as **lurking** or **confounding** variables. 
+
+In this case, the potentially confounding variable that we want to consider is the movie's quality which will operationalize by the `rating_imdb` variable. Lets look at the association between this variable and each of our other variables (runtime and Oscar awards). 
+
+```{r}
+cor(movies$awards, movies$rating_imdb)
+cor(movies$runtime, movies$box_office)
+```
+
+These two positive correlations suggest a **spurious** reason why we might observe a positive association between runtime and Oscar awards. More well-received movies are longer and more well-received movies receive more Oscar awards. Thus, when we look at the relationship between runtime and Oscar awards, we see a positive association but that positive association is *at least in part* indirectly driven by these indirect association. 
 
 How can we examine whether this potential spurious explanation is accurate? It turns out that we can add more than one independent variable to an OLS regression model at the same time. The mathematical structure of such a model would be:
 
-$$\hat{frequency}_i=b_0+b_1(education_i)+b_2(age_i)$$
+$$\hat{awards}_i=b_0+b_1(runtime_i)+b_2(rating_i)$$
 
-We now have two different "slopes", $b_1$ and $b_2$. These two slopes give the association of education and age, respectively, on sexual frequency, while **controlling for the other independent variable**. We now have what is called a **multivariate** OLS regression model. 
+We now have two different "slopes", $b_1$ and $b_2$. These two slopes give the association of runtime and imdb ratings, respectively, on number of Oscar awards, while **controlling for the other independent variable**. We now have what is called a **multivariate** OLS regression model. 
 
-This "controlling" concept is a key point that I will return to below, but first I want to try to think graphically about what this model is doing. In the case of bivariate regression, we thought of fitting a line to a scatterplot in two-dimensional space. We are doing something similar here, but since we now have three variables, our scatterplot is in three dimensions. Figure \@ref(fig:scatter-3d) shows an interactive three-dimensional plot of the three variables. 
+This "controlling" concept is a key point that I will return to below, but first I want to try to think graphically about what this model is doing. In the case of bivariate regression, we thought of fitting a line to a scatterplot in two-dimensional space. We are doing something similar here, but since we now have three variables, our scatterplot is in three dimensions. @fig-scatter-3d shows an interactive three-dimensional plot of the three variables. 
 
-```{r scatter-3d, echo=FALSE, fig.cap="Interactive 3d scatterplot of years of education, age, and sexual frequency"}
-model <- lm(sexf~age+educ, data=sex)
-temp <- expand.grid(educ=0:25, age=18:100)
+```{r}
+#| label: fig-scatter-3d
+#| fig-cap: Interactive 3d scatterplot of Oscar awards, runtime, and IMDB ratings
+#| echo: false
+model <- lm(awards~runtime+rating_imdb, data=movies)
+temp <- expand.grid(runtime=80:180, rating_imdb=1:9)
 fit <- predict(model, temp)
-fit2 <- matrix(fit, 26, 83)
+fit2 <- matrix(fit, 101, 9)
 
-plot_ly(x=jitter(sex$educ,10), y=jitter(sex$age,10), z=jitter(sex$sexf,10)) %>%
+plot_ly(x=movies$runtime, y=movies$rating_imdb, z=movies$awards) %>%
   add_markers() %>%
-  add_surface(x=0:25, y=18:100, z=t(fit2), color=I("grey")) %>%
-  layout(scene=list(xaxis=list(title="years of education"),
-                    yaxis=list(title="age"),
-                    zaxis=list(title="sexual frequency")))
+  add_surface(x=80:180, y=1:9, z=t(fit2), color=I("grey")) %>%
+  layout(scene=list(xaxis=list(title="runtime (in minutes)"),
+                    yaxis=list(title="IMDB rating"),
+                    zaxis=list(title="Oscar awards")))
 ```
 
-The dependent variable is shown on the vertical (z) axis and the two independent variables are shown on the "width" and "depth" axes (x and y). The flat plane shown is defined by the OLS regression model equation above. So, rather than fitting a straight line through the data, I am fitting a plane. Note however that if you rotate the 3d scatterplot to hide the age "depth" dimension, it will then look like a two-dimensional scatterplot between years of education and sexual frequency. In this case, the the edge of the plane would indicate the slope between years of education and sexual frequency. Similarly, I could rotate it the other way to look at the relationship between age and sexual frequency. 
+The dependent variable is shown on the vertical (z) axis and the two independent variables are shown on the "width" and "depth" axes (x and y). The flat plane shown is defined by the OLS regression model equation above. So, rather than fitting a straight line through the data, I am fitting a plane. Note however that if you rotate the 3d scatterplot to hide the IMDG ratings "depth" dimension, it will then look like a two-dimensional scatterplot between runtime and Oscar awards. In this case, the edge of the plane would indicate the slope between runtime and Oscar awards. Similarly, I could rotate it the other way to look at the relationship between IMDB ratings and Oscar awards. 
 
 How do I know what are the best values for $b_0$, $b_1$, and $b_2$ that define my plane? The logic is the same as for bivariate OLS regression: I choose values that minimize the sum of squared residuals (SSR):
 
 $$SSR=\sum_{i=1}^n (\hat{y}_i-y_i)^2$$
 
-SSR is a measure of how far the predicted values of the dependent variable are from the actual values, so we want the intercept and slopes that minimizes this error. Unlike the bivariate case, however, there is no simple formula that I can give you for the slope and intercept, without some knowledge of matrix algebra. However, R can calculate the correct numbers for you easily. I am not concerned with your technical ability to calculate these numbers by hand, but I do want you to understand why those are the "best" numbers. **They are the best  numbers because they minimize the sum of the squared residuals for the model**. 
+SSR is a measure of how far the predicted values of the dependent variable are from the actual values, so we want the intercept and slopes that minimizes this error. Unlike the bivariate case, however, there is no simple formula that I can give you for the slope and intercept, without some knowledge of matrix algebra. However, R can calculate the correct numbers for you easily. I am not concerned with your technical ability to calculate these numbers by hand, but I do want you to understand why those are the "best" numbers. *They are the best numbers because they minimize the sum of the squared residuals for the model*. 
 
-We can calculate this model in *R* just by adding another variable to our model in the `lm` command:
+We can calculate this model in *R* just by adding another variable to our model in the `lm` command, connected by a "+" sign:
 
 ```{r}
-model <- lm(sexf~educ+I(age-18), data=sex)
+model <- lm(awards~I(runtime-mean(runtime))+I(rating_imdb-mean(rating_imdb)), data=movies)
 coef(model)
 ```
 
-Note that as I did in the previous module, I am re-centering age on 18 years so that I have reasonable value for the interpretation of the intercept. In equation form, our model will look like:
+Note that I am mean-centering both independent variables to get a more meaningful intercept, but that does not affect our slopes. In equation form, our model will look like:
 
-$$\hat{frequency}_i=91.06-0.43(education_i)-1.30(age_i-18)$$
+$$\hat{awards}_i=0.0873+0.0049(runtime_i-\bar{runtime}_i)+0.1093(rating_i-\bar{rating}_i)$$
 
 ### Interpreting results in a multivariate OLS regression models
 
-```{r echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/AkRer3eTsAA")
-```
-
 How do we interpret the results?
 
-- **Intercept**: The model predicts that **18-year old individuals** at **with no education** will have 91.06 sexual encounters per year, on average.
-- **Education Slope**: The model predicts that, **holding age constant**, an additional year of education is associated with 0.43 fewer sexual encounters per year, on average. 
-- **Age Slope**: The model predicts that, **holding education constant**, an additional year of age is associated with 1.3 fewer sexual encounters per year, on average. 
 
-The intercept is now the predicted value **when all independent variables are zero**. My interpretation of the slopes is almost identical to the bivariate case, except for one very important addition.  I am now estimating the effect of each independent variable on the dependent variable while **holding constant all other independent variables**. You could also say "controlling for all other independent variables."
+Intercept
+: The model predicts that movies with mean runtime and mean IMDB rating earn 0.0873 Oscar awards, on average.
 
-What does it mean to "hold other variables constant?" It means that when we look at the effect of one independent variable, we are looking at how the predicted value of the dependent variable changes while keeping all the other variables the same. For instance, the education effect above is the effect of a one year increase in education *among individuals of the same age*. Because we are looking at the effect of education among individuals of the same age, age should no longer have a confounding effect on our estimate of the effect of education. Thus holding constant/controlling for other variables helps to remove the potential spurious effect of those variables as confounders.
+Runtime Slope
+: The model predicts that, **holding IMDB rating constant**, an additional minute of runtime is associated with 0.0049 more Oscar awards, on average. 
 
-Note how the effect of education on sexual frequency changed once I included age as a control variable.  Before controls, I estimated a slightly positive slope (0.03) but now I am estimating a substantial negative slope (-0.43). So my understanding of the relationship between education and sexual frequency is completely reversed. *When you compare individuals of the same age*, more educated individuals have less sex, on average, than less educated individuals. 
+IMDB Rating Slope
+: The model predicts that, **holding runtime constant**, an additional point on the IMDB rating scale is associated with 0.1093 more Oscar awards, on average.
+
+The intercept is now the predicted value **when all independent variables are zero**. My interpretation of the slopes is almost identical to the bivariate case, except for one very important addition. I am now estimating the effect of each independent variable on the dependent variable while **holding constant all other independent variables**. You could also say "controlling for all other independent variables."
+
+What does it mean to "hold other variables constant?" It means that when we look at the effect of one independent variable, we are looking at how the predicted value of the dependent variable changes while keeping all the other variables the same. For instance, the runtime effect above is the effect of a one minute increase in runtime *among movies of the same IMDB rating*. Because we are looking at the effect of runtime among movies of the same IMDB rating, IMDB rating should no longer have a confounding effect on our estimate of the effect of runtime.  Thus holding constant/controlling for other variables helps to remove the potential spurious effect of those variables as confounders.
+
+Note how the slope of runtime on Oscar awards decreased from 0.0075 to 0.0049 once I included IMDB ratings as a control variable.  That suggests that a about a third of the total effect of runtime was indirectly coming through the association with IMDB ratings. Nonetheless, even after I control for IMDB ratings, I am still noting a positive association between runtime and Oscar awards, so it may be that runtime still exerts some independent influence. 
+
+<!--- TODO: callout on how when all variables are mean centered the intercept is the unconditonal mean of y --->
 
 #### Crime example
 
-Lets build a regression model where we predict the property crime rate in a state by the percent of adults in the state without a high school diploma and the median age of the state's residents.
+Lets build a linear model where we predict the property crime rate in a state by the percent of adults in the state without a high school diploma and the median age of the state's residents.
 
 ```{r}
-summary(lm(Property~PctLessHS+MedianAge, data=crimes))
+summary(lm(property_rate~percent_lhs+median_age, data=crimes))
 ```
 
-Note that I am giving you the full output of summary now, but we can find the slopes and intercept by looking at the Estimate column of the "Coefficients" table. "Coefficients" is another term for slopes and intercepts because that it the technical term for these values in the regression model equation. 
+Note that I am giving you the full output of summary now, but we can find the slopes and intercept by looking at the Estimate column of the "Coefficients" table. "Coefficients" is another term for slopes and intercepts because that it the technical term for these values in the linear model equation. 
 
 The model is:
 
-$$\hat{\texttt{crime}}_i=5137+69(\texttt{pct less hs}_i)-83(\texttt{median age}_i)$$
+$$\hat{\texttt{crime}}_i=6614+60(\texttt{pct less hs}_i)-125(\texttt{median age}_i)$$
 
-The model predicts that, comparing two states with the same median age of residents, a one percent increase in the percent of the state with less than a high school diploma is associated with an increase of 69 property crimes per 100,000, on average. The model predicts that, comparing two states with the same percentage of adults without a high school diploma, a one year increase in the median age of a state's residents is associated with a decrease of 83 property crimes per 100,000, on average. 
+The model predicts that, comparing two states with the same median age of residents, a one percent increase in the percent of the state with less than a high school diploma is associated with an increase of 60 property crimes per 100,000, on average. The model predicts that, comparing two states with the same percentage of adults without a high school diploma, a one year increase in the median age of a state's residents is associated with a decrease of 125 property crimes per 100,000, on average. 
 
-Note that we also get the $R^2$ value from the summary command. In multivariate models, the $R^2$ value always tells you what proportion of the variation in the dependent variable is accountable for by variation in all of the independent variables combined. In this case $R^2$ is 0.2495. About 25% of the variation in property crime rates across states is accountable for by variation in the percent of adults without a high school diploma and the median age of residents across states. 
+Note that we also get the $R^2$ value from the summary command (where is says "Multiple R-Squared"). In multivariate models, the $R^2$ value always tells you the proportion of the variation in the dependent variable that is accountable for by variation in all of the independent variables combined. In this case $R^2$ is 0.3065. About 25% of the variation in property crime rates across states is accountable for by variation in the percent of adults without a high school diploma and the median age of residents across states. 
 
 ### Including more than two independent variables
 
-```{r echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/yleq5RTnq-c")
-```
-
-If we can include two independent variables in a regression model, why stop there? Why not include three or four or more? The number of independent variables you can include is only limited by the sample size (you can never have more independent variables than the sample size minus one), although in practice we generally stop well short of this limit for pragmatic reasons. 
+If we can include two independent variables in a linear model, why stop there? Why not include three or four or more? The number of independent variables you can include is only limited by the sample size. You can never have more independent variables than the sample size minus one, although in practice we generally stop well short of this limit for pragmatic reasons. 
 
 Lets take the model above predicting property crime rates by percent of adults with less than a high school diploma and the median age of residents. Lets add the poverty rate as another predictor:
 
 ```{r}
-summary(lm(Property~PctLessHS+MedianAge+Poverty, data=crimes))
+summary(lm(property_rate~percent_lhs+median_age+poverty_rate, data=crimes))
 ```
 
 The model predicts:
 
-- A one percent increase in the percent of adults in a state without a high school diploma is associated with 0.05 more property crimes per 100,000, on average, **holding constant the median age of residents and the poverty rate in a state**. This result is about as close to zero as you will find.  
-- A one year increase in the median age of a state's residents is associated with 73 fewer property crimes per 100,000, on average, **holding constant the percent of adults without a high school diploma and the poverty rate in a state**. 
-- A one percent increase in a state's poverty rate is associated with 98 more crimes per 100,000, on average, **holding constant the percent of adults without a high school diploma and the median age of residents in a state**. 
-- 34% of the variation in property crime rates across states can be accounted for by variation in the percent of adults without a high school diploma, residents' median age, and the poverty rates across states.
+- A one percent increase in the percent of adults in a state without a high school diploma is associated with 79 fewer property crimes per 100,000, on average, **holding constant the median age of residents and the poverty rate in a state**. Note that this result completely reversed direction from the previous model. 
+- A one year increase in the median age of a state's residents is associated with 117 fewer property crimes per 100,000, on average, **holding constant the percent of adults without a high school diploma and the poverty rate in a state**. 
+- A one percent increase in a state's poverty rate is associated with 183 more crimes per 100,000, on average, **holding constant the percent of adults without a high school diploma and the median age of residents in a state**. 
+- 47% of the variation in property crime rates across states can be accounted for by variation in the percent of adults without a high school diploma, residents' median age, and the poverty rates across states.
 
-When I interpret the models now, I am holding constant the other two variables when I estimate the effect of each. Note that controlling for the poverty rate has a huge effect on the education variable whose effect goes from a substantial positive effect to basically zero effect. What does this tell us? Poverty rates and high school dropout rates are positively correlated and so when you don't control for poverty rates, it looks like the high school dropout rate predicts crime because states with high high school dropout rates have high poverty rates and high poverty rates predict property crime rates. Once you control for the poverty rate, you see that it is economic deprivation not educational deprivation that is driving the crime rate. 
+When I interpret the models now, I am holding constant the other two variables when I estimate the effect of each. Note that controlling for the poverty rate has a huge effect on the education variable whose effect goes from a substantial positive effect to a substantial negative effect. What does this tell us? Poverty rates and high school non-completion rates are positively correlated and so when you don't control for poverty rates, it looks like the high school non-completion rate predicts crime because states with high high school non-completion rates have high poverty rates and high poverty rates predict property crime rates. Once you control for the poverty rate, you see that it is economic deprivation not educational deprivation that is driving the crime rate. 
 
 In general, the form of the multivariate regression model is:
 
@@ -621,23 +623,22 @@ The intercept is given by $b_0$. This is the predicted value of $y$ when all of 
 
 ### How to read a table of regression results
 
-```{r echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/5PN7I_WuXJ4")
-```
+In academic journal articles and books, the results of OLS regression models are represented in a fairly standard way. In order to understand how to read these articles, you need to understand this presentation style. Its not immediately intuitive for everyone. @tbl-model-example below shows the typical style. In this table, I am reporting three linear models with the property crime rates as the dependent variable and three different independent variables.  
 
-In academic journal articles and books, the results of OLS regression models are represented in a fairly standard way. In order to understand how to read these articles, you need to understand this presentation style. Its not immediately intuitive for everyone. Table \@ref(tab:model-table-example) below shows the typical style. In this table, I am reporting three regression models with the property crime rates as the dependent variable and three different independent variables.  
-
-```{r model-table-example, echo=FALSE, results="asis"}
-m1 <- lm(Property~PctLessHS, data=crimes)
-m2 <- lm(Property~PctLessHS+MedianAge, data=crimes)
-m3 <- lm(Property~PctLessHS+MedianAge+Poverty, data=crimes)
+```{r}
+#| label: tbl-model-example
+#| tbl-cap: OLS regression models predicting violent crime rates for US states
+#| echo: false
+#| results: asis
+m1 <- lm(property_rate~percent_lhs, data=crimes)
+m2 <- lm(property_rate~percent_lhs+median_age, data=crimes)
+m3 <- lm(property_rate~percent_lhs+median_age+poverty_rate, data=crimes)
 htmlreg(list(m1, m2, m3),
         custom.coef.names=c("Intercept",
                             "Percent Less than HS", 
                             "Median Age",
                             "Poverty Rate"),
         custom.gof.names = c("R-squared","N"),
-        caption="(\\#tab:model-table-example) OLS regression models predicting violent crime rates for US states",
         caption.above=TRUE,
         digits=2,
         star.symbol='&#42;',
@@ -654,15 +655,11 @@ When reading this table and others like it, keep the following issues in mind:
 * Within each cell with numbers listed there is a lot going on. We are primarily interested in the main number listed at the top. This number is the slope (or intercept in the case of the "Constant" row). The number in parenthesis is the standard error for each slope in the model. You could use this standard error and the slope estimate above it to calculate t-statistics and p-values exactly. However, the asterisks give you an easy visual short cut to determine the rough size of the p-value. These asterisks indicate if the p-value is below a certain level, as shown in the notes at the bottom. The cut-offs of 0.05, 0.01, and 0.001 used here are pretty standard for the discipline. So an asterisks generally means that the result is "statistically significant." However, its important to keep in mind as noted above that these cut-offs are ultimately arbitrary and should never be confused with the substantive size of the effect itself.
 * At the bottom, you typically get a number of summary measures of the model. The only two we care about are the number of observations and the $R^2$ of the model.
 
-The advantage of organizing the table in this fashion is that we can easily see how the relationship between a given independent variable and the dependent variable changes as we add in other control variables by just looking at the numbers across a row. For example, we can see from Model 1 that the percent of the population with less than a high school diploma is initially pretty strongly positively related to violent crime rates. A one percentage point increase in this variable is associated with 78.83 more violent crimes per 100,000 population, on average. Controlling for the median age of the population in Model 2reduces this effect slightly but we still see a strong relationship. However, once we control for the poverty rate in a state the percent less than high school diploma effect completely vanishes (it becomes 0.05 which is effectively zero in this case). The poverty rate, on the other hand, has a big positive association with violent crime rates.
+The advantage of organizing the table in this fashion is that we can easily see how the relationship between a given independent variable and the dependent variable changes as we add in other control variables by just looking at the numbers across a row. For example, we can see from Model 1 that the percent of the population with less than a high school diploma is initially pretty strongly positively related to violent crime rates. A one percentage point increase in this variable is associated with 71.41 more violent crimes per 100,000 population, on average. Controlling for the median age of the population in Model 2 reduces this effect slightly but we still see a strong relationship. However, once we control for the poverty rate in a state the percent less than high school diploma effect reverses direction. The poverty rate, on the other hand, has a big positive association with violent crime rates.
 
 What is going on here? It seems that the percent of the population with less than a high school diploma is only indirectly related to violent crime rates by its positive association with the poverty rate. But high poverty rates are much more directly responsible for high violent crime rates. In other words, a low high school completion rate predicts higher poverty rates and higher poverty rates predict more violent crimes, but a low high school completion rate does not directly predict more violent crimes. 
 
 ## Including Categorical Variables as Predictors
-
-```{r echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/Nj_cRVzZRQw")
-```
 
 To this point, we only know how to include quantitative variables into OLS regression models. However, it turns out you can use a fairly easy trick to include categorical variables as independent variables in OLS regression models. By including categorical variables as independent variables, we expand considerably the range of things that we can do with OLS regression models.  The most difficult part of this trick is correctly interpreting your results. 
 

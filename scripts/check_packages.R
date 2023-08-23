@@ -8,7 +8,8 @@ packages = c("here",
              "MASS",
              "tidyverse", "janitor", "glue","broom",
              "scales",
-             "gt", "gtExtras", "gganimate",
+             "gt", "texreg",
+             "gtExtras", "gganimate","plotly",
              "gapminder")
 
 #packages = c("here","tidyverse", "broom","janitor","glue",

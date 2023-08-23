@@ -627,7 +627,7 @@ In academic journal articles and books, the results of OLS regression models are
 
 ```{r}
 #| label: tbl-model-example
-#| tbl-cap: OLS regression models predicting violent crime rates for US states
+#| tbl-cap: Linear models predicting violent crime rates for US states
 #| echo: false
 #| results: asis
 m1 <- lm(property_rate~percent_lhs, data=crimes)
@@ -639,6 +639,7 @@ htmlreg(list(m1, m2, m3),
                             "Median Age",
                             "Poverty Rate"),
         custom.gof.names = c("R-squared","N"),
+        caption="Linear models predicting violent crime rates for US states",
         caption.above=TRUE,
         digits=2,
         star.symbol='&#42;',
@@ -884,14 +885,14 @@ We would also interpret the age effect controlling for religious affiliation lik
 
 @tbl-model-relig-sex below helps to highlight the change in the effects once age is controlled.
 
-```{r model-relig-sex, echo=FALSE, results="asis"}
+```{r}
 #| label: tbl-model-relig-sex
-#| tbl-cap: OLS regression models predicting sexual frequency.
+#| tbl-cap: Linear models predicting sexual frequency
 #| echo: false
 #| results: asis
 m1 <- lm(sexf~relig, data=sex)
 m2 <- lm(sexf~relig+age, data=sex)
-screenreg(list(m1, m2),
+htmlreg(list(m1, m2),
         custom.coef.names=c("Intercept",
                             "Mainline Protestant",
                             "Catholic",
@@ -900,7 +901,7 @@ screenreg(list(m1, m2),
                             "None",
                             "Age"),
         custom.gof.names = c("R-squared","N"),
-        caption="(\\#tab:model-relig-sex) ",
+        caption="Linear models predicting sexual frequency",
         caption.above=TRUE,
         digits=2,
         star.symbol='&#42;',
@@ -937,10 +938,6 @@ How would you interpret all of the slopes and intercepts in the model output? Ar
 
 ## Interaction Terms
 
-```{r echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/0SGm6XPLTLA")
-```
-
 By definition, a linear model is an **additive** model. As you increase or decrease the value of one independent variable you increase or decrease the predicted value of the dependent variable by a set amount, **regardless of the other values of the independent variable**. This is an assumption built into the linear model by its additive form, and it may misrepresent some relationships where independent variables **interact** with one another to produce more complicated effects. In particular, in this section, we want to know whether the effect (i.e. the slope) of one independent variable varies by the value of another independent variable. 
 
 ### The nature of additive models
@@ -948,91 +945,98 @@ By definition, a linear model is an **additive** model. As you increase or decre
 As an example for this section, I am going to look at the relationship between movie genre, runtime, and tomato meter ratings. To simplify things, I am going to only look at these relationships for two genres: action and comedy. I can limit my movies dataset to these two genres with the following command:
 
 ```{r}
-movies.short <- subset(movies, Genre=="Comedy" | movies$Genre=="Action")
+#| label: subset-movies
+movies.short <- subset(movies, genre=="Comedy" | genre=="Action")
 ```
 
-Now lets look at a simple model where genre and runtime both predict Tomato Meter ratings.
+Now lets look at a simple model where genre and runtime both predict metascore ratings.
 
 ```{r}
-round(coef(lm(TomatoMeter~Genre+Runtime, data=movies.short)),2)
+round(coef(lm(metascore~genre+runtime, data=movies.short)),2)
 ```
 
 Genre is a categorical variable and action movies are set as the reference category. In equation form, the model looks like: 
 
-$$\hat{meter}_i=-1.75+4.43(comedy_i)+0.31(runtime_i)$$
+$$\hat{metascore}_i=14.28+3.16(comedy_i)+0.32(runtime_i)$$
 
 I can interpret my slopes as follows:
 
-- The model predicts that when comparing movies of the same runtime, comedies have Tomato Meter ratings 4.43 percentage points higher than action movies, on average.
-- The model predicts that, holding constant movie genre, a one minute increase in movie runtime is associated with a 0.31 percentage point increase in the Tomato Meter rating, on average. 
+- The model predicts that when comparing movies of the same runtime, comedies have metascore ratings 3.16 points higher than action movies, on average.
+- The model predicts that, comparing movies of the same genre, a one minute increase in movie runtime is associated with a 0.32 point increase in the metascore rating, on average. 
 
-This is an additive model. If we move from an action movie to a comedy of the same runtime, our predicted Tomato Meter rating goes up by 4.43, **regardless of the actual value of runtime**. If we increase movie runtime by one minute while keeping genre the same, our predicted Tomato Meter rating goes up by 0.41, **regardless of whether that genre is action or comedy**. 
+This is an additive model. If we move from an action movie to a comedy of the same runtime, our predicted metascore rating goes up by 3.16, **regardless of the actual value of runtime**. If we increase movie runtime by one minute while keeping genre the same, our predicted metascore rating goes up by 0.31, **regardless of whether that genre is action or comedy**. 
 
 It may help to graphically visualize the nature of this additive relationship. We can do this by plotting lines showing the relationship between runtime and Tomato Meter ratings separately for our two different genres of action and comedy. The line for action movies is given by:
 
-$$\hat{meter}_i=-1.75+4.43(0)+0.41(runtime_i)=-1.75+0.41(runtime_i)$$
+$$\hat{metascore}_i=14.28+3.16(0)+0.32(runtime_i)=14.28+0.32(runtime_i)$$
 
 The line for comedy movies is given by:
 
-$$\hat{meter}_i=-1.75+4.43(1)+0.41(runtime_i)=2.68+0.41(runtime_i)$$
+$$\hat{metascore}_i=14.28+3.16(1)+0.32(runtime_i)=17.44+0.32(runtime_i)$$
 
-Each line has an intercept and a slope. Notice that the intercepts are different but the slopes are the same. That means we have two parallel lines at different levels. Figure \@ref(fig:plot-nointeractiontwogenre) overlays these two parallel lines on top of a scatterplot of movie runtime by tomato meter for these two genres. 
+Each line has an intercept and a slope. Notice that the intercepts are different but the slopes are the same. That means we have two parallel lines at different levels. @fig-plot-nointeractiontwogenre overlays these two parallel lines on top of a scatterplot of movie runtime by tomato meter for these two genres. 
 
-```{r plot-nointeractiontwogenre, echo=FALSE, fig.cap="Predicted Tomato Meter by runtime for two genres based on an additive OLS regression model. The lines must be parallel."}
-model <- lm(TomatoMeter~Runtime+Genre, data=subset(movies, Genre=="Action" | Genre=="Comedy"))
-temp <- expand.grid(Runtime=75:185, Genre=c("Action","Comedy"))
-temp$TomatoMeter <- predict(model, temp)
-ggplot(subset(movies, Genre=="Action" | Genre=="Comedy"),
-       aes(x=Runtime, y=TomatoMeter, color=Genre))+
+```{r}
+#| label: fig-plot-nointeractiontwogenre
+#| fig-cap: Predicted Tomato Meter by runtime for two genres based on an additive OLS regression model. The lines must be parallel.
+#| echo: false
+model <- lm(metascore~runtime+genre, data=movies.short)
+temp <- expand.grid(runtime=80:200, genre=c("Action","Comedy"))
+temp$metascore <- predict(model, temp)
+ggplot(movies.short,
+       aes(x=runtime, y=metascore, color=genre))+
   geom_line(data=temp)+
   geom_point(alpha=0.2)+
-  labs(x="runtime in minutes", y="Tomato Meter")+
+  scale_color_viridis_d(end=0.75)+
+  labs(x="runtime in minutes", y="metascore rating")+
   theme_bw()
 ```
 
-The parallel lines are an assumption of the OLS regression model structure we have used. There are two consequences of this assumption. First, At every single level of runtime, the predicted Tomato Meter difference between comedy and action movies is exactly 4.62. This can be seen on the graph by the consistent gap between the blue and red line. Second, the effect of runtime on the Tomato Meter rating is assumed to be the same for action and comedy movies. This can be seen on the graph by the fact that both lines have the exact same slope. 
+The parallel lines are an assumption of the linear model structure we have used. There are two consequences of this assumption. First, At every single level of runtime, the predicted metascore difference between comedy and action movies is exactly 3.16. This can be seen on the graph by the consistent gap between the two lines. Second, the effect of runtime on the metascore rating is assumed to be the same for action and comedy movies. This can be seen on the graph by the fact that both lines have the exact same slope. 
 
-Although these may seem like two different issues, they are really the same issue from different perspectives. If we were to allow the slopes of the blue and red line to be different, then the gap between them would not be static. The questions is how can we allow the slopes of the two lines to be different. This is where the concept of the **interaction term** comes in. 
+Although these may seem like two different issues, they are really the same issue from different perspectives. If we were to allow the slopes of the two lines to be different, then the gap between them would not be static. The questions is how can we allow the slopes of the two lines to be different? This is where the concept of the **interaction term** comes in. 
 
 ### The interaction term
 
 An interaction term is a variable that is constructed from two other variables by multiplying those two variables together. In our case, we can easily construct an interaction term as follows:
 
 ```{r}
-movies.short$comedy <- movies.short$Genre=="Comedy"
-movies.short$interaction <- movies.short$Runtime*movies.short$comedy
+#| label: create-interaction-term
+movies.short$comedy <- movies.short$genre=="Comedy"
+movies.short$interaction <- movies.short$runtime*movies.short$comedy
 ```
 
 In this case, I had to create a real indicator variable for comedy before I could multiply them, but then I just multiply this indicator variable by movie runtime. Now lets add this interaction term to the model:
 
 ```{r}
-model <- lm(TomatoMeter~Runtime+comedy+interaction, data=movies.short)
+#| label: model-interaction
+model <- lm(metascore~runtime+comedy+interaction, data=movies.short)
 round(coef(model), 2)
 ```
 
 We now have an additional "slope" for the interaction term. Lets write this model out in equation form to try to figure out what is going on here. 
 
-$$\hat{meter}_i=-14.45+24.36(comedy_i)+0.52(runtime_i)-0.19(runtime_i*comedy_i)$$
-
-
+$$\hat{metascore}_i=6.14+17.55(comedy_i)+0.40(runtime_i)-0.13(runtime_i*comedy_i)$$
 Remember that the interaction term is just a literal multiplication of the two other variables. To figure out how this all works, lets once again separate this into two lines predicting Tomato Meter by runtime, for comedies and action movies separately.
 
 For action movies, the equation is:
 
-$$\hat{meter}_i=-14.45+24.36(0)+0.52(runtime_i)-0.19(runtime_i*0)=-14.45+0.52(runtime_i)$$
+$$\hat{metascore}_i=6.14+17.55(0)+0.40(runtime_i)-0.13(runtime_i*0)=6.14+0.40(runtime_i)$$
 
 For comedy movies, the equation is:
 
-$$\hat{meter}_i=-14.45+24.36(1)+0.52(runtime_i)-0.19(runtime_i*1)=(-14.45+24.36)+(0.52-0.19)(runtime_i)=9.91+0.33(run_i)$$
+$$\hat{metascore}_i=6.14+17.55(1)+0.40(runtime_i)-0.13(runtime_i*1)=(6.14+17.55)+(0.40-0.13)(runtime_i)=23.69+0.27(runtime_i)$$
 
-We now have two lines with different intercept and **different slopes**. The interaction term has allowed the effect of runtime on the Tomato Meter to vary by type of genre. In this case, the interaction term tells us how much smaller the slope is for comedy movies than for action movies. We can also just plot the lines to see how it looks, as I have done in Figure \@ref(fig:plot-interaction-twogenre).
+We now have two lines with different intercept and **different slopes**. The interaction term has allowed the effect of runtime on the metascore rating to vary by type of genre. In this case, the interaction term tells us how much smaller the slope is for comedy movies than for action movies. We can also just plot the lines to see how it looks, as I have done in @fig-plot-interaction-twogenre.
 
-```{r plot-interaction-twogenre, echo=FALSE, fig.cap="An interaction term allows for non-parallel lines, and thus different effects of runtime on tomato meter ratings by genre"}
-ggplot(subset(movies, Genre=="Action" | Genre=="Comedy"),
-       aes(x=Runtime, y=TomatoMeter, color=Genre))+
+```{r}
+#| label: fig-plot-interaction-twogenre
+#| fig-cap: An interaction term allows for non-parallel lines, and thus different effects of runtime on tomato meter ratings by genre.
+#| echo: false
+ggplot(movies.short, aes(x=runtime, y=metascore, color=genre))+
   geom_smooth(method="lm", se=FALSE)+
   geom_point(alpha=0.2)+
-  labs(x="runtime in minutes", y="Tomato Meter")+
+  labs(x="runtime in minutes", y="metascore rating")+
   theme_bw()
 ```
 
@@ -1040,21 +1044,22 @@ The pattern here is fairly clear. Short comedies get better ratings than short a
 
 ### Interpreting interaction terms
 
-Interpreting interaction terms can be tricky, because the inclusion of an interaction term **also changes the meaning of other slopes in the model**. The slopes for the two variables that make up the interaction term are called the **main effects**. In our example, those two variables are runtime and the comedy indicator variable and the main effects of these variables are 0.52 and 24.36, respectively. The most important rule to remember is that when an interaction term is in a model, the main effects are only the expected effects **when the other variable involved in the interaction is zero**. This is because the interaction implies that the effects of the two variables are not constant but rather change depending on the value of the other variable in the interaction term. Therefore, we can only interpret effects at a particular value of the other variable. So I would interpret these main effects as follows:
+Interpreting interaction terms can be tricky, because the inclusion of an interaction term **also changes the meaning of other slopes in the model**. The slopes for the two variables that make up the interaction term are called the **main effects**. In our example, those two variables are runtime and the comedy indicator variable and the main effects of these variables are 0.40 and 17.55, respectively. The most important rule to remember is that when an interaction term is in a model, the main effects are only the expected effects **when the other variable involved in the interaction is zero**. This is because the interaction implies that the effects of the two variables are not constant but rather change depending on the value of the other variable in the interaction term. Therefore, we can only interpret effects at a particular value of the other variable. So I would interpret these main effects as follows:
 
-- The model predicts that **among action movies**, a one minute increase in movie runtime is associated with a 0.52 point increase in the Tomato Meter rating, on average. 
-- The model predicts that **among movies with zero minutes of runtime** (outside the scope of data of course), comedies are predicted to have Tomato Meter ratings 24.36 points higher than action movies, on average.
+- The model predicts that **among action movies**, a one minute increase in movie runtime is associated with a 0.40 point increase in the metascore rating, on average. 
+- The model predicts that **among movies with zero minutes of runtime** (outside the scope of data of course), comedies are predicted to have metascore ratings 17.55 points higher than action movies, on average.
 
 Notice that I did not have to say I was controlling for the other variable. I am doing more than controlling when I include an interaction term. I am conditioning the effect of one variable on the value of another. That is why I instead use the phrase "among observations that are zero on the other variable." Note that you could also include other non-interacted variables in this model as well, like maturity rating, in which case you would also need to indicate that you controlled for those variables. 
 
-Interpreting interaction terms themselves can also be tricky because they are the difference in the effect of on variable depending on the value of another. One approach is to interpret this difference in effect directly. In this case, we would say:
+Interpreting interaction terms themselves can also be tricky because they are the difference in the effect of one variable depending on the value of another. One approach is to interpret this difference in effect directly. In this case, we would say:
 
-- The model predicts that the predicted increase in Tomato Meter ratings for a one minute increase in movie runtime is 0.19 points smaller for comedy movies than for action movies, on average.
+- The model predicts that the average increase in metascore ratings for a one minute increase in movie runtime is 0.13 points smaller for comedy movies than for action movies, on average.
 
-You have to be careful with this type of interpretation. In this case, both slopes were still positive so I can talk about how the effect was smaller. However, in some cases, the slopes may end up in different directions entirely which would require a somewhat different interpretation. 
-Another approach is to actually calculate the slope for the indicated category (comedies) and interpret it directly:
+You have to be careful with this type of interpretation. In this case, both slopes were still positive so I can talk about how the increase was smaller, but still an increase. However, in some cases, the slopes may end up in different directions entirely which would require a somewhat different interpretation. 
 
-- The model predicts that **among comedy movies**, a one minute increase in movie runtime is associated with a 0.33 increase in the Tomato Meter rating, on average (which is lower than for action movies). 
+Another approach is to actually calculate the slope for the indicated category (comedies) and interpret it directly. We already did that calculation above to come up with a runtime slope of 0.27 for comedy movies, so:
+
+- The model predicts that **among comedy movies**, a one minute increase in movie runtime is associated with a 0.27 increase in the metascore rating, on average (which is lower than for action movies). 
 
 In short, you have to be careful and thoughtful when thinking about how to interpret interaction terms. 
 
@@ -1063,7 +1068,7 @@ In short, you have to be careful and thoughtful when thinking about how to inter
 In the example above, I created the interaction term manually, but I didn't actually need to do this. *R* has a shortcut method for calculating interaction terms:
 
 ```{r}
-model <- lm(TomatoMeter~Runtime*Genre, data=movies.short) 
+model <- lm(metascore~runtime*genre, data=movies.short) 
 round(coef(model),2)
 ```
 
@@ -1091,37 +1096,34 @@ What does the interaction term tell you about different wage returns to children
 In the above example, I only compared comedy and action movies in order to keep the comparison simple, but it is possible to run the same analysis on the full movie dataset to see how runtime varies across all genres. 
 
 ```{r}
-model <- lm(TomatoMeter~Runtime*Genre, data=movies)
+model <- lm(metascore~runtime*genre, data=movies)
 round(coef(model),2)
 ```
 
-Thats a lot of numbers! There is a slope for each genre except action (10 in all) and an interaction between runtime and each genre except action (another 10 in all). What we are estimating here are 11 different lines (on for each genre) for the relationship between runtime and Tomato Meter rating. Because action movies are the reference, the main effect of runtime is the slope for action movies (0.52). The interaction terms show us how much larger or smaller the effect of runtime is for each given genre. So the effect is 0.39 smaller for dramas for a total effect of 0.13 (0.52-0.39). It is 0.32 larger for family movies for a total effect of 0.84 (0.52+0.32), and so forth. Similarly, the intercept is the intercept only for action movies. To get the intercept for other genres, we take the intercept value itself and add the main effect of genre. So for dramas the intercept is -14.45+59.5=45.05 and for family movies it is -14.45-29.06=-43.51. If we put all these slopes and intercepts together, we will get 11 lines as shown in Figure \@ref(fig:plot-fullinteraction-genre).
+Thats a lot of numbers! There is a slope for each genre except action (13 in all) and an interaction between runtime and each genre except action (another 13 in all). What we are estimating here are 14 different lines (on for each genre) for the relationship between runtime and metascore rating. Because action movies are the reference, the main effect of runtime is the slope for action movies (0.40). The interaction terms show us how much larger or smaller the effect of runtime is for each given genre. So the effect is 0.22 smaller for biographies for a total effect of 0.18 (0.40-0.22). It is 0.26 larger for animation movies for a total effect of 0.66 (0.40+0.26), and so forth. Similarly, the intercept is the intercept only for action movies. To get the intercept for other genres, we take the intercept value itself and add the main effect of genre. So for dramas the intercept is 6.14+57.22=63.36 and for family movies it is 6.14-7.43=-1.29. If we put all these slopes and intercepts together, we will get 14 lines as shown in Figure \@ref(fig:plot-fullinteraction-genre).
 
 ```{r plot-fullinteraction-genre, echo=FALSE, fig.cap="Interaction terms allow each genre to get a different return from increasing runtime"}
 ggplot(movies,
-       aes(x=Runtime, y=TomatoMeter, color=Genre))+
-  geom_point(alpha=0.2)+
+       aes(x=runtime, y=metascore, color=genre))+
+  #geom_point(alpha=0.2)+
   geom_smooth(method="lm", se=FALSE, fullrange=FALSE)+
-  labs(x="runtime in minutes", y="Tomato Meter")+
-  scale_color_brewer(palette = "Paired")+
+  labs(x="runtime in minutes", y="metascore")+
+  scale_color_manual(values = qualpal(14, "pretty")$hex)+
   theme_bw()
 ```
 
-There is a lot going on here, but we can detect some interesting patterns. Almost all of the lines are positive indicating that longer movies tend to generally get better ratings. This is not true of Romances however, where there is a slight negative relationship between movie runtime and Tomato Meter ratings. Dramas also have a fairly flat slope and a high intercept, so they tend to outperform most other short movies but don't fare as well compared to other genres when they are longer. The steepest slope is for family movies, which apparently are horrible when short (think "Beethoven 6: Beethoven saves Christmas, again" or something), but do much better when longer. 
+There is a lot going on here, but we can detect some interesting patterns. Almost all of the lines are positive indicating that longer movies tend to generally get better ratings. This is not true of Dramas however, where there is a slight negative relationship between movie runtime and metascore ratings. Dramas also have a high intercept, so they tend to outperform most other short movies but don't fare as well compared to other genres when they are longer. The steepest slope is for animation movies, which may seem odd given that they are generally shorter than most other movies. Most likely this differentiates very short and low quality animation movies from longer length "pixar quality" animation movies. SciFi/Fantasy movies also do not get the same return to movie length as action and horror movies, possibly because the former are targeted to more mixed age and younger audiences.
 
 ### Interaction terms with two categorical variables
-
-```{r echo=FALSE}
-knitr::include_url("https://www.youtube.com/embed/rrCvp8z1cmA")
-```
 
 The examples so far have involved interacting a quantitative variable with a categorical variable which gives you a different line for each category of your categorical variable. However, we can also create an interaction term between two categorical variables. 
 
 As an example, lets look at differences in wages in the earnings dataset by race and education. To simplify things, I am going to dichotimize race into white/non-white and education into less than Bachelor's degree/Bachelor's degree or more, as follows:
 
-```{r added-vars-earnings}
+```{r}
+#| label: added-vars-earnings
 earnings$nwhite <- earnings$race!="White"
-earnings$college <- as.numeric(earnings$educ)>3
+earnings$college <- as.numeric(earnings$education)>3
 ```
 
 Lets look at mean wages across these combination of categories:
@@ -1132,29 +1134,31 @@ tapply(earnings$wages, earnings[,c("nwhite","college")], mean)
 
 White college graduates make \$33.91 per hour, on average, while non-white college graduates make \$31.82 per hour, on average. Whites without a college degree make \$19.99, on average, while non-whites without a college degree make \$16.74, on average. If we put this in a table, I can show that there are four different ways to make comparisons between these numbers. 
 
-```{r table-earnings-race-college, echo=FALSE}
+```{r}
+#| label: tbl-earnings-race-college
+#| tbl-cap: Mean hourly wages by race and education.
+#| echo: false
 tab <- round(tapply(earnings$wages, earnings[,c("nwhite","college")], mean),2)
 tab <- cbind(tab, tab[,2]-tab[,1])
 tab <- rbind(tab, tab[2,]-tab[1,])
-colnames(tab) <- c("No degree", "Bachelor's degree", "Difference")
+colnames(tab) <- c("HS Diploma or less", "College or more", "Difference")
 rownames(tab) <- c("White","Non-white","Difference")
-kable(tab, align=c("r","r","r"),
-      caption="Mean wages in dollars per hour by race and education") %>%
-  kable_styling(bootstrap_options = c("striped","hover")) %>%
-  column_spec(1, bold=TRUE) %>%
-  row_spec(3, bold=TRUE, color="white", background="#666") %>%
-  column_spec(4, bold=TRUE, color="white", background="#666")
+tab |> 
+  as_tibble(rownames="Race") |>
+  gt() |>
+  gt_highlight_cols(columns = Difference) |>
+  gt_highlight_rows(rows = 3)
 ```
 
 If we look at the two differences along the far-right column, we are seeing the "returns" in terms of wages for a college degree separately for whites and non-whites. The return for whites is \$13.92 per hour and the return for non-whites is higher at \$15.08. If we look at the differences along the bottom row, we are seeing the racial inequality in wages separately for those with no degree and those with a college degree. Among those with no college degree, non-whites make \$3.25 less per hour than whites. Among those with a college degree, non-whites make \$2.09 less per hour than whites. The racial gap in wages gets smaller among those who have completed a college degree. 
 
-Now lets look at the difference in the differences. For the racial gap in wages this is given by -3.25-(-2.09)=1.16. For the returns to a college degree this is given by 15.08-13.92=1.16. The difference in the differences is the same! This is because we are looking at the same relationship in two different ways. If non-whites get a better return to college than whites, then the racial gap in wages must get smaller among the college-educated. Similarly, if the racial gap in wages gets smaller at the college level, it tells us that non-whites must get a better return on their college education. 
+Now lets look at the difference in the differences. For the racial gap in wages this is given by -3.25-(-2.09)=1.16. For the returns to a college degree this is given by 15.08-13.92=1.16. The difference in the differences is the same! This is because we are looking at the same relationship in two different ways. If non-whites get a better return to college than whites, then the racial gap in wages must get smaller among the college-educated. Similarly, if the racial gap in wages gets smaller at the college level, it tells us that non-whites must get a better return on their college education.
 
 This 1.16 number is basically an interaction term. We can interpret the number as the difference in returns to wages from a college degree between whites and non-whites. Alternatively, we can interpret the number as the difference in the racial wage gap between those with no degree and those with a college degree. Either way, we have the same information, with the same finding: greater educational attainment reduces racial inequality because minorities get a greater return on their college degrees. 
+Lets try modeling this relationship with a linear model. First lets try a model without interaction terms:
 
-Lets try modeling this relationship with an OLS regression model. First lets try a model without interaction terms:
-
-```{r model-additive-earnings-race-college}
+```{r}
+#| label: model-additive-earnings-race-college
 model <- lm(wages~nwhite+college, data=earnings)
 coef(model)
 ```
@@ -1166,22 +1170,25 @@ $$\hat{wages}_i=19.85-2.87(nwhite_i)+14.26(college_i)$$
 We can use this equation to fill in the predicted valued of the same table we calculated by hand above:
 
 ```{r table-additive-earnings-race-college, echo=FALSE}
+#| label: tbl-additive-earnings-race-college
+#| tbl-cap: Predicted mean hourly wages by race and education from an additive model.
+#| echo: false
 tab <- cbind(c(19.85,"19.85-2.87=16.98",-2.87),
       c("19.85+14.26=34.11","19.85-2.87+14.26=31.24",-2.87),
       c(14.26,14.26,0))
 colnames(tab) <- c("No degree", "Bachelor's degree", "Difference")
 rownames(tab) <- c("White","Non-white","Difference")
-kable(tab, align=c("r","r","r"),
-      caption="Predicted wages in dollars per hour by race and education from an additive model") %>%
-  kable_styling(bootstrap_options = c("striped","hover")) %>%
-  column_spec(1, bold=TRUE) %>%
-  row_spec(3, bold=TRUE, color="white", background="#666") %>%
-  column_spec(4, bold=TRUE, color="white", background="#666")
+tab |> 
+  as_tibble(rownames="Race") |>
+  gt() |>
+  gt_highlight_cols(columns = Difference) |>
+  gt_highlight_rows(rows = 3)
 ```
 
 The predicted values do not match the exact values above. More importantly, if you look at the differences, you can see that the returns to education are assumed to be identical for whites and non-whites (\$14.26) and the racial gap is assumed to be the same for those with no degree and those with a college degree (-\$2.87). This is the limitation of the additive model. We assume that the effects of race and college completion are not affected by each other. If we want to determine whether returns to college are different by race, we need to model the interaction term, as follows:
 
-```{r model-interactive-earnings-race-college}
+```{r}
+#| label: model-interactive-earnings-race-college
 model <- lm(wages~nwhite*college, data=earnings)
 coef(model)
 ```
@@ -1192,18 +1199,20 @@ $$\hat{income}_i=19.99-3.25(nwhite_i)+13.92(college_i)+1.16(nwhite_i*college_i)$
 
 Lets use this model to get predicted values in our table:
 
-```{r table-interactive-earnings-race-college, echo=FALSE}
+```{r}
+#| label: tbl-interaction-earnings-race-college
+#| tbl-cap: Predicted mean hourly wages by race and education from an interactive model.
+#| echo: false
 tab <- cbind(c(19.99,"19.99-3.25=16.74",-3.25),
       c("19.99+13.92=33.91","19.99-3.25+13.92+1.16=31.82",-2.09),
       c(13.92,15.08,1.16))
 colnames(tab) <- c("No degree", "Bachelor's degree", "Difference")
 rownames(tab) <- c("White","Non-white","Difference")
-kable(tab, align=c("r","r","r"),
-      caption="Predicted wages in dollars per hour by race and education from an interactive model") %>%
-  kable_styling(bootstrap_options = c("striped","hover")) %>%
-  column_spec(1, bold=TRUE) %>%
-  row_spec(3, bold=TRUE, color="white", background="#666") %>%
-  column_spec(4, bold=TRUE, color="white", background="#666")
+tab |> 
+  as_tibble(rownames="Race") |>
+  gt() |>
+  gt_highlight_cols(columns = Difference) |>
+  gt_highlight_rows(rows = 3)
 ```
 
 Our model now fits the data exactly and the differences are allowed to vary by the other category, so that we can see the differences in returns to college by race and the differences in the racial gap by education level. The interaction term itself of 1.16 is the same to what we calculated by hand. 
@@ -1214,7 +1223,3 @@ If we were to interpret the intercept and slopes from the model above, we would 
 * Among those with no college degree, non-whites earn \$3.25 less per hour than whites, on average. 
 * Among whites, those with a college degree have wages \$13.92 per hour higher on average than those without a college degree.
 * The returns to wages from a college degree are \$1.16 larger for non-whites than they are for whites, on average. 
-
-
-
-

@@ -15,6 +15,7 @@ book:
         - chapters/chapter_look_distributions.qmd
         - chapters/chapter_measure_association.qmd
         - chapters/chapter_make_inferences.qmd
+        - chapters/chapter_build_models.qmd
 #   - part: "Going Further"
 #     chapters:
   appendices:
@@ -27,6 +28,9 @@ format:
   html:
     theme: flatly
     css: styles.css
+execute:
+  warning: false
+  message: false
 
 
 

@@ -1,12 +1,12 @@
-# Building Models
+# Building Models {#sec-build-models}
 
-Up to this point, we have learned the elementary components of a good statistical analysis. However, the typical social scientist doesn't spend that much time with these elementary components. Instead, most social scientific analysis depends on building **statistical model**. A statistical model is a formal mathematical representation of how we think variables might be related to one another. By building models, we can better understand the relationships between variables and how these relationships are affected by other variables. We will focus on model building in some form or another for all the remaining modules of this course. 
+Up to this point, we have learned the elementary components of a good statistical analysis. However, the typical social scientist doesn't spend that much time with these elementary components. Instead, most social scientific analysis depends on building **statistical models**. A statistical model is a formal mathematical representation of how we think variables might be related to one another. By building models, we can better understand the relationships between variables and how these relationships are affected by other variables. We will focus on model building in some form or another for all the remaining chapters of this course. 
 
-We will begin with the simplest kind of model: we just try to fit a straight line through a set of points on a scatterplot. Although this approach may not seem very sophisticated, it forms the basis for more advanced modeling techniques we will learn later. After understanding this basic model, often called the *OLS regression model** we will move on to a variety of techniques we can use to build more complicated models that are both more realistic and more informative. 
+We will begin with the simplest kind of model: fitting a straight line through a set of points on a scatterplot. Although this approach may not seem very sophisticated, it forms the basis for more advanced modeling techniques we will learn later. After understanding this basic model we will move on to a variety of techniques we can use to build more complicated models that are both more realistic and more informative. 
 
-Throughout this module, we will focus primarily on issues of interpretation. We are now starting to learn the techniques that you will see presented in real world social science research. Being able to interpret and understand this work is a key objective of this course. 
+Throughout this chapter, we will focus primarily on issues of interpretation. We are now starting to learn the techniques that you will see presented in real world social science research. Being able to interpret and understand this work is a key objective of this course. 
 
-Slides for this module can be found [here](stat_slides/module5_slides_building_models.html).
+Slides for this chapter can be found [here](stat_slides/module5_slides_building_models.html).
 
 ```{r}
 #| label: load-libs-data
@@ -22,7 +22,7 @@ source(here("scripts","load_example_data.R"))
 
 ```{r}
 #| label: fig-scatter-age-violent-line
-#| fig-cap: Scatterplot of median age and violent crime rates across US states, with a best-fitting straight line drawn through points.
+#| fig-cap: Scatterplot of median age and violent crime rates across US states, with a best-fitting straight line drawn through the points.
 #| echo: false
 ggplot(crimes, aes(x=median_age, y=violent_rate))+
   geom_smooth(method="lm", se=FALSE)+
@@ -31,11 +31,11 @@ ggplot(crimes, aes(x=median_age, y=violent_rate))+
   theme_bw()
 ```
 
-I have also plotted a line through those points. When you were trying to determine the direction of the relationship many of you were probably imagining a line going through the points already. Of course, if we just tried to "eyeball" the best line, we would get many different results. The line I have graphed above, however, is the best fitting line, according to standard statistical criteria. It is the best-fitting line because it minimizes the total distance from all of the points collectively to the line. This line is called the **ordinary least squares regression line** ( or OLS regression line, for short). This fairly simply concept of fitting the best line to a set of points on a scatterplot is the workhorse of social science statistics and is the basis for most of the models that we will explore in this module.
+I also plotted a line through those points. When you were trying to determine the direction of the relationship between these two variables, you might have been imagining a line just like this to help guide your understanding. Of course, if we all just tried to "eyeball" the best line, we would get many different results because it would depend on differences in human perception and judgement. The line I have graphed above, however, is the best fitting line, according to a set of standard statistical criteria. Specifically, it minimizes the total vertical distance from each point to the line (the "error" or "residual"). This line is often called the **ordinary least squares regression line** (or OLS regression line, for short). This fairly simple concept of fitting the best line to a set of points on a scatterplot is the workhorse of social science statistics and is the basis for all of the models that we will explore in this chapter.
 
 ### The Formula for a Line
 
-Remember the basic formula for a line in two-dimensional space? In algebra, you probably learned something like this:
+Do you remember the basic formula for a line in two-dimensional space? In algebra, you probably learned something like this:
 
 $$y=a+bx$$
 
@@ -47,29 +47,31 @@ $$\hat{y}_i=b_0+b_1x_i$$
 
 On the right-hand side, we have a linear equation (or function) into which we feed a particular value of $x$ ($x_i$). On the left-hand side, we get not the actual value of $y$ for the $i$th observation, but rather a **predicted value** of $y$. The little symbol above the $y$ is called a "hat" and it indicates the "predicted value of $y$." We use this terminology to distinguish the actual value of $y$ ($y_i$) from the value predicted by the OLS regression line ($\hat{y}_i$). 
 
-The y-intercept is given by the symbol $b_0$. The y-intercept tells us the predicted value of $y$ when $x$ is zero. The slope is given by the symbol $b_1$. The slope tells us the predicted change in $y$ for a one-unit increase in $x$. In practice, the slope is the more important number because it tells us about the association between $x$ and $y$. Unlike the correlation coefficient, this measure of association is not unitless. We get an estimate of how much we expect $y$ to change in terms of its units for a one-unit increase in $x$. 
+The y-intercept is given by the symbol $b_0$. The y-intercept tells us the predicted value of $y$ when $x$ is zero. The slope is given by the symbol $b_1$. The slope tells us the predicted change in $y$ for a one-unit increase in $x$. In practice, the slope is the more important number because it tells us about the association between $x$ and $y$. In this regard, the slope is similar to the correlation coefficient we learned in @sec-measure-association - in fact, the two measures are mathematically connected, as we will see below. However, unlike the correlation coefficient, the slope is not a unitless measure of association. We get an estimate of how much we expect $y$ to change in terms of its *actual units* for a *one-unit* increase in $x$. 
 
-For the scatterplot in Figure \@ref(fig:scatter-age-violent-line) above, the slope is -25.6 and the y-intercept is 1343.9. We could therefore write the equation like so:
+For the scatterplot in @fig-scatter-age-violent-line above, the slope is -27.6 and the y-intercept is 1436.5. We could therefore write the equation like so:
 
-$$\hat{\texttt{crime rate}_i}=1343.9-25.6(\texttt{median age}_i)$$
+$$\hat{\texttt{crime rate}_i}=1436.5-25.6(\texttt{median age}_i)$$
 
 We would interpret our numbers as follows:
 
-* The model predicts that a one-year increase in age within a state is associated with 25.6 fewer violent crimes per 100,000 population, on average. (the slope)
-* The model predicts that in a state where the median age is zero, the violent crime rate will be 1343.9 crimes per 100,000 population, on average. (the intercept)
+Slope
+: The model predicts that a one-year increase in age within a state is associated with 27.6 fewer violent crimes per 100,000 population, on average.
 
-There is a lot to digest in these interpretations and I want to return to them in detail, but first I want to address a more basic question. How did I know that these are the right numbers for the best-fitting line? 
+Intercept
+: The model predicts that in a state where the median age is zero, the violent crime rate will be 1436.5 crimes per 100,000 population, on average.
+
+There is a lot to digest in these interpretations and I will to return to them in detail, but first I want to address a more basic question. How did I know that these are the right numbers for the best-fitting line? How do we actually calculate the intercept and slope for the best-fitting line?
 
 ### Calculating the Best-Fitting Line
 
-The slope and intercept of the OLS regression line are determined based on addressing one simple criteria: minimize the distance between the actual points and the line. More formally, we choose the slope and intercept that produce the **minimum sum of squared residuals (SSR)**.
+The slope and intercept of the OLS regression line are determined based on addressing one simple criteria: minimize the vertical distance between the actual points and the line. More formally, we choose the slope and intercept that produce the **minimum sum of squared residuals (SSR)**.
 
 A **residual** is the vertical distance between an actual value of $y$ for an observation and its predicted value:
 
 $$residual_i=y_i-\hat{y}_i$$
 
-These residuals are also sometimes called **error terms**, because the larger they are in absolute value, the worse is our prediction. Take a look at the @fig-scatter-reside below which shows the residuals graphically as vertical distances between the actual point and the line. 
-
+These residuals are also sometimes called **error terms**, because the larger they are in absolute value, the worse our prediction. Take a look at @fig-scatter-reside below which shows the residuals graphically as vertical distances between the actual point and the line. 
 
 ```{r}
 #| label: fig-scatter-reside
@@ -85,24 +87,29 @@ augment(model) |>
   theme_bw()
 ```
 
-Unless the points all fall along an exact straight line, there is no way for me to eliminate these residuals altogether, but some lines will produce higher residuals than others. What I am aiming to do is minimize the sum of squared residuals which is given by:
+Unless the points all fall along an exact straight line (highly unlikely!), I cannot eliminate these residuals altogether, but some lines will produce higher residuals than others. What I am aiming to do is minimize the sum of squared residuals which is given by:
 
 $$SSR = \sum_{i=1}^n(y_i-\hat{y}_i)^2$$
 
-I square each residual and then sum them up. By squaring, I eliminate the problem of some residuals being negative and some positive. 
+I square each residual and then sum them up. By squaring, I eliminate the problem of some residuals being negative and some being positive. You can think of this measure $SSR$ as a golf score - the higher it is, the worse my line is at predicting the outcome variable.
 
 To see how this all works, you can play around with the interactive example below which allows you to guess slope and intercept for a scatterplot and then see how well you did in minimizing the sum of squared residuals.
 
-Fortunately, we don't have to figure out the best slope and intercept by trial and error, as in the exercise above. There are relatively straightforward formulas for calculating the slope and intercept. They are:
+```{r shiny-app-reducerss, echo=FALSE}
+knitr::include_app("https://aarongullickson.shinyapps.io/reducerss/", height="800px")
+```
+
+Fortunately, we don't have to figure out the best slope and intercept by trial and error, as in the exercise above. Instead, we have straightforward formulas for calculating the slope and intercept. They are:
 
 $$b_1=r\frac{s_y}{s_x}$$
 
 $$b_0=\bar{y}-b_1*\bar{x}$$
 
-The *r* here is the correlation coefficient. The slope is really just a re-scaled version of the correlation coefficient. We can calculate this with the example above like so:
+The *r* in the first equation is the correlation coefficient. This equation reveals the fundamental connection between the correlation coefficient and slope. The slope is really just a re-scaled version of the correlation coefficient in which we have added back in the unit-scale variable.^[Alternatively, we could think of the correlation coefficient as a re-scaled version of the slope where we have removed the unit scale.] We can calculate this for the example above like so:
 
 ```{r}
-slope <- cor(crimes$median_age, crimes$violent_rate)*sd(crimes$violent_rate)/sd(crimes$median_age)
+slope <- cor(crimes$median_age, crimes$violent_rate)*
+  sd(crimes$violent_rate)/sd(crimes$median_age)
 slope
 ```
 
@@ -114,11 +121,25 @@ mean(crimes$violent_rate)-slope*mean(crimes$median_age)
 
 While this code will work to calculate the slope and intercept, it is quite cumbersome. In the next section, I introduce the `lm` command, which will make estimating linear models much easier and more flexible.
 
-### Using the `lm` command to calculate OLS regression lines
+::: {.callout-note collapse="true"}
+## Why is it called the OLS regression line?
+
+The term "Ordinary Least Squares regression line" is quite a mouthful. Where did it come from? Mostly, this name is a result of a historical serendipity rather than precise scientific labeling. The "least squares" bit is the easier to explain it is a shorthand for the line the minimizes the sum of squared residuals. Why is it ordinary, though? Well, we call it "ordinary" because more advanced techniques exist. Most importantly, people sometimes weight the residuals so that some residuals count more than others to the total sum of squares leading to various forms of "weighted least squares." We will cover some of these techniques in more advanced chapters of this book.
+
+Perhaps the most mysterious but also most widely known term is "regression." In fact, this term is so widely known that people will often just say things like "run a regression" instead of "estimate a linear model." People even sometimes use it as a verb and say things like "regress x on y." You, however, should do none of these things because this term is a leftover historical artifact which is not helpful for our understanding. 
+
+The term regression comes from the phenomenon of "regression to the mean." The classic example of this phenomenon is when a person takes two different tests that are thought to capture the same underlying skill or knowledge. If a person performs very well on the first test relative to the mean, they are likely to perform less well on the subsequent test and instead "regress to the mean." The same thing happens at the other end of the spectrum - people who perform very poorly on the first test are more likely to regress *upward" to the mean. Another classic example of this is the "sophomore slump" of professional baseball hitters who have a very good rookie year. 
+
+Is this phenomenon about some deep psychological processes where people either get too cocky or more motivated? Not at all. Its a mechanical process driven by probability. Your performance on a test is governed both by your underlying skill and ability (which is constant from test to test) and a host of context-specific situational factors that are specific to a test (e.g. you ate a good breakfast; you had a fight with your partner before the test, you got a good/poor night's rest). When you score very high on a test, its likely in part because you hit the jackpot on this situational factors - every lined up just right (or vice versa, if you did poorly). The next time you take the test, its unlikely the stars will align in exactly the same way, so you will lose that extra edge and perform closer to the average. Unless the correlation between ability and test score is perfect (highly unlikely!), you will always observe regression to the mean in such cases.
+
+Some of the earliest uses of the OLS regression line were in psychometrics which was very interested in the test-retest concept, and so the term "regression line" or "regression model" sort of stuck. However, for most of the use cases we care about in sociology today, and in many other disciplines, this phenomenon isn't really relevant or interesting. So as a general purpose name, its a poor one that has unfortunately not been supplanted by something more general. I want you to be aware of this terminology so that you recognize it when other people use it, but I won't generally refer to the models we use in this class as "regression models." Rather, I will refer to them as "linear models." 
+:::
+
+#### Using the `lm` command to calculate OLS regression lines
 
 The `lm` command stands for "linear model" and can be used to run a variety of linear models that we will learn including the basic one we are estimating currently.
 
-In order to run the `lm` command, you need to input a formula. The structure of this formula looks like `dependent~independent` where `dependent` and `independent` should be replaced by your specific variables. The tilde (`~`) sign indicates the relationship. So, if we wanted to use `lm` to calculate the OLS regression line we just looked at above, I would do the following:
+In order to run the `lm` command, you need to input a formula. The structure of this formula looks like `dependent~independent` where `dependent` and `independent` should be replaced by your specific variables. The tilde (`~`) sign indicates the relationship. So, if we wanted to use `lm` to calculate the OLS regression line between violent crime rates (the dependent variable) and median age (the independent variable), I would do the following:
 
 ```{r}
 #| label: command-lm
@@ -127,6 +148,19 @@ model1 <- lm(crimes$violent_rate~crimes$median_age)
 
 Please keep in mind that **the dependent variable always goes on the left-hand side of this equation.** You will get very different answers if you reverse the ordering. 
 
+::: {.callout-tip collapse="true"}
+## Which one is the dependent variable again?
+
+The terms "dependent" and "independent" variable may not be very intuitive, and some would argue that they also smack too strongly of causal language. Nonetheless, they are the most common way that researchers refer to variables in linear models, so its good to understand what they mean.
+
+The dependent variable is the $y$ variable in the linear model equation above. This is the outcome variable that you care about and you are trying to predict it by another "independent" or "explanatory" variable. You are conceiving of the values of the $y$ variable as being dependent on the values of the $x$ variable.
+
+In this case, my interest is in understanding why violent crime rates vary across US states. The theoretical model in my head is that older people are less likely to commit crime, so in states with older populations (as measured by the median age), I would generally expect lower crime rates. I could be wrong about this causal relationship or its direction^[Although, it would take a very creative argument to convince me that crime rates are making states older or younger!], but my theoretical frame and research interest is governing which variable I treat as the dependent variable in this analysis.
+
+Always remember that you will only ever have one dependent $y$ variable. This variable will always be on the left-hand side of the `~` in our formula. On the other hand, as we will see later in this chapter, we can have multiple independent variable, and these variables will always go on the right hand side of the `~` in our formula, separated by `+` signs. 
+
+:::
+
 In this case, I have entered in the variable names using the `data$variable` syntax, but `lm` also offers you a more streamlined way of specifying variables, by including a `data` option separately so that you only have to put the variable names in the formula, like so:
 
 ```{r}
@@ -134,7 +168,7 @@ In this case, I have entered in the variable names using the `data$variable` syn
 model1 <- lm(violent_rate~median_age, data=crimes)
 ```
 
-Because I have specified `data=crimes`, *R* knows that the variables "Violent" and "MedianAge" refer to variables within this dataset. The result will be the same as the previous command, but this approach makes it easier to read the formula itself. 
+Because I have specified `data=crimes`, *R* knows that the variables `violent_rate` and `median_age` refer to variables within this dataset. The result will be the same as the previous command, but this approach makes it easier to read the formula itself.
 
 I have saved the output of the `lm` command into a new object that I have called "model1". You can call this object whatever you like.  This is out first real example of the "object-oriented" nature of *R*. I can apply a variety of functions to this object in order to extract information about the relationship. If I want to get the most information, I can run a `summary` on this model. 
 
@@ -142,33 +176,40 @@ I have saved the output of the `lm` command into a new object that I have called
 #| label: summary-model
 summary(model1)
 ```
+The summary contains a lot information here and we actually don't know what most of it means yet. All we want is the intercept and slope. These numbers are given by the two numbers in the "Estimate" column of the "Coefficients" section. The intercept is 1436.532 and the slope is -27.564. Note that while the intercept is labeled as the intercept, the slope is not labeled as the slope. Instead, is is labeled by the name of the independent variable. The reason for this should become clear when we add more variables to the model in subsequent sections of this chapter.
 
-There is a lot information here and we actually don't know what most of it means yet. All we want is the intercept and slope. These numbers are given by the two numbers in the "Estimate" column of the "Coefficients" section. The intercept is 1436.532 and the slope is -27.564. 
+::: {.callout-note collapse="true"}
+## What is a coefficient?
 
-We could also run the `coef` command which will give us just the slope and intercept of the model. 
+Throughout this chapter, you will hear the term "coefficient" thrown about quite a bit. What do I (and *R*) mean by this term? The simple answer is that the coefficients refer to the intercept and slope(s) from our linear model equation, i.e. all the $b$'s.
+
+The longer answer is that a coefficient is a multiplier of another variable. So, if I give you the algebraic formula $3x$, 3 is the coefficient of $x$. In the case of linear models, we think of coefficients as all of the $b$ values that we multiply the $x$ variables by to get a predicted value of $y$.
+
+:::
+
+For a more compact display, we could also run the `coef` command which will give us just the slope and intercept of the model. 
 
 ```{r}
 coef(model1)
 ```
 
-This result is much more compact and will do for our purposes at the moment. 
+::: {.callout-tip collapse="true"}
+## Adding an OLS regression line to a scatterplot
 
-### Adding an OLS regression line to a plot
-
-You can easily add an OLS regression line to a scatterplot in `ggplot`. We can do this using the `geom_smooth` function. However we also need to specify that our method of smoothing is "lm" (for linear model) with the `method="lm"` argument. Here is the code for the example earlier: 
+You can easily add an OLS regression line to a scatterplot in `ggplot`, as shown in @fig-scatter-age-violent-line2. 
 
 ```{r}
 #| label: fig-scatter-age-violent-line2
-#| fig-cap: Use geom_smooth to plot an OLS regression line with or without a confidence interval band.
-#| echo: false
+#| fig-cap: Use `geom_smooth` to plot an OLS regression line with or without a confidence interval band.
 ggplot(crimes, aes(x=median_age, y=violent_rate))+
-  geom_smooth(method="lm", se=TRUE)+
+  geom_smooth(method="lm", se=TRUE)+                                   # <1>
   geom_point()+
   labs(x="median age in state", y="violent crimes per 100,000 population")+
   theme_bw()
 ```
+1. You can add the line with the `geom_smooth` function. To get a straight line, you must specify the `method="lm"` argument. Additionally, if you leave `se=TRUE`, you will get a grey "confidence" band around your line that represents a 95% confidence interval of uncertainty. You can remove this by specifying `se=FALSE` instead. Note also that the order you add geoms to your plot matters. Here, I add `geom_smooth` before `geom_point` so that the points get drawn over the line.
 
-You will notice that @fig-scatter-age-violent-line2 also adds a band of grey. This is the confidence interval band for my line and is drawn by default. We will discuss issues of inference for the OLS regression line below. If you want to remove this you can change the `se` argument in `geom_smooth` to FALSE.
+:::
 
 <!---
 <div class = "dcl">
@@ -190,15 +231,15 @@ Does the best-fitting line surprise you? What did you expect it to look like?
 
 ### The OLS regression line as a model
 
-You will note that I saved the output of my `lm` command above as model. The `lm` command itself stands for "linear model." What do I mean by this term "model?" When we talk about "models" in statistics, we are talking about modeling the relationship between two or more variables in a formal mathematical way. In the case of the OLS regression line, we are predicting the dependent variable as a **linear function** of the independent variable. 
+The `lm` command itself stands for "linear model." What does the term "model" mean in this context? When we talk about "models" in statistics, we are talking about modeling the relationship between two or more variables in a formal mathematical way. In the case of the OLS regression line, we are predicting the dependent variable ($y$) as a **linear function** of the independent variable ($x$). 
 
-Just as the general term model is used to describe something that is not realistic but rather an idealized representation, the same is true of our statistical models. We certainly don't believe that our linear function provides a correct interpretation of the exact relationship between our two variables. Instead we are trying to abstract from the details and fuzziness of the relationship to get a "big picture" of what the relationship looks like. 
+Just as the general term "model" is used to describe something that is not realistic but rather an idealized representation (e.g. a model train set), the same is true of our statistical models. We certainly don't believe that our linear function provides a correct interpretation of the exact relationship between our two variables. Instead we are trying to abstract from the details and fuzziness of the relationship to get a "big picture" of what the relationship looks like. 
 
-However, we always have to consider that our model is not a very good representation of the relationship. The most obvious potential problem is if the relationship is non-linear and yet we fit the relationship by a linear model, but there can be other problems as well. I will discuss these more below and the next few sections of this module will give us techniques for building better models. However, we first need to focus on how to interpret the results we just got. 
+However, we always have to consider that our model is not a very good representation of the relationship. The most obvious potential problem is if the relationship is non-linear and yet we fit the relationship by a linear model, but there can be other problems as well. I will discuss these more below and the next few sections of this chapter will give us techniques for building better models. However, we first need to focus on how to interpret the results we just calculated. 
 
 ### Interpeting Slopes and Intercepts
 
-Learning to properly interpret slopes and intercepts (especially slopes) is the number one most important thing you will learn all term, because of how common the use of OLS regression is in social science statistics. You simply cannot pass the class unless you can interpret these numbers. So take the time to be careful in interpretation here. 
+Learning to properly interpret slopes and intercepts (especially slopes) is the most important thing you will learn in this chapter, because of how common the use of linear models is in social science statistics. Caclulation is easy, but correct interpretation is much more difficult. So take the time to be careful and thoughtful when interpreting the numbers from linear models. 
 
 #### Interpreting Slopes
 
@@ -208,17 +249,25 @@ Take the interpretation I used above for the -27.6 slope of median age as a pred
 
 > The **model predicts** that a **one year increase in age** within a state **is associated** with **27.6 fewer violent crimes per 100,000 population**, **on average**.
 
-There are multiple things going on in this sentence that need to be addressed. First, lets address the phrase "model predicts." The idea of a model is something we will explore more later, but for now I will say that when we fit a line to a set of points to predict $x$ by $y$, we are applying a model to the data. In this case, we are applying a model that relates $y$ to $x$ by a simple linear function. All of our conclusions are dependent on this being a good model. Prefacing your interpretation with "the model predicts..." highlights this point. 
+There are multiple things going on in this sentence that need to be addressed. 
 
-Second, a "one year increase in age" indicates the meaning of a one unit increase in $x$. Never literally say a "one unit increase in $x$." Think about the units of $x$ and describe the change in $x$ in these terms. 
+"The model predicts...." 
+: When we fit a line to a set of points to predict $x$ by $y$, we are applying a model to the data. In this case, we are applying a model that relates $y$ to $x$ by a simple linear function. All of our conclusions are dependent on this being a good model. Prefacing your interpretation with "the model predicts..." highlights this point. 
 
-Third, I use "is associated with" to indicate the relationship. This phrase is intentionally passive. We want to avoid causal language when we describe the relationship. Saying something like "when $x$ increases by one $y$ goes up by $b_1$" may sound more intuitive, but it also implies causation. The use of "is associated with" here indicates that the two variables are related without implicitly implying that one causes the other. Using causal language is the most common mistake in describing the slope. 
+"a one year increase in age"
+: This phrase indicates the concrete meaning of a one unit increase in $x$ in this case. Never literally say a "one unit increase in $x$." Think about the units of $x$ and describe the change in $x$ in these real terms. 
 
-Fourth, "27.6 fewer violent crimes per 100,000 population" is the expected change in $y$. Again, you always have to consider the unit scale of your variables. In this case, $y$ is measured as the number of crimes per 100,000 population, so a decrease of 27.6 means 27.6 fewer violent crimes per 100,000 population. 
+"is associated with"
+: This phrase is intentionally passive, because we want to avoid implied causal language when we describe the relationship. Saying something like "when $x$ increases by one $y$ goes up by $b_1$" may sound more intuitive, but it also implies causation. The use of "is associated with" here indicates that the two variables are related without implying that one causes the other. Using causal language is the most common mistake in describing the slope. 
 
-Fifth, I append the term "on average" to the end of my interpretation. This is because we know that our points don't fall on a straight line and so we don't expect a deterministic relationship between median age and violent crime. Rather, we think that if we were to take a group of states that had one year higher median age than another group of states, the average difference between the groups would be -27.6. 
+"27.6 fewer violent crimes per 100,000 population" 
+: This phrase indicates the expected change in $y$. Again, you always have to consider the unit scale of your variables. In this case, $y$ is measured as the number of crimes per 100,000 population, so a decrease of 27.6 means 27.6 fewer violent crimes per 100,000 population. 
 
-Lets try a couple of other examples to see how this works. I will use the `lm` command to calculate the slopes and intercepts, which I explain in the section below. First, lets look at the association between age and sexual frequency (I will explain the code I use here later in this section).
+
+"on average"
+: This phrase should always be in your interpretations, because we know that our points don't fall on a straight line. Therefore, we don't expect a *deterministic" relationship between median age and violent crime where we can perfectly predict the crime rates for a state perfectly from its median age. Rather, we think that if we were to take a group of states that had one year higher median age than another group of states, the average difference between the two groups would be -27.6. 
+
+Lets try a couple of other examples to see how this works.First, lets look at the association between age and sexual frequency.
 
 ```{r}
 coef(lm(sexf~educ, data=sex))
@@ -228,7 +277,7 @@ The slope here is -0.67. Education is measured in years and sexual frequency is 
 
 > The model predicts that a one year increase in education is associated with 0.67 fewer sexual encounters per year, on average. 
 
-There is a positive, but quite small, association in real terms. The expected difference in sexual frequency between a college graudate (16 years of education) and a high scholl graduate (12 years of education) is about 2.68 sexual encounters per year (-0.67*4).
+This indicates a negative, but small, association in real terms. The expected difference in sexual frequency between a college graduate (16 years of education) and a high school graduate (12 years of education) is about 2.68 sexual encounters per year (-0.67*4).
 
 Now, lets take the relationship between movie runtimes and metascore ratings:
 
@@ -241,10 +290,7 @@ The slope is 0.295. Runtime is measured in minutes. The metascore is an abstract
 
 > The model predicts that a one minute increase in movie runtime length is associated with a 0.295 point increase in the movie's metascore rating, on average.
 
-Longer movies tend to have higher ratings. We may rightfully question the assumption of linearity for this relationship however. It seems likely that really long movies may suffer from viewer fatigue, so its possible the relationship may be non-linear. 
-
-<!--- TODO: callout for fitting smoothers to look at nonlinearity --->
-
+Longer movies tend to have higher ratings. We may rightfully question the assumption of linearity for this relationship, however. It seems likely that really long movies may suffer from viewer fatigue, so its possible the relationship may be non-linear. We will discuss this problem more at the end of this section.
 
 #### Interpreting Intercepts
 
@@ -254,20 +300,20 @@ In our example of the relationship of median age to violent crime rates, the int
 
 > The model predicts that in a state where the median age is zero, the violent crime rate would be 1436.5 crimes per 100,000 population, on average. 
 
-Note that I use the same "model predicts" and "on average" prefix and suffix for the intercept as I used for the slope. Beyond that I am just stating the predicted value of $y$ (crime rates) when $x$ is zero in the concrete terms of those variables. 
+Note that I use the same "model predicts" and "on average" prefix and suffix for the intercept as I used for the slope. Beyond that I am just stating the predicted value of $y$ (crime rates) when $x$ is zero in the concrete units of those variables. 
 
-Is it realistic to have a state with a median age of zero? No, its not. You will never observe a US state with a median age of zero. This is a common situation that often confuses students. In cases when zero falls outside the range of the independent variable, the intercept is not a particularly useful number because it does not tell us about a realistic situation. The intercept's only "job" is to give a number that allows the line to go through the points on the scatterplot at the right level. You can see this in the interactive exercise above if you select the correct slope and then vary the intercept. 
+Is it realistic to have a state with a median age of zero? No, its not. You will never observe a US state with a median age of zero. This is a common situation that often confuses students. In cases when zero falls outside the range of the independent variable, the intercept is not a particularly useful number because it does not tell us about a realistic situation. However, mathematically-speaking, the intercept is not required to do so. The intercept's only "job" is to give a number that allows the line to go through the points on the scatterplot at the right level. You can see this in the interactive exercise above if you select the correct slope and then vary the intercept. 
 
 In general making predictions for values of $x$ that fall outside the range of $x$ in the observed data is problematic. This approach often leads to intercepts which don't make a lot of sense. This problem with zero being outside the range of data is also evident in the other two examples of slopes from the previous section. When looking at the relationship between education and sexual frequency, no respondents are actually at zero years of education and no movies are at zero minutes of runtime. 
 
-In truth, to fit the line correctly, we only need the slope and one point along the line. It is convenient to choose the point where $x=0$ but there is no reason why we could not choose a different point. It is actually quite easy to calculate a different predicted value along the line by **re-centering** the independent variable.
+To fit the line correctly, we only need the slope and one point along the line. By default, we are conveniently choose the point where $x=0$, but there is no reason why we could not choose a different point. It is actually quite easy to calculate a different predicted value along the line by **re-centering** the independent variable.
 
 To re-center the independent variable $x$, we just need to to subtract some constant value $a$ from all the values of $x$, like so:
 
 $$x^*=x-a$$
-The zero value on our new variable $x^*$ will indicates that we are at the value of $a$ on the original variable $x$. If we then use $x^*$ in the OLS regression line rather than $x$, the intercept will give us the predicted value of $y$ when $x$ is equal to $a$. 
+The zero value on our new variable $x^*$ will indicates that we are at the value of $a$ on the original variable $x$. If we then use $x^*$ in the linear model rather than $x$, the intercept will give us the predicted value of $y$ when $x$ is equal to $a$ rather than zero. 
 
-Lets try this out on the model predicting violent crimes by median age. We will create a new variable where we subtract 35 from the median age variable and use that in the regression model.
+Lets try this out on the model predicting violent crimes by median age. We will create a new variable where we subtract 35 from the median age variable and use that in the linear model.
 
 ```{r}
 crimes$median_age_recenter <- crimes$median_age-35
@@ -306,11 +352,13 @@ ggplot(crimes, aes(x=median_age, y=violent_rate))+
   theme_bw()
 ```
 
-Its also possible to re-center an independent variable in the `lm` command without creating a whole new variable. If you surround the re-centering in the `I()` function within the formula, *R* will interpret the result of whatever is inside the `I()` function as a new variable. Here is an example based on the previous example:
+Its also possible to re-center an independent variable in the `lm` command without creating a whole new variable. If you use the `I()` function within the formula, *R* will interpret the result of whatever is inside the `I()` function as a new variable. Here is an example based on the previous example:
 
 ```{r}
 coef(lm(violent_rate~I(median_age-35), data=crimes))
 ```
+
+This is the preferred way to re-center variables in our models, because we don't need to clutter our dataset with new variables.
 
 <!---
 <div class = "dcl">
@@ -330,9 +378,9 @@ How would you interpret the intercept in the model output?
 
 ### How good is $x$ as a predictor of $y$?
 
-If I selected a random observation from the dataset and asked you to predict the value of $y$ for this observation, what value would you guess? Your best guess would be to guess the mean of y because this is the case where your average error would be smallest. This error is defined by the distance between the mean of y and the selected value, $y_i-\bar{y}$. 
+If I selected a random observation from the dataset and asked you to predict the value of $y$ for this observation, what value would you guess? Your best guess would be the mean of $y$ because this is the case where your average error would be smallest. This error is defined by the distance between the mean of $y$ and the selected value, $y_i-\bar{y}$. 
 
-Now, lets say instead of making you guess randomly I first told you the value of another variable $x$ and gave you the slope and intercept predicting $y$ from $x$. What is your best guess now? You should guess the predicted value of $\hat{y}_i$ from the regression line because now you have some additional information. There is no way that having this information could make your guess worse than just guessing the mean. The question is how much better do you do than guessing the mean. Answering this question will give us some idea of how good $x$ is as a predictor of $y$. 
+Now, lets say instead of making you guess randomly I first told you the value of another variable $x$ and gave you the slope and intercept predicting $y$ from $x$. What is your best guess now? You should guess the predicted value of $\hat{y}_i$ from the model because now you have some additional information. There is no way that having this information could make your guess worse than just guessing the mean. The question is how much better do you do than guessing the mean? Answering this question will give us some idea of how good $x$ is as a predictor of $y$. 
 
 We can do this by separating, or *partitioning* the total possible error in our first case when we guessed the mean, into the part accounted for by $x$ and the part that is unaccounted for by $x$. 
 
@@ -368,7 +416,7 @@ ggplot(crimes, aes(x=median_age, y=violent_rate))+
   theme_bw()
 ```
 
-The distance in red is the total distance between the observed violent crime rate in the state of Alaska and the mean violent crime rate across all states (given by the dotted line). If I were instead to use the OLS regression line predicting the violent crime rate by median age, I would predict a higher violent crime rate than average for Alaska because of its relatively low median age, but I would still predict a crime rate that is too low relative to the actual crime rate. The red line can be partitioned into th gold line which is the improvement in my estimate and the green line which is the error that remains in my prediction from the model. If I could then repeat this process for all of the states, I could calculate the percentage of the total red lines that the gold lines cover. This would give me an estimate of how much I reduce the error in my prediction by using the regression line rather than the mean to predict a state's violent crime rate. 
+The distance in red is the total distance between the observed violent crime rate in the state of Alaska and the mean violent crime rate across all states (given by the dotted line). If I were instead to use the linear model predicting the violent crime rate by median age, I would predict a higher violent crime rate than average for Alaska because of its relatively low median age, but I would still predict a crime rate that is too low relative to the actual crime rate. The red line can be partitioned into the gold line which is the improvement in my estimate and the green line which is the error that remains in my prediction from the model. If I could then repeat this process for all of the states, I could calculate the percentage of the total red lines that the gold lines cover. This would give me an estimate of how much I reduce the error in my prediction by using the linear model prediction rather than the mean to guess a state's violent crime rate. 
 
 In practice, we actually need to square those vertical distances because some are negative and some are positive and then we can sum them up over all the observations. So we get the following formulas:
 
@@ -378,7 +426,7 @@ In practice, we actually need to square those vertical distances because some ar
 
 The proportion of the variation in $y$ that is explainable or accountable by variation in $x$ is given by $SSM/SSY$. 
 
-This looks like a kind of nasty calculation, but it turns out there is a much simpler way to calculate this proportion. If we just take our correlation coefficient $r$ and square it. We will get this proportion. This measure is often called "r squared" and can be interpreted as the proportion of the variation in $y$ that is explainable or accountable by variation in $x$. 
+This looks like a kind of nasty calculation, but it turns out there is a much simpler way to calculate this proportion. If we just take our correlation coefficient $r$ and square it, we will get this proportion. This measure is often called **r-squared** and can be interpreted as the proportion of the variation in $y$ that is explainable or accountable by variation in $x$. 
 
 In the example above, we can calculate R squared:
 
@@ -387,9 +435,9 @@ cor(crimes$median_age, crimes$violent_rate)^2
 ```
 About 14.3% of the variation in violent crime rates across states can be accounted for by variation in the median age across states.  
 
-### Inference for OLS Regression models
+### Inference for linear models
 
-When working with sample data, our usual issues of statistical inference apply to regression models. In this case, our primary concern is the estimate of the regression slope because the slope measures the relationship between $x$ and $y$. We can think of an underlying OLS regression model in the population: 
+When working with sample data, our usual issues of statistical inference apply to linear models. In this case, our primary concern is the estimate of the slope because the slope measures the relationship between $x$ and $y$. We can think of an underlying linear model in the population: 
 
 $$\hat{y}_i=\beta_0+\beta_1x_i$$
 
@@ -399,7 +447,7 @@ $$H_0:\beta_1=0$$
 
 In our sample, we have a sample slope $b_1$ that is an estimate of $\beta_1$. We can apply the same logic of hypothesis testing and ask whether our $b_1$ is different enough from zero to reject the null hypothesis. We just need to find the standard error for this sample slope and the degrees of freedom to use for the test and we can do this manually.
 
-However, I have good news for you. You don't have to do any of this by hand because the `lm` function does it for you automatically. Lets look at the full output of the model predicting violent crime rates from median age again using the `summary` command:
+However, I have good news for you! You don't have to do any of this by hand because the `lm` function does it for you automatically. Lets look at the full output of the model predicting violent crime rates from median age again, using the `summary` command:
 
 ```{r}
 model <- lm(violent_rate~median_age, data=crimes)
@@ -408,21 +456,21 @@ summary(model)
 
 The "Coefficients" table in the middle gives us all the information we need. The first column gives us the sample slope of -27.564. The second column gives us the standard error for this slope of 9.632. The third column gives us the t-statistic derived by dividing the first column by the second column. The final column gives us the p-value for the hypothesis test. In this case, there is about a 0.6% chance of getting a sample slope this large on a sample of 51 cases if the true value in the population is zero. Of course, in this case its nonsensical because we don't have a sample, but the numbers here will be valuable in cases with real sample data. 
 
-### Regression Line Cautions
+### Linear model cautions
 
-OLS regression models can be very useful for understanding relationships, but they do have some important limitations that you should be aware of when you are doing statistical analysis. 
+Linear models can be very useful for understanding relationships, but they do have some important limitations that you should be aware of when you are doing statistical analysis. 
 
-There are three major limitations/cautions to be aware of when using OLS regression:
+There are three major limitations/cautions to be aware of when using linear models:
 
-1. OLS regression only works for linear relationships.
+1. Linear models only works for linear relationships.
 2. Outliers can sometimes exert heavy influence on estimates of the relationship
 4. Don't extrapolate beyond the scope of the data.
 
 #### Linearity
 
-By definition, an OLS regression line is a straight line. If the underlying relationship between x and y is non-linear, then the OLS regression line will do a poor job of measuring that relationship.
+By definition, an OLS regression line is a straight line. If the underlying relationship between $x$ and $y$ is non-linear, then the OLS regression line will do a poor job of measuring that relationship.
 
-One common case of non-linearity is the case of diminishing returns in which the slope gets weaker at higher values of x. @fig-nonlinearity demonstrates a class case of non-linearity in the relationship between a country's life expectancy and GDP per capita.
+One common case of non-linearity is the case of diminishing returns in which the slope gets weaker at higher values of $x$. @fig-nonlinearity demonstrates a classic case of non-linearity in the relationship between a country's life expectancy and GDP per capita.
 
 ```{r}
 #| label: fig-nonlinearity
@@ -438,9 +486,9 @@ ggplot(subset(gapminder, year==2007), aes(x=gdpPercap, y=lifeExp))+
   theme_bw()
 ```
 
-The relationship is clearly a strongly positive one, but also one of diminishing returns where the positive relationship seems to plateau at higher levels of GDP per capita. This makes sense because the same absolute increase in country wealth at low levels of life expectancy can be used to reduce the incidence of well-understood infectious and parasitic diseases, whereas the same absolute increase in country wealth at high levels of life expectancy must try to reduce the risk of less understood diseases like cancer. You get more bang for your buck when life expectancy is low. 
+The relationship is clearly a strongly positive one, but also one of diminishing returns where the positive relationship seems to "plateau" at higher levels of GDP per capita. This shape makes sense because a certain absolute increase in poor countries at low levels of life expectancy can be used to reduce the incidence of well-understood infectious and parasitic diseases, whereas the same absolute increase in wealthier countries at high levels of life expectancy has to reduce the risk of less understood diseases like cancer. You get more bang for your buck when life expectancy is low. 
 
-Figure \@ref(fig:nonlinearity2) shows what happens if we try to fit a line to this data.
+@fig-nonlinearity2 shows what happens if we try to fit a line to this data.
 
 ```{r}
 #| label: fig-nonlinearity2
@@ -462,29 +510,50 @@ ggplot(subset(gapminder, year==2007), aes(x=gdpPercap, y=lifeExp))+
 
 Clearly a straight line is a poor fit. We systematically overestimate life expectancy at low and high GDP per capita and underestimate life expectancy in the middle. 
 
-It is possible, in some circumstances, to correct for this problem of non-linearity but we will not explore those options in this chapter For now, its just important to be aware of the problem and if you see clear non-linearity then you should question the use of an OLS regression line. 
+It is possible, in some circumstances, to correct for this problem of non-linearity, which we will explore in later chapters. For now, its just important to be aware of the problem and if you see clear non-linearity then you should question the use of a linear model. 
 
-<!--- TODO: actually put smoothing bit here --->
+::: {.callout-tip collapse="true"}
+## Detecting non-linearity
+
+In the example above, the non-linear relationship was very strong and obvious. However, in much of the data that we analyze the relationship is not so visually clear and can be difficult to simply "eyeball." In such cases, its often useful to use smoothing functions to get a sense of potential non-linearity. Smoothing functions fit a line to a set of points, but this line need not be straight and can go up and down. 
+
+Later chapters will go into more detail about how smoothing functions work, but for now you can use them with the same `geom_smooth` function that we used to get a straight line, except this time you leave out the method. For example, earlier we questioned whether the relationship between movie runtime and metascore ratings is linear. Lets add a smoother to that scatterplot to see what it looks like:
+
+```{r}
+#| label: fig-smoother
+#| fig-cap: The relationship between movie runtime and metascore rating, with a smoothing function shown in blue. Maybe there are slight diminishing returns to movie runtime?
+ggplot(movies, aes(x=runtime, y=metascore))+
+  geom_point(alpha=0.2)+
+  geom_smooth(se=FALSE)+
+  labs(x="movie runtime in minutes", y="metascore rating")+
+  theme_bw()
+```
+
+If you look closely at the blue line you will see that it bends slightly, producing a slightly weaker slope at higher movie runtime. This result suggests that there may be slight diminishing returns to movie runtime. However, that bend is not very strong and a linear model would seem to fit this pretty decently. So, somewhat surprisingly, we do not see strong non-linearity in this case. It could be the case that audiences do just prefer longer movies. Another possibility is that only movies that have a strong chance of being good (e.g. well known director, all star cast) are greenlit to be longer. 
+
+
+:::
+
 
 #### Outliers and Influential Points
 
-An outlier is an **influential point** if removing this observation from the dataset substantially changes the slope of the OLS regression line. You can try the interactive exercise below to see how removing points changes the slope of your line (click on a point a second time to add it back). Can you identify any influential points?
+An outlier is an **influential point** if removing that observation from the dataset substantially changes the slope of the OLS regression line. You can try the interactive exercise below to see how removing points changes the slope of your line (click on a point a second time to add it back). Can you identify any influential points?
 
 ```{r shiny-app-influentialpoints, echo=FALSE}
 knitr::include_app("https://aarongullickson.shinyapps.io/influentialpoints/", height="800px")
 ```
 
-For the case of median age, Utah and DC both have fairly strong influences on the shape of the line. Removing DC makes the relationship weaker, while removing Utah makes the relationship stronger. Outliers will tend to have the strongest influence when their placement is inconsistent with the general pattern. In this case, Utah is very inconsistent with the overall negative effect because it has both low median age and low crime rates. 
+For the case of median age, Utah and Washington DC both have fairly strong influences on the shape of the line. Removing Washington DC makes the relationship weaker, while removing Utah makes the relationship stronger. Outliers will tend to have the strongest influence when their placement is inconsistent with the general pattern. In this case, Utah is very inconsistent with the overall negative effect because it has both low median age and low crime rates. 
 
 Lets say that you have identified an influential point. What then? In truth there is only so much you can do. You cannot remove a valid data point just because it is an influential point. There are two cases where it would be legitimate to exclude the point. First, if you have reason to believe that the observation is an outlier because of a data error, then it would be acceptable to remove it. Second, if you have a strong argument that the observation does not belong with the rest of the cases, because it is logically different, then it might be OK to remove it.
 
-In our case, there is no legitimate reason to remove Utah, but there probably is a legitimate reason to remove DC. Washington DC is really a city and the rest of our observations are states that contain a mix of urban and rural population. Because crime rates are higher in urban areas, DC's crime rates look very exaggerated compared to states. Because of this "apples and oranges" problem, it is probably better to remove DC. If our unit of analysis was cities, on the other hand, then DC should remain. 
+In our case, there is no legitimate reason to remove Utah, but there probably is a legitimate reason to remove Washington DC. Washington DC is really a city and the rest of our observations are states that contain a mix of urban and rural population. Because crime rates are higher in urban areas, DC's crime rates look very exaggerated compared to states. Because of this "apples and oranges" problem, it is probably better to remove Washington DC. If our unit of analysis was cities, on the other hand, then Washington DC should remain. 
 
 In large datasets (1000+ observations), its unusual that a single point or even a small cluster of points will exert much influence on the shape of the line. The concern about influential points is mostly a concern in small datasets like the crime dataset. 
 
 #### Thou Doth Extrapolate Too Much
 
-Its dangerous enough to assume that a linear relationship holds for your data. Its doubly dangerous to assume that this linear relationship holds beyond the scope of your data. Lets take the relationship between sexual frequency and age. We saw in the previous module that the slope here is -1.3 and the intercept is 108. The intercept itself is outside the scope of the data because we only have data on the population 18 years and older. It would be problematic to make predictions about the sexual frequency of 12 year olds, let alone zero-year olds. 
+Its dangerous enough to assume that a linear relationship holds for your data. Its doubly dangerous to assume that this linear relationship holds beyond the scope of your data. Lets take the relationship between sexual frequency and age. We saw in previous chapters that the slope is -0.83 and the intercept is 88.3. The intercept itself is outside the scope of the data because we only have data on the population 18 years and older. It would be problematic to make predictions about the sexual frequency of 12 year olds, let alone zero-year olds. 
 
 Another trivial example would be to look at the growth rate of children 5-15 years of age by correlating age with height. It would be acceptable to use this model to predict the height of a 14 year old, but not a 40 year old.  We expect that this growth will eventually end sometime outside the range of our data when individuals reach their final adult height. If we extrapolated the data, we would predict that 40 year olds would be very tall. 
 
@@ -512,13 +581,13 @@ cor(movies$runtime, movies$box_office)
 
 These two positive correlations suggest a **spurious** reason why we might observe a positive association between runtime and Oscar awards. More well-received movies are longer and more well-received movies receive more Oscar awards. Thus, when we look at the relationship between runtime and Oscar awards, we see a positive association but that positive association is *at least in part* indirectly driven by these indirect association. 
 
-How can we examine whether this potential spurious explanation is accurate? It turns out that we can add more than one independent variable to an OLS regression model at the same time. The mathematical structure of such a model would be:
+How can we examine whether this potential spurious explanation is accurate? It turns out that we can add more than one independent variable to a linear model at the same time. The mathematical structure of such a model would be:
 
 $$\hat{awards}_i=b_0+b_1(runtime_i)+b_2(rating_i)$$
 
-We now have two different "slopes", $b_1$ and $b_2$. These two slopes give the association of runtime and imdb ratings, respectively, on number of Oscar awards, while **controlling for the other independent variable**. We now have what is called a **multivariate** OLS regression model. 
+We now have two different "slopes", $b_1$ and $b_2$. These two slopes give the association of runtime and imdb ratings, respectively, on number of Oscar awards, while **controlling for the other independent variable**. We now have what is called a **multivariate** linear model. 
 
-This "controlling" concept is a key point that I will return to below, but first I want to try to think graphically about what this model is doing. In the case of bivariate regression, we thought of fitting a line to a scatterplot in two-dimensional space. We are doing something similar here, but since we now have three variables, our scatterplot is in three dimensions. @fig-scatter-3d shows an interactive three-dimensional plot of the three variables. 
+This "controlling" concept is a key point that I will return to below, but first I want to try to think graphically about what this model is doing. In the case of a bivariate linear model, we thought of fitting a line to a scatterplot in two-dimensional space. We are doing something similar here, but since we now have three variables, our scatterplot is in three dimensions. @fig-scatter-3d shows an interactive three-dimensional plot of the three variables. 
 
 ```{r}
 #| label: fig-scatter-3d
@@ -537,9 +606,9 @@ plot_ly(x=movies$runtime, y=movies$rating_imdb, z=movies$awards) %>%
                     zaxis=list(title="Oscar awards")))
 ```
 
-The dependent variable is shown on the vertical (z) axis and the two independent variables are shown on the "width" and "depth" axes (x and y). The flat plane shown is defined by the OLS regression model equation above. So, rather than fitting a straight line through the data, I am fitting a plane. Note however that if you rotate the 3d scatterplot to hide the IMDG ratings "depth" dimension, it will then look like a two-dimensional scatterplot between runtime and Oscar awards. In this case, the edge of the plane would indicate the slope between runtime and Oscar awards. Similarly, I could rotate it the other way to look at the relationship between IMDB ratings and Oscar awards. 
+The dependent variable is shown on the vertical (z) axis and the two independent variables are shown on the "width" and "depth" axes (x and y). The flat plane shown is defined by the linear model equation above. So, rather than fitting a straight line through the data, I am fitting a plane. Note however that if you rotate the 3d scatterplot to hide the IMDG ratings "depth" dimension, it will then look like a two-dimensional scatterplot between runtime and Oscar awards. In this case, the edge of the plane would indicate the slope between runtime and Oscar awards. Similarly, I could rotate it the other way to look at the relationship between IMDB ratings and Oscar awards. 
 
-How do I know what are the best values for $b_0$, $b_1$, and $b_2$ that define my plane? The logic is the same as for bivariate OLS regression: I choose values that minimize the sum of squared residuals (SSR):
+How do I know what are the best values for $b_0$, $b_1$, and $b_2$ that define my plane? The logic is the same as for a bivariate linear model: I choose values that minimize the sum of squared residuals (SSR):
 
 $$SSR=\sum_{i=1}^n (\hat{y}_i-y_i)^2$$
 
@@ -556,7 +625,7 @@ Note that I am mean-centering both independent variables to get a more meaningfu
 
 $$\hat{awards}_i=0.0873+0.0049(runtime_i-\bar{runtime}_i)+0.1093(rating_i-\bar{rating}_i)$$
 
-### Interpreting results in a multivariate OLS regression models
+### Interpreting results in a multivariate linear models
 
 How do we interpret the results?
 
@@ -615,15 +684,15 @@ The model predicts:
 
 When I interpret the models now, I am holding constant the other two variables when I estimate the effect of each. Note that controlling for the poverty rate has a huge effect on the education variable whose effect goes from a substantial positive effect to a substantial negative effect. What does this tell us? Poverty rates and high school non-completion rates are positively correlated and so when you don't control for poverty rates, it looks like the high school non-completion rate predicts crime because states with high high school non-completion rates have high poverty rates and high poverty rates predict property crime rates. Once you control for the poverty rate, you see that it is economic deprivation not educational deprivation that is driving the crime rate. 
 
-In general, the form of the multivariate regression model is:
+In general, the form of the multivariate linear model is:
 
 $$\hat{y}_i=b_0+b_1x_{i1}+b_2x_{i2}+b_3x_{i3}+\ldots+b_px_{ip}$$
 
 The intercept is given by $b_0$. This is the predicted value of $y$ when all of the independent variables are zero. The remaining $b$'s give the slopes for all of the variables up through the $p$th variable. Each of these gives the predicted change in $y$ for a unit increase in that independent variable, **holding all other independent variables constant**. 
 
-### How to read a table of regression results
+### How to read a table of model results
 
-In academic journal articles and books, the results of OLS regression models are represented in a fairly standard way. In order to understand how to read these articles, you need to understand this presentation style. Its not immediately intuitive for everyone. @tbl-model-example below shows the typical style. In this table, I am reporting three linear models with the property crime rates as the dependent variable and three different independent variables.  
+In academic journal articles and books, the results of linear models are represented in a fairly standard way. In order to understand how to read these articles, you need to understand this presentation style. Its not immediately intuitive for everyone. @tbl-model-example below shows the typical style. In this table, I am reporting three linear models with the property crime rates as the dependent variable and three different independent variables.  
 
 ```{r}
 #| label: tbl-model-example
@@ -662,7 +731,7 @@ What is going on here? It seems that the percent of the population with less tha
 
 ## Including Categorical Variables as Predictors
 
-To this point, we only know how to include quantitative variables into OLS regression models. However, it turns out you can use a fairly easy trick to include categorical variables as independent variables in OLS regression models. By including categorical variables as independent variables, we expand considerably the range of things that we can do with OLS regression models.  The most difficult part of this trick is correctly interpreting your results. 
+To this point, we only know how to include quantitative variables into linear models. However, it turns out you can use a fairly easy trick to include categorical variables as independent variables in linear models. By including categorical variables as independent variables, we expand considerably the range of things that we can do with linear models.  The most difficult part of this trick is correctly interpreting your results. 
 
 ### Indicator variables
 
@@ -693,7 +762,7 @@ $$nonrelig_i=\begin{cases}
   
 The **indicated category** is the category which gets a one on the indicator variable. In this case the indicated category is non-religious. The **reference category** is the category that gets no indicator variable. In this case, that is just the religious group. Later on, we will see that this can become slightly more complicated. You can think of the indicator variable as an on/off switch where 1 indicates that it is "on" (i.e. the observation belongs to the indicated category) and 0 indicates that it is "off" (i.e. the observation does not belong to the indicated category).
 
-What would happen if we put this indicator variable into a regression model predicting sexual frequency like so:
+What would happen if we put this indicator variable into a linear model predicting sexual frequency like so:
 
 $$\hat{frequency}_i=b_0+b_1(nonrelig_i)$$
 
@@ -826,7 +895,7 @@ $$none_i=\begin{cases}
   0 & \text{otherwise}
   \end{cases}$$
 
- Now lets put these variables into an OLS regression model:
+ Now lets put these variables into a linear model:
 
 $$\hat{frequency}_i=b_0+b_1(main_i)+b_2(catholic_i)+b_3(jewish_i)+b_4(other_i)+b_5(none_i)$$
 
@@ -978,7 +1047,7 @@ Each line has an intercept and a slope. Notice that the intercepts are different
 
 ```{r}
 #| label: fig-plot-nointeractiontwogenre
-#| fig-cap: Predicted Tomato Meter by runtime for two genres based on an additive OLS regression model. The lines must be parallel.
+#| fig-cap: Predicted Tomato Meter by runtime for two genres based on an additive linear model. The lines must be parallel.
 #| echo: false
 model <- lm(metascore~runtime+genre, data=movies.short)
 temp <- expand.grid(runtime=80:200, genre=c("Action","Comedy"))

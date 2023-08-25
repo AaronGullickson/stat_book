@@ -19,6 +19,7 @@ book:
 #   - part: "Going Further"
 #     chapters:
   appendices:
+    - appendices/appendix_example_data.qmd
     - bibliography/references.qmd
 
 

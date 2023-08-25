@@ -59,7 +59,7 @@ Race, gender, and political party affiliation are all examples of nominal variab
 
 ### Using course example datasets in R
 
-Throuhgout this course, we will use several example datasets. I will use these datasets as examples in the text, in the slides, and in class. You will also access these datasets to complete assignments. More information about these datasets can be found in the Example Datasets section of this textbook, but here I provide a brief overview of each dataset.
+Throughout this book and the accompanying slides, I will use several example datasets. If you are taking this course from me, you will also access these datasets to complete assignments. More information about these datasets can be found in @sec-example-datasets, but here I provide a brief overview of each dataset. You should take the time to familiarize yourself with all of the details in @sec-example-datasets.
 
 Crimes
 : The crimes data contain information on violent and property crime rates and demographic variables for all fifty US states and the District of Columbia. The crime rates are averaged over the years 2014-2018 and come from the FBI’s Uniform Crime Reports (UCR). The demographic variables include information on poverty rates, education levels, income inequality, and median income.

@@ -1092,11 +1092,11 @@ How would you interpret all of the slopes and intercepts in the model output? Ar
 
 ## Interaction Terms
 
-By definition, a linear model is an **additive** model. As you increase or decrease the value of one independent variable you increase or decrease the predicted value of the dependent variable by a set amount, **regardless of the other values of the independent variable**. This is an assumption built into the linear model by its additive form, and it may misrepresent some relationships where independent variables **interact** with one another to produce more complicated effects. In particular, in this section, we want to know whether the effect (i.e. the slope) of one independent variable varies by the value of another independent variable. 
+By definition, a linear model is an **additive** model. As you increase or decrease the value of one independent variable you increase or decrease the predicted value of the dependent variable by a set amount, **regardless of the other values of the independent variables in the model**. This is an assumption built into the linear model by its additive form, and it may misrepresent some relationships where independent variables **interact** with one another to produce more complicated relationships. In particular, in this section, we want to know whether the effect (i.e. the slope) of one independent variable varies by the value of another independent variable. 
 
 ### The nature of additive models
 
-As an example for this section, I am going to look at the relationship between movie genre, runtime, and tomato meter ratings. To simplify things, I am going to only look at these relationships for two genres: action and comedy. I can limit my movies dataset to these two genres with the following command:
+As an example for this section, I am going to look at the relationship between movie genre, runtime, and metascore ratings. To simplify things, I am going to only look at these relationships for two genres: action and comedy. I can limit my movies dataset to these two genres with the following command:
 
 ```{r}
 #| label: subset-movies
@@ -1111,28 +1111,28 @@ round(coef(lm(metascore~genre+runtime, data=movies.short)),2)
 
 Genre is a categorical variable and action movies are set as the reference category. In equation form, the model looks like: 
 
-$$\hat{metascore}_i=14.28+3.16(comedy_i)+0.32(runtime_i)$$
+$$\hat{metascore}_i=14.28+3.16(comedy_i)+0.32(time_i)$$
 
 I can interpret my slopes as follows:
 
-- The model predicts that when comparing movies of the same runtime, comedies have metascore ratings 3.16 points higher than action movies, on average.
+- The model predicts that, when comparing movies of the same runtime, comedies have metascore ratings 3.16 points higher than action movies, on average.
 - The model predicts that, comparing movies of the same genre, a one minute increase in movie runtime is associated with a 0.32 point increase in the metascore rating, on average. 
 
 This is an additive model. If we move from an action movie to a comedy of the same runtime, our predicted metascore rating goes up by 3.16, **regardless of the actual value of runtime**. If we increase movie runtime by one minute while keeping genre the same, our predicted metascore rating goes up by 0.31, **regardless of whether that genre is action or comedy**. 
 
 It may help to graphically visualize the nature of this additive relationship. We can do this by plotting lines showing the relationship between runtime and Tomato Meter ratings separately for our two different genres of action and comedy. The line for action movies is given by:
 
-$$\hat{metascore}_i=14.28+3.16(0)+0.32(runtime_i)=14.28+0.32(runtime_i)$$
+$$\hat{metascore}_i=14.28+3.16(0)+0.32(time_i)=14.28+0.32(time_i)$$
 
 The line for comedy movies is given by:
 
-$$\hat{metascore}_i=14.28+3.16(1)+0.32(runtime_i)=17.44+0.32(runtime_i)$$
+$$\hat{metascore}_i=14.28+3.16(1)+0.32(time_i)=17.44+0.32(time_i)$$
 
-Each line has an intercept and a slope. Notice that the intercepts are different but the slopes are the same. That means we have two parallel lines at different levels. @fig-plot-nointeractiontwogenre overlays these two parallel lines on top of a scatterplot of movie runtime by tomato meter for these two genres. 
+Each line has an intercept and a slope. Notice that the intercepts are different but the slopes are the same. That means we have two parallel lines at different levels. @fig-plot-nointeractiontwogenre overlays these two parallel lines on top of a scatterplot of movie runtime by metascore rating for these two genres. 
 
 ```{r}
 #| label: fig-plot-nointeractiontwogenre
-#| fig-cap: Predicted Tomato Meter by runtime for two genres based on an additive linear model. The lines must be parallel.
+#| fig-cap: Predicted metascore rating by runtime for two movie genres based on an additive linear model. The lines must be parallel.
 #| echo: false
 model <- lm(metascore~runtime+genre, data=movies.short)
 temp <- expand.grid(runtime=80:200, genre=c("Action","Comedy"))
@@ -1146,9 +1146,9 @@ ggplot(movies.short,
   theme_bw()
 ```
 
-The parallel lines are an assumption of the linear model structure we have used. There are two consequences of this assumption. First, At every single level of runtime, the predicted metascore difference between comedy and action movies is exactly 3.16. This can be seen on the graph by the consistent gap between the two lines. Second, the effect of runtime on the metascore rating is assumed to be the same for action and comedy movies. This can be seen on the graph by the fact that both lines have the exact same slope. 
+The parallel lines are an assumption of the linear model structure we have used. There are two consequences of this assumption. First, At every single level of runtime, the predicted metascore difference between comedy and action movies is exactly 3.16. This can be seen in @fig-plot-nointeractiontwogenre by the consistent gap between the two lines. Second, the effect of runtime on the metascore rating is assumed to be the same for action and comedy movies. This can be seen by the fact that both lines have the exact same slope. 
 
-Although these may seem like two different issues, they are really the same issue from different perspectives. If we were to allow the slopes of the two lines to be different, then the gap between them would not be static. The questions is how can we allow the slopes of the two lines to be different? This is where the concept of the **interaction term** comes in. 
+Although these may seem like two different issues, they are really the same issue from two different perspectives. If we were to allow the slopes of the two lines to be different, then the gap between them would not be static. The questions is how can we allow the slopes of the two lines to be different? This is where the concept of the **interaction term** comes in. 
 
 ### The interaction term
 
@@ -1170,35 +1170,65 @@ round(coef(model), 2)
 
 We now have an additional "slope" for the interaction term. Lets write this model out in equation form to try to figure out what is going on here. 
 
-$$\hat{metascore}_i=6.14+17.55(comedy_i)+0.40(runtime_i)-0.13(runtime_i*comedy_i)$$
+$$\hat{metascore}_i=6.14+17.55(comedy_i)+0.40(time_i)-0.13(time_i*comedy_i)$$
 Remember that the interaction term is just a literal multiplication of the two other variables. To figure out how this all works, lets once again separate this into two lines predicting Tomato Meter by runtime, for comedies and action movies separately.
 
 For action movies, the equation is:
 
-$$\hat{metascore}_i=6.14+17.55(0)+0.40(runtime_i)-0.13(runtime_i*0)=6.14+0.40(runtime_i)$$
+\begin{aligned}
+\hat{metascore}_i &= 6.14+17.55(0)+0.40(time_i)-0.13(time_i*0) \\
+  &=6.14+0.40(time_i)
+\end{aligned}
 
 For comedy movies, the equation is:
 
-$$\hat{metascore}_i=6.14+17.55(1)+0.40(runtime_i)-0.13(runtime_i*1)=(6.14+17.55)+(0.40-0.13)(runtime_i)=23.69+0.27(runtime_i)$$
+\begin{aligned}
+\hat{metascore}_i &= 6.14+17.55(1)+0.40(time_i)-0.13(time_i*1) \\
+  &=23.69+0.27(time_i)
+\end{aligned}
 
 We now have two lines with different intercept and **different slopes**. The interaction term has allowed the effect of runtime on the metascore rating to vary by type of genre. In this case, the interaction term tells us how much smaller the slope is for comedy movies than for action movies. We can also just plot the lines to see how it looks, as I have done in @fig-plot-interaction-twogenre.
 
 ```{r}
 #| label: fig-plot-interaction-twogenre
-#| fig-cap: An interaction term allows for non-parallel lines, and thus different effects of runtime on tomato meter ratings by genre.
+#| fig-cap: An interaction term allows for non-parallel lines, and thus different effects of runtime on metascore ratings by genre.
 #| echo: false
 ggplot(movies.short, aes(x=runtime, y=metascore, color=genre))+
   geom_smooth(method="lm", se=FALSE)+
   geom_point(alpha=0.2)+
+  scale_color_viridis_d(end=0.75)+
   labs(x="runtime in minutes", y="metascore rating")+
   theme_bw()
 ```
 
-The pattern here is fairly clear. Short comedies get better ratings than short action movies, while long comedies get worse ratings than long action movies. Put another way, comedies get less "return" in terms of their ratings when increasing their length than do action movies. This can be seen by the much steeper slope for action movies. 
+The pattern here is fairly clear. Short comedies get better ratings than short action movies, while long comedies get worse ratings than long action movies. Put another way, comedies get less "return" in terms of their ratings when increasing their length than do action movies. This can be seen by the much steeper slope for action movies.
+
+::: {.callout-tip collapse="true"}
+## Adding non-parallel lines to plots
+
+You can also easily add non-parallel lines to your scatterplots, as I did in @fig-plot-interaction-twogenre. You do this by adding a color aesthetic. Lets try it out with an example from the popularity data.
+
+```{r}
+#| label: fig-two-lines-example
+#| fig-cap: Scatterplot of the relationship between number of sports played and number of friend nominations. Points and lines are colored differently by gender.
+ggplot(popularity, aes(x=nsports, y=nominations, color=gender))+ # <1>
+  geom_jitter(alpha=0.1)+
+  geom_smooth(method="lm", se=FALSE)+                            # <2>
+  scale_color_viridis_d(end=0.75)+                               # <3>
+  labs(x="number of sports played", y="friend nominations")+
+  theme_bw()
+```
+1. I add color as an aesthetic value to my `aes` command and assign a categorical variable to it. 
+2. I add `geom_smooth` with the usual `method="lm"`. This geom will pick up th global aesthetics defined at the top and create differently colored lines for each gender.
+3. I use `scale_color_viridis_d` to change the color palette. This is not strictly necessary but I like this color scheme.
+
+You can see in this case that the slope for women, the slope of the line is steeper and both are positive. This indicates that women get more "return" on popularity for playing an additional sport than men, which many may find surprising.
+
+:::
 
 ### Interpreting interaction terms
 
-Interpreting interaction terms can be tricky, because the inclusion of an interaction term **also changes the meaning of other slopes in the model**. The slopes for the two variables that make up the interaction term are called the **main effects**. In our example, those two variables are runtime and the comedy indicator variable and the main effects of these variables are 0.40 and 17.55, respectively. The most important rule to remember is that when an interaction term is in a model, the main effects are only the expected effects **when the other variable involved in the interaction is zero**. This is because the interaction implies that the effects of the two variables are not constant but rather change depending on the value of the other variable in the interaction term. Therefore, we can only interpret effects at a particular value of the other variable. So I would interpret these main effects as follows:
+Interpreting interaction terms can be tricky, because the inclusion of an interaction term **also changes the meaning of other slopes in the model**. The slopes for the two variables that make up the interaction term are called the **main effects**. In our example, those two variables are runtime and the comedy indicator variable and the main effects of these variables are 0.40 and 17.55, respectively. The most important rule to remember is that when an interaction term is in a model, the main effects are only the expected effects **when the other variable involved in the interaction is zero**.^[for categorical variables, this means "at the reference category."] This is because the interaction implies that the effects of the two variables are not constant but rather change depending on the value of the other variable in the interaction term. Therefore, we can only interpret effects at a particular value of the other variable. So I would interpret these main effects as follows:
 
 - The model predicts that **among action movies**, a one minute increase in movie runtime is associated with a 0.40 point increase in the metascore rating, on average. 
 - The model predicts that **among movies with zero minutes of runtime** (outside the scope of data of course), comedies are predicted to have metascore ratings 17.55 points higher than action movies, on average.
@@ -1222,11 +1252,31 @@ In short, you have to be careful and thoughtful when thinking about how to inter
 In the example above, I created the interaction term manually, but I didn't actually need to do this. *R* has a shortcut method for calculating interaction terms:
 
 ```{r}
+#| label: interaction-term-r
 model <- lm(metascore~runtime*genre, data=movies.short) 
 round(coef(model),2)
 ```
 
 The results are exactly the same as before. To include an interaction term between two variables I just have to connect them with a `*` rather than a `+` in the `lm` formula. By default, *R* will include each variable separately as well as their interaction. 
+
+::: {.callout-tip collapse="true"}
+## Re-centering for ease of main effect interpretations
+
+Because we always interpret the main effect of each variable when at zero on the other variable, you can get odd cases similar to the intercept where the zero value does not make a lot of sense. Thats what happened above for the main effect of comedy movies, which is estimated when movie runtime is zero. Mathematically, it works but is not very helpful for our understanding.
+
+We can solve this problem in the same way we do for intercepts, by re-centering around a more reasonable number. Lets just use the mean of movie runtime:
+
+```{r}
+#| label: interaction-recenter
+model <- lm(metascore~I(runtime-mean(runtime))*genre, data=movies.short) 
+round(coef(model),2)
+```
+
+The main effect of the comedy variable is now 3.65 instead of the very large 17.55. I can interpret this result as:
+
+> The model predicts that among **movies of mean runtime**, comedy movies score 3.65 points higher on the metascore rating than action movies, on average.
+
+:::
 
 <!---
 <div class = "dcl">
@@ -1247,26 +1297,47 @@ What does the interaction term tell you about different wage returns to children
 
 ### Interaction terms with multiple categories
 
-In the above example, I only compared comedy and action movies in order to keep the comparison simple, but it is possible to run the same analysis on the full movie dataset to see how runtime varies across all genres. 
+I only used two categories above to keep things easy but we can do these sorts of models even when there are many categories of the categorical variable. Looking at all fourteen genres would still be a lot though, so lets instead look at the interaction between runtime and maturity rating. 
 
 ```{r}
-model <- lm(metascore~runtime*genre, data=movies)
+model <- lm(metascore~I(runtime-mean(runtime))*maturity_rating, 
+            data=movies)
 round(coef(model),2)
 ```
 
-Thats a lot of numbers! There is a slope for each genre except action (13 in all) and an interaction between runtime and each genre except action (another 13 in all). What we are estimating here are 14 different lines (on for each genre) for the relationship between runtime and metascore rating. Because action movies are the reference, the main effect of runtime is the slope for action movies (0.40). The interaction terms show us how much larger or smaller the effect of runtime is for each given genre. So the effect is 0.22 smaller for biographies for a total effect of 0.18 (0.40-0.22). It is 0.26 larger for animation movies for a total effect of 0.66 (0.40+0.26), and so forth. Similarly, the intercept is the intercept only for action movies. To get the intercept for other genres, we take the intercept value itself and add the main effect of genre. So for dramas the intercept is 6.14+57.22=63.36 and for family movies it is 6.14-7.43=-1.29. If we put all these slopes and intercepts together, we will get 14 lines as shown in Figure \@ref(fig:plot-fullinteraction-genre).
+Even with only five categories, this model leads to quite a few numbers! The first thing to establish is what the reference category is for maturity rating. To do that, we look for the missing category. In this case, the reference category is G-rated movies. From this, we can now interpret the main effect of the runtime variable:
 
-```{r plot-fullinteraction-genre, echo=FALSE, fig.cap="Interaction terms allow each genre to get a different return from increasing runtime"}
+> The model predicts that, **among G-rated movies**, a one minute increase in runtime is associated with a 0.52 point increase in metascore rating, on average.
+
+Because I mean-centered movie runtime, I can also easily interpret each of the main effects for maturity rating. For example, I can interpret the -10.45 on PG rating as:
+
+> The model predicts that **among movies at the mean runtime**, PG-rated movies have metascore ratings 10.45 points lower, on average, than the metascore ratings of G-rated movies.
+
+The interaction terms themselves are telling me how much different the runtime slope is for each of the other maturity ratings relative to G-rated movies. Remember, that these numbers are not themselves the runtime slopes for these categories. Rather, they are the difference in the runtime slope from the main effect of 0.52. To get the runtime slope for any one of them, I  have to add together the main effect and the interaction term.
+
+So, for example, for PG-rated movies, the slope of runtime is 0.52-0.28=0.24. So, I could say:
+
+> The model predicts that, **among PG-rated movies**, a one minute increase in runtime is associated with a 0.24 point increase in metascore rating, on average.
+
+Alternatively, I could interpret the interaction term directly as:
+
+> The model predicts that a one minute increase in runtime is associated with a 0.28 smaller increase in metascore rating for PG-rated movies than for G-rated movies, on average.
+
+I can also graphically examine these differences in slope with a plot.
+
+```{r}
+#| label: fig-fullinteraction-maturity
+#| fig-cap: Interaction terms allow each maturity rating to get a different return from increasing runtime.
 ggplot(movies,
-       aes(x=runtime, y=metascore, color=genre))+
-  #geom_point(alpha=0.2)+
-  geom_smooth(method="lm", se=FALSE, fullrange=FALSE)+
+       aes(x=runtime, y=metascore, color=maturity_rating))+
+  geom_point(alpha=0.1)+
+  geom_smooth(method="lm", se=FALSE)+
   labs(x="runtime in minutes", y="metascore")+
-  scale_color_manual(values = qualpal(14, "pretty")$hex)+
+  scale_color_viridis_d()+
   theme_bw()
 ```
 
-There is a lot going on here, but we can detect some interesting patterns. Almost all of the lines are positive indicating that longer movies tend to generally get better ratings. This is not true of Dramas however, where there is a slight negative relationship between movie runtime and metascore ratings. Dramas also have a high intercept, so they tend to outperform most other short movies but don't fare as well compared to other genres when they are longer. The steepest slope is for animation movies, which may seem odd given that they are generally shorter than most other movies. Most likely this differentiates very short and low quality animation movies from longer length "pixar quality" animation movies. SciFi/Fantasy movies also do not get the same return to movie length as action and horror movies, possibly because the former are targeted to more mixed age and younger audiences.
+We can clearly see from @fig-fullinteraction-maturity that the biggest return for a minute increase in runtime is for G-rated movies which is confirmed by the negative values on all of the interaction terms in the model. 
 
 ### Interaction terms with two categorical variables
 

@@ -21,8 +21,7 @@ book:
   appendices:
     - appendices/appendix_example_data.qmd
     - appendices/appendix_common_commands.qmd
-    - bibliography/references.qmd
-
+    - appendices/appendix_plotting_cookbook.qmd
 
 bibliography: bibliography/references.bib
 

@@ -1,0 +1,188 @@
+# Plotting Cookbook {#sec-plotting-cookbook}
+
+This appendix will provide `ggplot` example R code and output for of all the graphs that we might use this term. For further information, I highly recommend Kieran Healy's [Data Visualization](https://kieranhealy.org/publications/dataviz/) book and Hadley Wikham's [ggplot2](https://www.springer.com/us/book/9780387981413) book.
+
+All the examples provided will use the standard example datasets that we have been working with throughout the term.
+
+```{r}
+#| label: load-libs-data
+#| include: false
+library(here)
+source(here("scripts","check_packages.R"))
+source(here("scripts","load_example_data.R"))
+```
+
+## Barplots
+
+Barplots are used to show the distribution of a single categorical variable.
+
+```{r}
+#| label: fig-barplot
+#| fig-cap: A barplot of passenger class on the Titanic. Remember to always plot proportions or percents and not absolute values.
+ggplot(titanic, aes(x=pclass, y=after_stat(prop), group=1))+   # <1>
+  geom_bar()+                                                  # <2>
+  scale_y_continuous(labels=scales::percent)+                  # <3>
+  labs(x="passenger class", y=NULL)+                           # <4>
+  theme_bw()    
+```
+1. The variable we want is listed as the `x` aesthetic. To ensure that we get proportions, we always list `y=after_stat(prop)` and `group=1`. 
+2. The geom we want is `geom_bar`. 
+3. This line is not strictly required but gives us a nicer display of percentages rather than proportions on the y-axis tickmark labels.
+4. Because the y-axis is self-explanatory, I omit a label with `y=NULL`.
+
+## Histograms
+
+Histograms are used for displaying the distribution of a single quantitative variable.
+
+```{r}
+#| label: fig-histogram
+#| fig-cap: A histogram of movie runtime. Remember that you can (and often should) adjust binwidth size.
+ggplot(movies, aes(x=runtime))+                      # <1>
+  geom_histogram(binwidth = 5, col="black")+         # <2>
+  labs(x="movie runtime (minutes)")+
+  theme_bw()
+```
+1. You only need to specify the variable you want in the `x` aesthetic.
+2. The geom you want is `geom_histogram`. You can vary the binwidth size with the `binwidth` argument. I am also using the `col` argument to change the color of my column borders. 
+
+You can also calculate density instead of count, if you prefer, by adding the `y=after_state(density)` option to the aesthetics. Density is the proportion of cases in a bin, divided by the bin width. If you plot a histogram with density, you can also overlay this figure with a smoothed line approximating the distribution called a kernel density. 
+
+```{r}
+#| label: fig-histogram-density
+#| fig-cap: A histogram of movie runtime with a kernel density plot ovelayed.
+ggplot(movies, aes(x=runtime, y=after_stat(density)))+  # <1>
+  geom_histogram(binwidth = 5, col="black")+
+  geom_density(col="red", fill="grey", alpha=0.5)+      # <2>
+  labs(x="movie runtime (minutes)")+
+  theme_bw()
+```
+1. I use `y=after_stat(density)` to get density instead of absolute count. In practice the histogram will look the same, but this allows me to overlay the kernel density figure.
+2. The `geom_density` geom will plot a kernel density smoother which basically just smoothes out a histogram. I made it semi-transparent with `alpha=0.5` so that you can see the histogram beneath it.
+
+## Boxplots
+
+You can also plot quantitative distributions using a boxplot.
+
+```{r}
+#| label: fig-boxplot
+#| fig-cap: A basic boxplot of movie runtime. Boxplots of single variables aren't that interesting but can sometimes be useful for detecting outliers.
+ggplot(movies, aes(x="", y=runtime))+                       # <1>
+  geom_boxplot(fill="grey", outlier.color = "red")+         # <2>
+  labs(y="movie runtime (minutes)", x=NULL)+
+  theme_bw()
+```
+1. We specify the variable we want with `y` not `x`. I also find it useful to set `x=""` to avoid odd tickmark labels on the x-axis.
+2. The geom we want is `geom_boxplot`. I like making the `outlier.color` a bright color. 
+
+## Comparative Barplots
+
+Comparative barplots allow us to compare the distribution of two categorical variables. Basically, we plot the conditional distribution of one of these variables across the other variable.
+
+### By faceting
+
+The first approach to the comparative barplot is to use faceting to make multiple panels.
+
+```{r}
+#| label: fig-comp-barplot-facet
+#| fig-cap: A comparative barplot showing the distribution of survival on the Titanic conditional on passenger class. The technique here is to use faceting to create multiple panels.
+ggplot(titanic, aes(x=survival, y=after_stat(prop), group=1))+        # <1>
+  geom_bar()+                                                         # <1>
+  facet_wrap(~pclass)+                                                # <2>
+  scale_y_continuous(labels = scales::percent)+
+  labs(x=NULL, y=NULL)+
+  theme_bw()
+```
+1. The basic structure of the plot is identical to a univariate barplot.
+2. We condition on a second variable by using the `facet_wrap` command to get separate plots by the categories of the other variable.
+
+### By color
+
+The alternative approach is to use a single panel, but have multiple bars for each group distinguished by color.
+
+```{r}
+#| label: fig-comp-barplot-color
+#| fig-cap: A comparative barplot showing the distribution of survival on the Titanic conditional on passenger class. The technique here is to use faceting to create multiple panels.
+ggplot(titanic, aes(x=survival, y=after_stat(prop), 
+                    group=pclass, fill=pclass))+        # <1>
+  geom_bar(position="dodge")+                           # <2>                
+  scale_y_continuous(labels = scales::percent)+
+  scale_fill_viridis_d()+                               # <3>
+  labs(x=NULL, y=NULL)+
+  theme_bw()
+```
+1. Instead of `group=1` we group by the other variable and we also apply a `fill` (fill color) aesthetic based on that group.
+2. If you don't add `position="dodge"` as an argument, the bars will stack on top of each other, which will not look right.
+3. Here I am using the built in `scale_fill_viridis_d` to get a nice color palette.
+
+## Comparative Boxplots
+
+Comparative boxplots are used to compare the distribution of a quantitative variable across the categories of a categorical variable.
+
+```{r}
+#| label: comp-boxplot
+#| fig-cap: A comparative boxplot showing differences in movie runtime by genre. Note that I order the categories from highest median to lowest.
+ggplot(movies, aes(x=reorder(genre, runtime, median), y=runtime))+ # <1>  
+  geom_boxplot(fill="grey", outlier.color = "red")+
+  labs(x=NULL, y="movie runtime (minutes)")+
+  coord_flip()+                                                    # <2>
+  theme_bw()
+```
+1. The big change from a univariate boxplot is that we add the categorical variable as the `x` aesthetic. In general, its a good idea to reorder the categories of that categorical variable from highest median to lowest, as I do with the `reorder` command.
+2. The `coord_flip` command is not always required but is useful if the category labels of your x-axis are running into one another.
+
+## Scatterplots
+
+Scatterplots are used to examine the relationship between two quantitative variables.
+
+```{r}
+#| label: fig-scatterplot
+#| fig-cap: Scatterplot of the relationship between the unemployment rate and the property crime rate across US states.
+ggplot(crimes, aes(x=unemploy_rate, y=property_rate))+ # <1>
+  geom_point()+                                        # <2>
+  labs(x="unemployment rate",
+       y="property crimes per 100,000 population")+
+  theme_bw()
+```
+1. We specify the independent variable with the `x` aesthetic and the dependent variable with the `y` aesthetic.
+2. The geom we want is `geom_point`.
+
+### Semi-transparency
+
+With large datasets, a scatterplot can have a lot of overplotting with similar points next to each other or on top of each other which makes it difficult to see the density of points. One way to address this is to add semi-transparency to `geom_point`.
+
+```{r}
+#| label: fig-scatterplot-alpha
+#| fig-cap: Scatterplot of the relationship between age and hourly wage among US workers. Here I am using semi-transparency to see where the density of points is located.
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_point(alpha=0.01)+                                        
+  labs(x="age", y="hourly wage")+
+  theme_bw()
+```
+
+### Jittering
+
+Another option to help with overplotting problems is to replace `geom_point` with `geom_jitter` that adds a little bit of random noise to each point. Often jittering and semi-transparency work well together.
+
+```{r}
+#| label: fig-scatterplot-jitter
+#| fig-cap: Scatterplot of the relationship between age and hourly wage among US workers. By jittering the points and making them semi-transparent, I can better see the "ridge" of values that rises slightly in younger age groups before leveling off.
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_jitter(alpha=0.01)+                                        
+  labs(x="age", y="hourly wage")+
+  theme_bw()
+```
+
+### Adding lines
+
+I can also add a line to the plot with the `geom_smooth` command. If I specify `method="lm"`, I will get a straight line. Otherwise the line will be allowed to bend to accomodate non-linearity.
+
+```{r}
+#| label: fig-scatterplot-lines
+#| fig-cap: Scatterplot of the relationship between age and hourly wage among US workers. The blue line is the best fitting OLS regression line. The red line is from a smoothing function. Its clear that the relationship is nonlinear, with age providing diminishing returns to wages as people get older.
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_jitter(alpha=0.01)+
+  geom_smooth(method="lm")+
+  geom_smooth(col="red")+
+  labs(x="age", y="hourly wage")+
+  theme_bw()
+```

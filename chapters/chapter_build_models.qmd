@@ -33,7 +33,7 @@ ggplot(crimes, aes(x=median_age, y=violent_rate))+
 
 I also plotted a line through those points. When you were trying to determine the direction of the relationship between these two variables, you might have been imagining a line just like this to help guide your understanding. Of course, if we all just tried to "eyeball" the best line, we would get many different results because it would depend on differences in human perception and judgement. The line I have graphed above, however, is the best fitting line, according to a set of standard statistical criteria. Specifically, it minimizes the total vertical distance from each point to the line (the "error" or "residual"). This line is often called the **ordinary least squares regression line** (or OLS regression line, for short). This fairly simple concept of fitting the best line to a set of points on a scatterplot is the workhorse of social science statistics and is the basis for all of the models that we will explore in this chapter.
 
-### The Formula for a Line
+### The formula for a line
 
 Do you remember the basic formula for a line in two-dimensional space? In algebra, you probably learned something like this:
 
@@ -63,7 +63,7 @@ Intercept
 
 There is a lot to digest in these interpretations and I will to return to them in detail, but first I want to address a more basic question. How did I know that these are the right numbers for the best-fitting line? How do we actually calculate the intercept and slope for the best-fitting line?
 
-### Calculating the Best-Fitting Line
+### Calculating the best-fitting line
 
 The slope and intercept of the OLS regression line are determined based on addressing one simple criteria: minimize the vertical distance between the actual points and the line. More formally, we choose the slope and intercept that produce the **minimum sum of squared residuals (SSR)**.
 
@@ -237,11 +237,11 @@ Just as the general term "model" is used to describe something that is not reali
 
 However, we always have to consider that our model is not a very good representation of the relationship. The most obvious potential problem is if the relationship is non-linear and yet we fit the relationship by a linear model, but there can be other problems as well. I will discuss these more below and the next few sections of this chapter will give us techniques for building better models. However, we first need to focus on how to interpret the results we just calculated. 
 
-### Interpeting Slopes and Intercepts
+### Interpeting slopes and intercepts
 
 Learning to properly interpret slopes and intercepts (especially slopes) is the most important thing you will learn in this chapter, because of how common the use of linear models is in social science statistics. Caclulation is easy, but correct interpretation is much more difficult. So take the time to be careful and thoughtful when interpreting the numbers from linear models. 
 
-#### Interpreting Slopes
+#### Interpreting slopes
 
 In abstract terms, the slope is always the predicted change in $y$ for a one unit increase in $x$. However, this abstract definition will simply not do when you are dealing with specific cases. You need to think about the units of $x$ and $y$ and interpret the slope in concrete terms. There are also a few other caveats to consider.
 
@@ -535,7 +535,7 @@ If you look closely at the blue line you will see that it bends slightly, produc
 :::
 
 
-#### Outliers and Influential Points
+#### Outliers and influential points
 
 An outlier is an **influential point** if removing that observation from the dataset substantially changes the slope of the OLS regression line. You can try the interactive exercise below to see how removing points changes the slope of your line (click on a point a second time to add it back). Can you identify any influential points?
 
@@ -551,7 +551,7 @@ In our case, there is no legitimate reason to remove Utah, but there probably is
 
 In large datasets (1000+ observations), its unusual that a single point or even a small cluster of points will exert much influence on the shape of the line. The concern about influential points is mostly a concern in small datasets like the crime dataset. 
 
-#### Thou Doth Extrapolate Too Much
+#### Thou doth extrapolate too much
 
 Its dangerous enough to assume that a linear relationship holds for your data. Its doubly dangerous to assume that this linear relationship holds beyond the scope of your data. Lets take the relationship between sexual frequency and age. We saw in previous chapters that the slope is -0.83 and the intercept is 88.3. The intercept itself is outside the scope of the data because we only have data on the population 18 years and older. It would be problematic to make predictions about the sexual frequency of 12 year olds, let alone zero-year olds. 
 
@@ -570,22 +570,22 @@ Note that I am re-centering runtime on its mean, so that the intercept is more m
 
 It may seem odd that runtime itself increases a movie's chances at an Oscar. Certainly, we may worry about the implied incentive for Hollywood producers to make their movies longer! We already know that runtime is associated with a movie getting better reviews, so we may wonder whether this association that we are observing between runtime and Oscar awards is simply the indirect result of longer movies being more likely to be better movies and better movies being more likely to get Oscars.
 
-To put this in formal terms, we are concerned that the relationship between runtime and Oscar awards might be **spurious**. In general, spuriousness is the idea that the observed association between two variables is driven by an underlying third variable that we haven't accounted for. This is a common problem in research using observational data. Association does not necessarily mean causation because of the potential for other variables to account for our observed association (and because of the possibility of reverse causation). We refer to such variables as **lurking** or **confounding** variables. 
+To put this in formal terms, we are concerned that the relationship between runtime and Oscar awards might be **spurious**. In general, spuriousness is the idea that the observed association between two variables is driven by an underlying third variable for which we have not accounted. This is a common problem in research using observational data. Association does not necessarily mean causation precisely because of the potential for other variables to account for our observed association (and because of the possibility of reverse causation). We refer to such variables as **lurking** or **confounding** variables. 
 
-In this case, the potentially confounding variable that we want to consider is the movie's quality which will operationalize by the `rating_imdb` variable. Lets look at the association between this variable and each of our other variables (runtime and Oscar awards). 
+In this case, the potentially confounding variable that we want to consider is the movie's quality, which we will operationalize by the `rating_imdb` variable. Lets look at the association between this variable and each of our other variables (runtime and Oscar awards). 
 
 ```{r}
 cor(movies$awards, movies$rating_imdb)
 cor(movies$runtime, movies$box_office)
 ```
 
-These two positive correlations suggest a **spurious** reason why we might observe a positive association between runtime and Oscar awards. More well-received movies are longer and more well-received movies receive more Oscar awards. Thus, when we look at the relationship between runtime and Oscar awards, we see a positive association but that positive association is *at least in part* indirectly driven by these indirect association. 
+These two positive correlations suggest a **spurious** reason why we might observe a positive association between runtime and Oscar awards. More well-received movies are longer and more well-received movies receive more Oscar awards. Thus, when we look at the relationship between runtime and Oscar awards, we see a positive association but that positive association is *at least in part* indirectly driven by these indirect associations. 
 
 How can we examine whether this potential spurious explanation is accurate? It turns out that we can add more than one independent variable to a linear model at the same time. The mathematical structure of such a model would be:
 
 $$\hat{awards}_i=b_0+b_1(runtime_i)+b_2(rating_i)$$
 
-We now have two different "slopes", $b_1$ and $b_2$. These two slopes give the association of runtime and imdb ratings, respectively, on number of Oscar awards, while **controlling for the other independent variable**. We now have what is called a **multivariate** linear model. 
+We now have two different "slopes", $b_1$ and $b_2$. These two slopes give the association of runtime and IMDB ratings, respectively, on number of Oscar awards, while **controlling for the other independent variable**. We now have what is called a **multivariate** linear model. 
 
 This "controlling" concept is a key point that I will return to below, but first I want to try to think graphically about what this model is doing. In the case of a bivariate linear model, we thought of fitting a line to a scatterplot in two-dimensional space. We are doing something similar here, but since we now have three variables, our scatterplot is in three dimensions. @fig-scatter-3d shows an interactive three-dimensional plot of the three variables. 
 
@@ -606,18 +606,19 @@ plot_ly(x=movies$runtime, y=movies$rating_imdb, z=movies$awards) %>%
                     zaxis=list(title="Oscar awards")))
 ```
 
-The dependent variable is shown on the vertical (z) axis and the two independent variables are shown on the "width" and "depth" axes (x and y). The flat plane shown is defined by the linear model equation above. So, rather than fitting a straight line through the data, I am fitting a plane. Note however that if you rotate the 3d scatterplot to hide the IMDG ratings "depth" dimension, it will then look like a two-dimensional scatterplot between runtime and Oscar awards. In this case, the edge of the plane would indicate the slope between runtime and Oscar awards. Similarly, I could rotate it the other way to look at the relationship between IMDB ratings and Oscar awards. 
+The dependent variable is shown on the vertical (z) axis and the two independent variables are shown on the "width" and "depth" axes (x and y). The flat plane intersecting the points is defined by the linear model equation above. So, rather than fitting a straight line through the data, I am fitting a plane. Note however that if you rotate the 3d scatterplot to hide the IMDB ratings "depth" dimension, it will then look like a two-dimensional scatterplot between runtime and Oscar awards. In this case, the edge of the plane would indicate the slope between runtime and Oscar awards. Similarly, I could rotate it the other way to look at the relationship between IMDB ratings and Oscar awards. 
 
-How do I know what are the best values for $b_0$, $b_1$, and $b_2$ that define my plane? The logic is the same as for a bivariate linear model: I choose values that minimize the sum of squared residuals (SSR):
+How do I know what are the best values for $b_0$, $b_1$, and $b_2$ that define my plane? The logic is the same as for a bivariate linear model: I choose values that minimize the sum of squared residuals ($SSR$):
 
 $$SSR=\sum_{i=1}^n (\hat{y}_i-y_i)^2$$
 
-SSR is a measure of how far the predicted values of the dependent variable are from the actual values, so we want the intercept and slopes that minimizes this error. Unlike the bivariate case, however, there is no simple formula that I can give you for the slope and intercept, without some knowledge of matrix algebra. However, R can calculate the correct numbers for you easily. I am not concerned with your technical ability to calculate these numbers by hand, but I do want you to understand why those are the "best" numbers. *They are the best numbers because they minimize the sum of the squared residuals for the model*. 
+$SSR$ is a measure of how far the predicted values of the dependent variable are from the actual values, so we want the intercept and slopes that minimizes this error. Unlike the bivariate case, however, there is no simple formula that I can give you for the slope and intercept, without some knowledge of matrix algebra.^[We will cover the matrix algebra estimation in more detail in later chapters] However, R can calculate the correct numbers for you easily. I am not concerned with your technical ability to calculate these numbers by hand, but I do want you to understand why those are the "best" numbers. *They are the best numbers because they minimize the sum of the squared residuals for the model.* 
 
 We can calculate this model in *R* just by adding another variable to our model in the `lm` command, connected by a "+" sign:
 
 ```{r}
-model <- lm(awards~I(runtime-mean(runtime))+I(rating_imdb-mean(rating_imdb)), data=movies)
+model <- lm(awards~I(runtime-mean(runtime))+I(rating_imdb-mean(rating_imdb)),
+            data=movies)
 coef(model)
 ```
 
@@ -643,19 +644,36 @@ The intercept is now the predicted value **when all independent variables are ze
 
 What does it mean to "hold other variables constant?" It means that when we look at the effect of one independent variable, we are looking at how the predicted value of the dependent variable changes while keeping all the other variables the same. For instance, the runtime effect above is the effect of a one minute increase in runtime *among movies of the same IMDB rating*. Because we are looking at the effect of runtime among movies of the same IMDB rating, IMDB rating should no longer have a confounding effect on our estimate of the effect of runtime.  Thus holding constant/controlling for other variables helps to remove the potential spurious effect of those variables as confounders.
 
-Note how the slope of runtime on Oscar awards decreased from 0.0075 to 0.0049 once I included IMDB ratings as a control variable.  That suggests that a about a third of the total effect of runtime was indirectly coming through the association with IMDB ratings. Nonetheless, even after I control for IMDB ratings, I am still noting a positive association between runtime and Oscar awards, so it may be that runtime still exerts some independent influence. 
+Note that the slope of runtime on Oscar awards decreased from 0.0075 to 0.0049 once I included IMDB ratings as a control variable.  This result indicates that about a third of the total effect of runtime was indirectly coming through the association of runtime with higher IMDB ratings. Nonetheless, even after I control for IMDB ratings, I am still noting a positive association between runtime and Oscar awards, so it seemes that runtime still exerts some independent influence.^[Of course that remaining influence might also be accounted for by other lurking variables we have not yet added to the model.] 
 
-<!--- TODO: callout on how when all variables are mean centered the intercept is the unconditonal mean of y --->
+
+::: {.callout-note collapse="true"}
+## Why did the intercept equal the mean of $y$
+
+You might have noticed something interesting about the intercept of the previous two models::
+
+```{r}
+#| label: mean-center-intercepts
+coef(lm(awards~I(runtime-mean(runtime)), data=movies))
+coef(lm(awards~I(runtime-mean(runtime))+
+          I(rating_imdb-mean(rating_imdb)),
+        data=movies))
+mean(movies$awards)
+```
+
+In both cases, the intercept is equal to the mean of the dependent variable. This happens because I mean-centered all of the independent variables in the model. The bivariate OLS regression line always goes through the point $(\bar{x}, \bar{y})$, and the same is true in a multidimensional sense for the multivariate case. So, If I set the "zero" value for all independent variables to be the mean of those variables, the intercept will always equal the mean of the dependent variable.
+
+:::
 
 #### Crime example
 
-Lets build a linear model where we predict the property crime rate in a state by the percent of adults in the state without a high school diploma and the median age of the state's residents.
+Lets use a linear model to predict the property crime rate in a state by the percent of adults in the state without a high school diploma and the median age of the state's residents.
 
 ```{r}
 summary(lm(property_rate~percent_lhs+median_age, data=crimes))
 ```
 
-Note that I am giving you the full output of summary now, but we can find the slopes and intercept by looking at the Estimate column of the "Coefficients" table. "Coefficients" is another term for slopes and intercepts because that it the technical term for these values in the linear model equation. 
+Note that I am giving you the full output of summary now, but we can find the slopes and intercept by looking at the Estimate column of the "Coefficients" table. 
 
 The model is:
 
@@ -682,7 +700,7 @@ The model predicts:
 - A one percent increase in a state's poverty rate is associated with 183 more crimes per 100,000, on average, **holding constant the percent of adults without a high school diploma and the median age of residents in a state**. 
 - 47% of the variation in property crime rates across states can be accounted for by variation in the percent of adults without a high school diploma, residents' median age, and the poverty rates across states.
 
-When I interpret the models now, I am holding constant the other two variables when I estimate the effect of each. Note that controlling for the poverty rate has a huge effect on the education variable whose effect goes from a substantial positive effect to a substantial negative effect. What does this tell us? Poverty rates and high school non-completion rates are positively correlated and so when you don't control for poverty rates, it looks like the high school non-completion rate predicts crime because states with high high school non-completion rates have high poverty rates and high poverty rates predict property crime rates. Once you control for the poverty rate, you see that it is economic deprivation not educational deprivation that is driving the crime rate. 
+When I interpret the models now, I am holding constant the other two variables when I estimate the effect of each. Note that controlling for the poverty rate has a huge effect on the education variable whose effect goes from a substantial positive effect to a substantial negative effect. What does this tell us? Poverty rates and high school non-completion rates are positively correlated and so when you don't control for poverty rates, it looks like the high school non-completion rate predicts crime because states with high high school non-completion rates have high poverty rates and high poverty rates predict high property crime rates. Once you control for the poverty rate, you see that it is economic deprivation not educational deprivation that is driving the crime rate. 
 
 In general, the form of the multivariate linear model is:
 
@@ -692,7 +710,7 @@ The intercept is given by $b_0$. This is the predicted value of $y$ when all of 
 
 ### How to read a table of model results
 
-In academic journal articles and books, the results of linear models are represented in a fairly standard way. In order to understand how to read these articles, you need to understand this presentation style. Its not immediately intuitive for everyone. @tbl-model-example below shows the typical style. In this table, I am reporting three linear models with the property crime rates as the dependent variable and three different independent variables.  
+In academic journal articles and books, the results of linear models are represented in a fairly standard way. In order to understand how to read these articles, you need to understand this presentation style. Its not immediately intuitive for everyone. @tbl-model-example below shows the typical style. In this table, I am reporting three linear models with the property crime rates as the dependent variable and three different independent variables.
 
 ```{r}
 #| label: tbl-model-example
@@ -726,8 +744,6 @@ When reading this table and others like it, keep the following issues in mind:
 * At the bottom, you typically get a number of summary measures of the model. The only two we care about are the number of observations and the $R^2$ of the model.
 
 The advantage of organizing the table in this fashion is that we can easily see how the relationship between a given independent variable and the dependent variable changes as we add in other control variables by just looking at the numbers across a row. For example, we can see from Model 1 that the percent of the population with less than a high school diploma is initially pretty strongly positively related to violent crime rates. A one percentage point increase in this variable is associated with 71.41 more violent crimes per 100,000 population, on average. Controlling for the median age of the population in Model 2 reduces this effect slightly but we still see a strong relationship. However, once we control for the poverty rate in a state the percent less than high school diploma effect reverses direction. The poverty rate, on the other hand, has a big positive association with violent crime rates.
-
-What is going on here? It seems that the percent of the population with less than a high school diploma is only indirectly related to violent crime rates by its positive association with the poverty rate. But high poverty rates are much more directly responsible for high violent crime rates. In other words, a low high school completion rate predicts higher poverty rates and higher poverty rates predict more violent crimes, but a low high school completion rate does not directly predict more violent crimes. 
 
 ## Including Categorical Variables as Predictors
 

@@ -267,6 +267,17 @@ There are multiple things going on in this sentence that need to be addressed.
 "on average"
 : This phrase should always be in your interpretations, because we know that our points don't fall on a straight line. Therefore, we don't expect a *deterministic" relationship between median age and violent crime where we can perfectly predict the crime rates for a state perfectly from its median age. Rather, we think that if we were to take a group of states that had one year higher median age than another group of states, the average difference between the two groups would be -27.6. 
 
+::: {.callout-warning collapse="true"}
+## Avoid causal and deterministic interpretations
+
+The two biggest problems with interpretations that students provide are that they often make **causal** and **deterministic** claims.
+
+Causal claims happen when you imply that manipulating one variable will produce change in the other variable. The classic example of this is something like "when $x$ goes up by one unit, $y$ goes up by..." The implication here is that $x$ causes $y$. We can never be sure of that simply because of the observed slope between the variables, so it is critically important to avoid causal language that may not be deserved. My use of the term "associated with" is intended as a mechanism to avoid making implicitly causal claims in your interpretations.
+
+Deterministic claims happen when you imply perfect predictive power between $x$ and $y$. This often comes paired with a causal claim. A classic example is something like "when $x$ increases by one unit, $y$ will go up by 0.5 units." This statement also implies causality, but the use of the term "will" without an "on average" clause also suggests that this is the exact change we will observe every time $x$ goes up by one unit. We don't think this is the case. Rather if we were to observe that one unit difference in $x$ across a bunch of different pairs of data, we would expect that the *average* difference in $y$ would be about 0.5. That "on average" clause is doing important work to recognize that our model is far from a perfect prediction.
+
+:::
+
 Lets try a couple of other examples to see how this works.First, lets look at the association between age and sexual frequency.
 
 ```{r}
@@ -751,7 +762,7 @@ To this point, we only know how to include quantitative variables into linear mo
 
 ### Indicator variables
 
-As an example, I am going to look at the relationship between religious affiliation and sexual frequency. To keep our example simple I am going to **dichotomize** the religious affiliation variable, which means I am going to collapse it into two categories, rather than the six categories in the dataset. I will use a simply dichotomy of "Not Religious/Religious." In R, I can create this variable like so:
+As an example, I am going to look at the relationship between religious affiliation and sexual frequency. To keep this example simple I am going to **dichotomize** the religious affiliation variable, which means I am going to collapse it into two categories, rather than the six categories in the dataset. I will use a simply dichotomy of "Not Religious/Religious." In R, I can create this variable like so:
 
 ```{r}
 #| label: create-norelig-var
@@ -759,6 +770,34 @@ sex$norelig <- sex$relig=="None"
 ```
 
 This is technically a **boolean** variable, which means it takes a TRUE or FALSE value. For our purposes, TRUE is a non-religious person. 
+
+::: {.callout-tip collapse="true"}
+## Making boolean variables
+
+In the example above, I create a new variable that takes the values `TRUE` or `FALSE`. These TRUE/FALSE values are special values known as "boolean" values in computer language-speak. The variable is thus a "boolean variable" and I create it by making a "boolean statement."
+
+The boolean statement in this case is `sex$relig=="None"`. The double equals operator here (`==`) is an equality statement. This statement will return a TRUE in cases where the relig variable is "None" and FALSE otherwise. 
+
+There are other operators that one can use to make boolean statements as well. Here are the most common boolean operators:
+
+| Operator   | Meaning                  |
+|------------|--------------------------|
+| ==         | Equal to                 |
+| !=         | Not equal to             |
+| >          | Greater than             |
+| >=         | Greater than or equal to |
+| <          | Less than                |
+| <=         | Less than or equal to    |
+
+So, for example you could create a new variable on the education variable in the `sex` dataset for whether someone has 12 or more years of education:
+
+```r
+gss$hs_or_more <- gss$educ>=12
+```
+
+You can also combine multiple boolean statements together with AND (`&`) and OR (`|`) statements, but that is a topic covered only in the advanced R stats lab.
+
+:::
 
 We already know how to look at the relationship between sexual frequency and this dichotomized religious affiliation variable. We can look at the mean differences in sexual frequency across our two categories:
 
@@ -769,14 +808,14 @@ tapply(sex$sexf, sex$norelig, mean)
 
 The non-religious have sex 5.22 more times per year than the religious, on average. Hallelujah?
 
-We can represent this same mean difference in a linear model framework by using an indicator variable. An indicator variable is a variable that only takes a value of zero or one. It takes a value of one when the observation is in the indicated category and a zero otherwise. Mathematically, we would say:
+We can represent this same mean difference in a linear model framework by using an **indicator variable**.^[Indicator variables are also often called **dummy variables**.] An indicator variable is a variable that only takes a value of zero or one. It takes a value of one when the observation is in the indicated category and a zero otherwise. Mathematically, we would say:
 
 $$nonrelig_i=\begin{cases}
   1 & \text{if non-religious}\\
   0 & \text{otherwise}
   \end{cases}$$
   
-The **indicated category** is the category which gets a one on the indicator variable. In this case the indicated category is non-religious. The **reference category** is the category that gets no indicator variable. In this case, that is just the religious group. Later on, we will see that this can become slightly more complicated. You can think of the indicator variable as an on/off switch where 1 indicates that it is "on" (i.e. the observation belongs to the indicated category) and 0 indicates that it is "off" (i.e. the observation does not belong to the indicated category).
+The **indicated category** is the category which gets a one on the indicator variable. In this case the indicated category is non-religious. The **reference category** is the category that gets no indicator variable. In this case, the reference category is the religious group. You can think of the indicator variable as an on/off switch where 1 indicates that it is "on" (i.e. the observation belongs to the indicated category) and 0 indicates that it is "off" (i.e. the observation does not belong to the indicated category).
 
 What would happen if we put this indicator variable into a linear model predicting sexual frequency like so:
 
@@ -786,7 +825,7 @@ How would we interpret the slope and intercept for such a model? @fig-scatter-di
 
 ```{r}
 #| label: fig-scatter-dichotomous
-#| fig-cap: A scatterplot of the religious indicator variable by sexual frequency. Points are jittered to avoid overplotting. The mean for each group is plotted in red.
+#| fig-cap: A scatterplot of the religious indicator variable by sexual frequency. Points are jittered to avoid overplotting. The mean for each group is plotted in red. The best-fitting OLS regression line is shown in blue and it connects the dots representing the means.
 #| echo: false
 ggplot(sex, aes(x=as.numeric(norelig), y=sexf))+
   geom_smooth(method="lm", se=FALSE)+
@@ -801,12 +840,11 @@ ggplot(sex, aes(x=as.numeric(norelig), y=sexf))+
   theme_bw()
 ```
 
-Notice that all of the points align vertically either at the 0 or 1 on the x-axis. This is because the indicator variable can only take these two values. I have jittered points slightly to avoid overplotting. I have also plotted the means of the two groups in red dots and the OLS regression line for the scatterplot in blue. It turns out, that in order to be the best-fitting line, this OLS regression line must connect the two dots that represent the mean of each group. 
+Notice that all of the points align vertically either at 0 or 1 on the x-axis. This is because the indicator variable can only take these two values. I have jittered points slightly to avoid overplotting. I have also plotted the means of the two groups in red dots and the OLS regression line for the scatterplot in blue. It turns out, that in order to be the best-fitting line, this OLS regression line must connect the two dots that represent the mean of each group. 
 
-What will the slope of this line be? If we go up "one unit" on the non-religious indicator variable we have gone from a religious person to a non-religious person and the change in predicted sexual frequency is equal to the mean difference of 11.5 between the groups. The intercept is given by the value at zero which is just given by the mean sexual frequency among the religious of 48.3. So, the OLS regression line should look like:
+What will the slope of this line be? If we go up "one unit" on the non-religious indicator variable we have gone from a religious person to a non-religious person and the change in predicted sexual frequency is equal to the mean difference of 5.22 between the groups. The intercept is given by the value at zero which is just given by the mean sexual frequency among the religious of 45.65. So, the OLS regression line should look like:
 
 $$\hat{frequency}_i=45.65+5.22(nonrelig_i)$$
-
 I can calculate these same numbers in *R* with the `lm` command:
 
 ```{r}
@@ -863,7 +901,7 @@ round(tapply(sex$sexf, sex$relig, mean),2)
 
 ```{r}
 #| label: fig-compare-relig-means
-#| fig-cap: The mean sexual frequency of each group arrayed on a vertical number line. The red lines indicate the distance between each group and the reference category of fundamentalist Protestant.
+#| fig-cap: The mean sexual frequency of each group arrayed on a vertical number line. The red lines indicate the distance between each group and the reference category of Evengelical Protestant.
 #| echo: false
 mdiffs <- round(tapply(sex$sexf, sex$relig, mean),2)
 par(mar=c(0.1,4,0,0.1))
@@ -951,7 +989,7 @@ These sexual frequency differences by religious affiliation are a prime example.
 round(tapply(sex$age, sex$relig, mean), 1)
 ```
 
-Notice how closely these age differences mirror the differences in sexual frequency. Others and nones are the youngest, while Jews are the oldest. Among Christians, mainline Protestants are older than Evangelical Protestants and Catholics. We also know from prior examples that age has a negative effect on sexual frequency. This should make us suspicious that some (or all) of the observed differences in sexual frequency between religious groups simply reflect age differences between those groups. 
+Notice how closely these age differences mirror the differences in sexual frequency. Others and Nones are the youngest, while Jews are the oldest. Among Christians, mainline Protestants are older than Evangelical Protestants and Catholics. We also know from prior examples that age has a negative effect on sexual frequency. This should make us suspicious that some (or all) of the observed differences in sexual frequency between religious groups simply reflect age differences between those groups. 
 
 We can easily address this issue by simply including age as a control variable in our model:
 
@@ -967,6 +1005,30 @@ We now interpret those slopes as the mean difference in sexual frequency between
 We would also interpret the age effect controlling for religious affiliation like so:
 
 > The model predicts, that holding religious affiliation constant, a one year increase in age is associated with 0.84 fewer instances of sex per year, on average. 
+
+::: {.callout-warning collapse="true"}
+## Interpretations are different for categorical variables
+
+Immediately above, you will see two different kinds of interpretations for a slope. In the first case, I am interpreting the slope for an indicator variable (in this case, those with no religious preference). In the second case, I am interpreting the slope for a quantitative variable (in this case, age). The interpretation of age should look familar as we have learned this interpretation already.
+
+Using the interpretation of slopes we have learned for quantitative variables won't work very well for categorical variables as they are more like "steps" than "slopes." For example, lets use a model to look at the wage gap between men and women, while controlling for age:
+
+```{r}
+#| label: model-wage-gap
+coef(lm(wages~gender+age, data=earnings))
+```
+
+We have an indicator variable for being female (vs. male) and a "slope" of -4.02 for that variable. So lets try our traditional method of interpreting a quantitative variable:
+
+> The model predicts that, holding age constant, an increase of one unit of ... being female (?) ... is associated with a decrease in hourly wages of $4.02, on average. 
+
+That doesn't exactly roll off the tongue, does it? An indicator variable is like a light switch, you are either in the category or not - it makes no sense to talk about a one unit increase in that variable. So, in the case of categorical variables we need to shift our language. The language we want is the difference in means between the indicated category (in this case, women) and the reference category (in this case, men). Lets try the interpretation again, with that in mind:
+
+> The model predicts that, holding constant age, women make $4.02 less in hourly wage than men, on average.
+
+That interpretation makes much more sense. You must be flexible enough to shift your interpretations between traditional rise-over-run slopes in the case of quantitative variables and differences in mean slopes in the case of categorical variables.
+
+:::
 
 @tbl-model-relig-sex below helps to highlight the change in the effects once age is controlled.
 
@@ -995,7 +1057,14 @@ htmlreg(list(m1, m2),
         doctype = FALSE)
 ```
 
-In model 2, the large advantage of the Nones and, to a lesser extent) Others has disappeared and they now have a lower sexual frequency than Evangelical Protestants (while holding constant age). The slightly higher frequency of Catholics also disappears and the much lower frequency for Jewish respondents becomes less severe (and neither result is statistically distinguishable from those for Evangelical Protestants). Age makes a huge difference in our interpretation of which religious affiliation is having sex more frequently. Once we "handicap" the results for age differences across groups, the religious affiliation with the highest sexual frequency is Evangelical Protestants.
+::: {.callout-important collapse="true"}
+## Why don't I see an Evangelical Protestant line?
+
+Remember that one of the categories of the categorical variable has to get left out in the linear model framework because it is the reference category. When looking at a table like one above, you can always tell what the reference category is by which category is missing from the table. In this case, the Evangelical Protestant category is missing which tells us that all of the regression coefficients for religion are in reference to that category.
+
+:::
+
+In model 2, the large advantage of the Nones and, to a lesser extent, Others has disappeared and they now have a lower sexual frequency than Evangelical Protestants (while holding constant age). The slightly higher frequency of Catholics also disappears and the much lower frequency for Jewish respondents becomes less severe (and neither result is statistically distinguishable from those for Evangelical Protestants). Age makes a huge difference in our interpretation of which religious affiliation is having sex more frequently. Once we "handicap" the results for age differences across groups, the religious affiliation with the highest sexual frequency is Evangelical Protestants.
 
 <!---
 <div class = "dcl">

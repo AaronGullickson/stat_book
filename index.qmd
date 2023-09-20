@@ -1,5 +1,34 @@
-# Preface {.unnumbered}
+# Introduction {.unnumbered}
 
-This is a Quarto book.
+::: {.callout-warning}
+## A Work in Progress
 
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+This book is very much a work in progress. To some extent, it will always be a work in progress as I like to tinker with things. However, the current edition is the first version after a major overhaul of the entire book, including new datasets. So, you may occasionally find errors or typos. If you do, I always appreciate people posting the errors to the [Issues tab on the GitHub page](https://github.com/AaronGullickson/stat_book/issues) for the textbook. 
+
+:::
+
+## For Students
+
+Welcome! I use this online textbook to teach undergraduate and graduate statistics courses in sociology at the University of Oregon. You may be taking a class from me, or from someone else who likes this book. I designed this book because I was unhappy with many of the options available on the market. Many of them overemphasized equations and statistical hypothesis testing, and downplayed the importance of students learning to connect the numbers they calculate to interpretations that have meaning. This textbook was born of my scattered notes, which were eventually transformed into Canvas pages, and then eventually a free standing book. 
+
+If you are an undergraduate taking this course from me, then we will cover the five chapters in The Fundamentals section listed in the table of contents. The course focuses more on your ability to interpret and understand statistical results than it does on your ability to calculate statistics. Computers are better calculators than us, and so we will use the statistical programming language *R* to do all the heavy lifting of calculation, which gives us more time to focus on what it all means. 
+
+If you are a graduate student (or an undergraduate taking our Learning with Data track or from the Data Science program), we will start in the same place as the undergraduates, but over the course of two terms, we will also cover the material in the Going Further section of the textbook.
+
+Regardless of your level, I start the class with no assumptions about prior statistical knowledge. I do assume you are familiar with basic math and algebra, but you do not need to be familiar with more advanced mathematical techniques such as calculus or linear algebra (although knowledge of this material can help with more advanced graduate level material).
+
+### Learning *R*
+
+I want to introduce students to the actual tools that data analysts use to conduct statistical analysis. Researchers use statistical programming languages to perform statistical analysis. In this course, we will learn to use *R* which is one of the most popular statistical programming languages. The textbook and accompanying slides are littered with *R* code that shows you how to do things in *R*. You should be able to copy and run this code in *R* to reproduce the same results.
+
+Although we will use *R* to calculate statistics and make figures, we are only barely skimming the surface of how data analysts use *R* and other statistical software in practice. Since this is a class about analysis, I am not focusing on showing you how to use *R* to do data organization and cleaning, which is often a major task in any real project. Graduate students taking my course will learn how to do this, but in a separate textbook that should soon be available. If you want to learn more about *R* you can start there.
+
+If you are taking the course with me as an undergraduate, then you will have access to *R* through [posit.cloud](https://posit.cloud). If you are instead using a desktop version of *R*/RStudio, you will want to download the [latest release](https://github.com/AaronGullickson/stat_data/releases) of the example datasets that we will work with in class.
+
+### Accessing slides
+
+You can access the slides I use for the course [here](https://stat-analysis-slides.netlify.app).
+
+## For Teachers
+
+Anyone is welcome to use this textbook in part or in whole for teaching purposes. Furthermore, you can access the GitHub repositories that host all of the material used to produce the [book](https://github.com/AaronGullickson/stat_book), [slides](https://github.com/AaronGullickson/stat_book), and [data](https://github.com/AaronGullickson/stat_book). All of that material is licensed under the Creative Commons license, included with each repository. So long as you abide by that license, you are free to fork, modify, and use as you will.

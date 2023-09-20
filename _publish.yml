@@ -1,0 +1,4 @@
+- source: project
+  netlify:
+    - id: bbb1f1d0-9d50-4685-99eb-8f9b629bcb98
+      url: 'https://stat-analysis.netlify.app'

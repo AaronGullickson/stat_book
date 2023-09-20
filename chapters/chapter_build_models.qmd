@@ -6,7 +6,7 @@ We will begin with the simplest kind of model: fitting a straight line through a
 
 Throughout this chapter, we will focus primarily on issues of interpretation. We are now starting to learn the techniques that you will see presented in real world social science research. Being able to interpret and understand this work is a key objective of this course. 
 
-Slides for this chapter can be found [here](stat_slides/module5_slides_building_models.html).
+Slides for this chapter can be found [here](https://stat-analysis-slides.netlify.app/slides_building_models.html).
 
 ```{r}
 #| label: load-libs-data

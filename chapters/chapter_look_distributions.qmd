@@ -9,7 +9,7 @@ In this chapter we will focus on two ways to gain better understanding of the di
 
 For this module, we are only examining the distribution of a single variable. We sometimes refer to this form of analysis and the statistics we calculate from it as **univariate** which is a fancy way to say "one variable." Importantly, univariate analysis of a single variable does not tell us anything about the association of that variable with other variables.
 
-Slides for this module can be found [here](stat_slides/module2_slides_distribution_variable.html).
+Slides for this module can be found [here](https://stat-analysis-slides.netlify.app/slides_looking_distributions.html).
 
 ```{r}
 #| label: load-libs-data

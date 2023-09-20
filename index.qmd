@@ -31,4 +31,4 @@ You can access the slides I use for the course [here](https://stat-analysis-slid
 
 ## For Teachers
 
-Anyone is welcome to use this textbook in part or in whole for teaching purposes. Furthermore, you can access the GitHub repositories that host all of the material used to produce the [book](https://github.com/AaronGullickson/stat_book), [slides](https://github.com/AaronGullickson/stat_book), and [data](https://github.com/AaronGullickson/stat_book). All of that material is licensed under the Creative Commons license, included with each repository. So long as you abide by that license, you are free to fork, modify, and use as you will.
+Anyone is welcome to use this textbook in part or in whole for teaching purposes. Furthermore, you can access the GitHub repositories that host all of the material used to produce the [book](https://github.com/AaronGullickson/stat_book), [slides](https://github.com/AaronGullickson/stat_book), and [data](https://github.com/AaronGullickson/stat_book). 

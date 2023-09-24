@@ -1,5 +1,7 @@
 # Looking at Distributions {#sec-look-distributions}
 
+{{< video https://youtu.be/yw966hUVwHw >}}
+
 The **distribution** of a variable refers to how the different values of that variable are spread out across observations. This distribution gives us a sense of what the most common values are for a given variable and how much these values vary. It can also alert us to unusual patterns in the data. Intuitively, we think about distributions in our personal life any time we think about how we "measure" up relative to everyone else on something (income, number of social media followers, GRE scores, etc.). We want to know where we "fall" in the distribution of one of these variables. 
 
 In this chapter we will focus on two ways to gain better understanding of the distribution of a variable:
@@ -30,6 +32,8 @@ Remember that categorical and quantitative variables require different kinds of 
 :::
 
 ### Graphing the distribution of a categorical variable
+
+{{< video https://youtu.be/QNHojmQwLfM >}}
 
 #### Calculating the frequency
 
@@ -324,6 +328,8 @@ Many people feel that piecharts have an aesthetic appeal but they are actually v
 
 ### Graphing the distribution of a quantitative variable
 
+{{< video https://youtu.be/Gq7EdC1aRYY >}}
+
 Barplots won't work for quantitative variables because quantitative variables don't have categories. However, we can do something quite similar with the **histogram**. 
 
 One way to think about the histogram is that we are imposing a set of categories on a quantitative variable by breaking our quantitative variable into a set of equally wide intervals that we call **bins**. The most important decision with a quantitative variable is how wide to make these bins. As an example, lets calculate 10-year bins for the age variable in the politics dataset. Because the youngest people in this dataset are 18 years old, I could start my first bin at age 18 and go to age 27. However, that will give me somewhat non-intuitive bins for most people (e.g. 18-27, 28-37, etc.). Instead, I will start my first bin at 15-24, so the bins are "cut" at the mid-decade point for each age group (e.g. 15-24, 25-34, 35-44, etc.). Then, I count the number of observations that fall into each age bin as shown in @tbl-age-politics.
@@ -596,6 +602,8 @@ We will also learn later that we can use color as an aesthetic in the `aes` comm
 
 ## Measuring the Center of a Distribution
 
+{{< video https://youtu.be/-Es5Jdi2fFo >}}
+
 In the previous section, we just looked at a distribution to try and gauge its center. But what do we really mean by the term "center?" We often think about this center intuitively as representing the "typical" or "average" value on a given variable. However, we can define this idea of average in multiple ways. In this section, we will move from a basic visual sense of center to more precise statistical measures of center that can be calculated for quantitative variables. Specifically, we will learn how to measure the **mean**, **median**, and **mode**. 
 
 ### The mean
@@ -723,6 +731,8 @@ ggplot(movies, aes(x=metascore))+
 ::: {.callout-note collapse="true"}
 ## The modal category
 
+{{< video https://youtu.be/CBEcEI4FQ0M >}}
+
 Interestingly, while it does not make sense to think about a mean or a median for categorical variables, we can use the idea of the mode for categorical variables. The most common category is often referred to as the **modal category**. If you want to quickly identify the modal category for a categorical variable, you can wrap a `table` command inside a `sort` command with the `decreasing=TRUE` argument to see the top category at the left.
 
 ```{r}
@@ -735,6 +745,8 @@ R-Rated movies are the modal category for maturity rating in the movies dataset.
 
 
 ### Comparing the mean and median
+
+{{< video https://youtu.be/OtjWF5pQJjA >}}
 
 How can the mean and median give different results? Remember that the mean defines the **balancing point** and the median defines the **midpoint**. If you have a perfectly symmetric distribution, then these two points are the same because you would balance the distribution at the midpoint. However, when the distribution is skewed in one direction or another, the mean and the median will be different. In order to maintain balance, the *mean will be pulled in the direction of the skew*. When you have heavily skewed distributions, this can lead to substantially different values for the mean and median. 
 
@@ -844,7 +856,9 @@ mean(movies$maturity_rating)
 
 In this section, we will learn about the concept of **percentiles**. Percentiles will allow us to calculate a **five number summary** of a distribution and introduce a new kind of graph for describing a distribution called the **boxplot**.
 
-### Percentiles
+### Percentile
+
+{{< video https://youtu.be/L074neqwBXE >}}
 
 We have already seen one example of a percentile. The median is the 50th percentile of the distribution. It is the point at which 50% of the observations are lower and 50% are higher. We can use this exact same logic to calculate other percentiles. We could calculate the 25th percentile of the distribution by finding the point where 25% of the observations are below and 75% are above. We could even calculate the 42nd percentile if we were so inclined. 
 
@@ -866,6 +880,8 @@ You will notice that for the second argument of `quantile` I fed in `c(.27,.57)`
 :::
 
 ### The five number summary
+
+{{< video https://youtu.be/RXfIw1YH2eI >}}
 
 We can split our distribution into quarters by calculating the minimum (0th percentile), the 25th percentile, the 50th percentile (the median), the 75th percentile, and the maximum (100th percentile). Collectively, these percentiles are known at the **quartiles** of the distribution (not to be confused with quantile) and are also described as the **five number summary** of the distribution. 
 
@@ -914,6 +930,8 @@ knitr::include_app("https://aarongullickson.shinyapps.io/percentiles/", height="
 In general, boxplots for a single variable do not contain as much information as a histogram and so are generally inferior for understanding the full shape of the distribution. They can be useful for detecting outliers, but tphe real advantage of boxplots will come in the next module when we learn to use comparative boxplots to make comparisons of the distribution of a quantitative variable across different categories of a categorical variable. 
 
 ## Measuring the Spread of a Distribution
+
+{{< video https://youtu.be/l5yP00gUSAc >}}
 
 The second most important measure of a distribution is its spread. Spread indicates how far individual values tend to fall from the center of the distribution. As @fig-spread-compare below shows, two distributions can have the same center and general shape (in this case, a bell curve) but have very different spreads.
 

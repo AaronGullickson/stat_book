@@ -14,6 +14,8 @@ source(here("scripts","load_example_data.R"))
 
 ## What Does Data Look Like?
 
+{{< video https://youtu.be/rduOPNaJ2hk >}}
+
 The data that we look at typically take the format of a "spreadsheet" with rows and columns. @tbl-passengers below shows some characteristics of four randomly drawn passengers from the Titanic, in this type of spreadsheet format.
 
 ```{r}
@@ -140,6 +142,8 @@ What is *R* trying to tell you here? Its telling you that your `sex` dataset was
 :::
 
 ## What Can We Do With Data?
+
+{{< video https://youtu.be/3Uh01x63I9Y >}}
 
 We now understand the structure of data better, but what do social scientists do with this kind of data? In the first part of this course, we will learn three fundamental data analysis tasks: analysis of the distribution of a single variable, measuring association, and statistical inference. In the final part of the course, we will build on these fundamentals to learn how to build more complex statistical models. 
 

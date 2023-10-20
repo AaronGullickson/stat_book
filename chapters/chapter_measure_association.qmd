@@ -1,5 +1,7 @@
 # Measuring Association {#sec-measure-association}
 
+{{< video https://youtu.be/1Mmr90PEKPQ >}}
+
 Measuring association between variables, in some form or another, is really what social scientists use statistics for the most. Establishing whether two variables are related to one another can help to affirm or cast doubt on theories about the social world. Does substance use improve an adolescent's popularity in school? Does increasing wealth in a country lead to more or less environmental degradation? Does income inequality inhibit voter participation? These are just a few of the questions one could ask that require a measurement of the association between two or more variables.
 
 In this module, we will learn about how to visualize and measure association between two variables. How we do this depends on the kinds of variables that we have. There are three possibilities:
@@ -21,6 +23,8 @@ source(here("scripts","load_example_data.R"))
 ```
 
 ## The Two-Way Table
+
+{{< video https://youtu.be/VP6xX3dJt-s >}}
 
 The **two-way table** (also known as a **cross-tabulation** or **crosstab**) gives the joint distribution of two categorical variables. Lets use the politics dataset to construct a two-way table of belief in anthropogenic climate change by political party. We can do that in *R* using the same `table` command we used in @sec-look-distributions, except this time we will add a second variable as an additional argument.
 
@@ -86,6 +90,8 @@ margin.table(tab,2)
 The two-way table provides us with evidence about the association between two categorical variables. To understand what the association looks like, we will learn how to calculate **conditional distributions**. 
 
 ### Conditional distributions
+
+{{< video https://youtu.be/Q4m12VtPXnM >}}
 
 To this point, we have learned about the **joint** and **marginal** distributions in a two-way table. In order to look at the relationship between two categorical variables, we need to understand a third kind of distribution: the **conditional distribution**. The conditional distribution is the distribution of one variable conditional on being in a certain category of the other variable. In a two-way table, one can always create two different conditional distributions. In our case, we could look at the distribution of climate change belief conditional on party affiliation, or we could look at the distribution of party affiliation conditional on climate change belief. Both of these distributions ultimately provide us the same information about the association, but sometimes one way is more intuitive to understand. In this case, I am going to calculate the distribution of climate change belief conditional on party affiliation.
 
@@ -166,6 +172,8 @@ prop.table(tab,2)
 This table looks deceptively similar to the table above. But look again. The numbers no longer add up to one within each row. They do however add up to one within each column. In order to read this table properly, we have to understand that it is giving us the distribution within each column: the proportion of respondents who have a given belief who belong to a given political party. So we can see in the first column that 19.8% of deniers are Democrats, 48.2% are Republicans, 27.9% are independents, and 4.1% belong to other parties. This distribution is very different from the party affiliation distribution of believers in the second column. Democrats are overrepresented among believers and underrepresented among deniers, while the opposite is true of Republicans. This discrepancy tells us there is an association, but the large party cleavages on the issue are not as immediately obvious here as they were with the previous conditional distribution. Always think carefully about which conditional distribution is more sensible to interpret and always make sure that you are interpreting them in the correct way. 
 
 ### Comparative barplots
+
+{{< video https://youtu.be/n9m8E8bb1hw >}}
 
 It is also possible to graph the conditional distribution as a set of barplots. To do so, we will learn a new feature of ggplot called **faceting**. Faceting allows us to make the same plot based on subsets of the data in a series of panels. In this case, we can use the code for a univariate barplot of one variable but faceted by the other variable.
 
@@ -308,6 +316,8 @@ As these numbers and @fig-comp-bar-pclass-gender show, the distribution of men a
 
 ### Odds ratio
 
+{{< video https://youtu.be/EJFWDBulIfY >}}
+
 We can also use the **odds ratio** to measure the association between two categorical variables.  The odds ratio is not a term that is common in everyday speech but it is a critical concept in all kinds of scientific research. 
 
 Lets take the different distributions of climate change belief for Democrats and Republicans. About 84% of Democrats were believers, but only 54% of Republicans were believers. How can we talk about how different these two numbers are from one another? We could subtract one from the other or we could take the ratio by dividing one by the other. However, both of these approaches have a major problem. Because the percents (and proportions) have minimum and maximum values of 0 and 100, as you approach those boundaries the differences necessarily have to shrink because one group is hitting its upper or lower limit. This makes it difficult to compare percentage or proportional differences across different groups because the overall average proportion across groups will affect the differences in proportion.
@@ -427,6 +437,8 @@ Interestingly, if you take the original odds ratio of 4.53 and invert it by taki
 
 ## Mean Differences
 
+{{< video https://youtu.be/0GIWEE97MTs >}}
+
 Measuring association between a quantitative and categorical variable is fairly straightforward. We want to look for differences in the distribution of the quantitative variable at different categories of the categorical variable. For example, if we were interested in the gender wage gap, we would want to compare the distribution of wages for women to the distribution of wages for men. There are two ways we can do this. First, we can graphically examine the distributions using the techniques we have already developed, particularly the boxplot. Second, we can compare summary measures such as the mean of the quantitative variable across categories of the categorical variable.
 
 ### Graphically examining differences in distributions
@@ -530,6 +542,8 @@ ggplot(mruntime, aes(x=genre, y=runtime))+
 The case of quantitative variables is the most developed statistically because both measures are quantitative and therefore calculations are more straightforward. For graphical analysis of the association between the two variables, we construct a **scatterplot**. For a quantitative assessment of the association between the two variables, we calculate a **correlation coefficient.**
 
 ### The scatterplot
+
+{{< video https://youtu.be/ZVRn4itZO8g >}}
 
 We can examine the relationship between two quantitative variables by constructing a **scatterplot**. A scatterplot is a two-dimensional graph. We put one variable on the x-axis and the other variable on the y-axis. We can put either variable on either axis, but we often describe the variable on the x-axis as the **independent variable** and the variable on the y-axis as the **dependent variable**. The dependent variable is the variable whose outcome we are interested in predicting. The independent variable is the variable that we treat as the predictor of the dependent variable. For example, lets say we were interested in the relationship between income inequality and life expectancy. We are interested in predicting life expectancy by income inequality, so the dependent variable is life expectancy and the independent variable is income inequality.
 
@@ -648,6 +662,8 @@ ggplot(earnings, aes(x=age, y=wages))+
 ```
 
 ### The correlation coefficient
+
+{{< video https://youtu.be/iQwIEZx7nv4 >}}
 
 While graphical analysis is always a good first step to measuring association, it can sometimes be difficult to judge the actual degree of association in scatterplots. This is particularly true with large datasets or when the distribution of one or both variables is heavily skewed. To get a more concrete sense of the degree of association, we calculate the **correlation coefficient**, alsoe known as *r*.
 

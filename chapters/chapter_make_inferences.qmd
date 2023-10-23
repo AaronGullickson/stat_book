@@ -19,6 +19,8 @@ load(here("data","students","student_sampling_dist.RData"))
 
 ## The Problem of Statistical Inference
 
+{{< video https://youtu.be/X-36RY1UNqI >}}
+
 So far, we have only been looking at measurements from our actual datasets. We examined both **univariate statistics** like the mean, median, and standard deviation, as well as **measures of association** like the mean difference, correlation coefficient and OLS regression line slope. We can use this measures to draw conclusions about our data. 
 
 In many cases, the dataset that we are working is only a **sample** from some larger **population**. Importantly, we don't just want to know something about the sample, but rather we want to know something about the population from which the sample was drawn. For example, when polling organizations like Gallup conduct political polls of 500 people, they are not drawing conclusions about just those 500 people, but rather about the whole population from which those 500 people were sampled. 
@@ -69,6 +71,8 @@ Notice the word "could" in the previous sentence. The tricky part about statisti
 It is also important to keep in mind that statistical inference only works when you are actually drawing a sample from a larger population that you want to draw conclusions about. In some cases, our data either constitute a unique event, as in the Titanic case, that cannot be properly considered a sample of something larger or the data actually constitute the entire population of interest, as is the case in our dataset on movies and crime rates. Although you will occasionally still see people use inferential measures on such data, it is technically inappropriate because there is no larger population to make inferences about.
 
 ## The Concept of the Sampling Distribution
+
+{{< video https://youtu.be/FwVG-NGXigI >}}
 
 Lets say that you want to know the mean years of education of US adults. You implement a well-designed representative survey that samples 100 respondents from the USA. You ask people the simple question "how many years of education do you have?" You then calculate the mean years of education in your sample. 
 

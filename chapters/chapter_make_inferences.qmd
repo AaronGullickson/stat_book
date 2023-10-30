@@ -306,6 +306,7 @@ I will discuss these two different methods in the next two sections.
 
 ## Confidence Intervals
 
+{{< video https://youtu.be/uOMniS7-n9A >}}
 
 As @fig-normaldist-ci shows, 95% of all the possible sample means will be within 1.96 standard errors of the true population mean $\mu$.
 
@@ -367,6 +368,8 @@ This is why we use a more neutral term like "confidence." If we want to be long-
 If this all seems a bit confusing, you are perfectly normal. As I said, this is the classic view of probability. Intuitively, people often think of uncertainty in probabilistic terms (e.g. what are the odds your team will win the game?). Many contemporary statisticians would in fact agree that it is perfectly okay to express subjective uncertainty as a probability. But, I still need to let you know that from the classic approach, interpreting your confidence interval as a probability statement is a no-no. 
 
 ### Calculating the confidence interval for the sample mean
+
+{{< video https://youtu.be/GD7YuXGZDe8 >}}
 
 Okay, lets try calculating a confidence interval for age in the politics dataset. The formula is:
 
@@ -432,6 +435,8 @@ I know some of that math might look intimidating but I will go through an exampl
 
 ### Example with proportions
 
+{{< video https://youtu.be/dUffyhWO6po >}}
+
 As an example, lets use the proportion of respondents who do not believe in anthropogenic climate change. In our politics sample, we get:
 
 ```{r}
@@ -479,6 +484,8 @@ We are 95% confident that the true percentage of climate change deniers in the t
 
 ### Example with mean differences
 
+{{< video https://youtu.be/CGp6wb77Fag >}}
+
 Using the popularity data, what is the mean difference in number of friend nominations between frequent smokers and those who do not smoke frequently? 
 
 ```{r}
@@ -524,6 +531,8 @@ mean_diff + t_stat*se
 We are 95% confident that in the population of US adolescents, those who smoke frequently have between 0.05 fewer to 0.59 more friend nominations, on average, than those who do not smoke frequently. Note that because our confidence interval contains both negative and positive values, we cannot be confident about whether smoking is truly associated with having more or less friends. The direction of the relationship between the two variables is uncertain.
 
 ### Example with proportion differences
+
+{{< video https://youtu.be/ex1OWZZ26D4 >}}
 
 Lets continue to use the popularity data. Do we observe a gender difference in smoking behavior in our sample?
 
@@ -573,6 +582,8 @@ We are 95% confident that in the population of US adolescents, between 1.1% fewe
 
 ### Example with correlation coefficient
 
+{{< video https://youtu.be/h6a6mSxV9KA >}}
+
 Lets stick with the popularity data. What is the correlation between GPA and the number of friend nominations that a student receives?
 
 ```{r}
@@ -614,6 +625,8 @@ r + t_stat*se
 We are 95% confident that the true correlation coefficient between GPA and friend nominations in the population of US adolescents is between 0.125 and 0.183. While there is some difference in the strength of that relationship, we are pretty confident that the correlation is moderately positive. Unlike in the previous two cases, we can be confident of its direction.
 
 ## Hypothesis Tests
+
+{{< video https://youtu.be/0Q9RLJE2dlM >}}
 
 In social scientific practice, hypothesis testing is far more common than confidence intervals as a technique of statistical inference. Both techniques are fundamentally derived from the sampling distribution and produce similar results, but the methodology and interpretation of results is very different. 
 
@@ -734,6 +747,8 @@ No reasonable scientist, however, would reject the null hypothesis with a p-valu
 
 ### The general procedure of hypothesis testing
 
+{{< video https://youtu.be/1gAcq74BNYM >}}
+
 The general procedure of hypothesis testing is as follows:
 
 1. State a **null hypothesis**. This null hypothesis is a claim about the true value of an unknown parameter. 
@@ -767,6 +782,8 @@ The reason why everyone (including you and me) struggles with this is that our b
 The hypothesis tests that we care the most about in the sciences are hypothesis tests about relationships between variables. We want to know whether the association we observe in the sample is true in the population. In all of these cases, our null hypothesis is that there is no association, and we want to know whether the association we observe in the sample is strong enough to reject this null hypothesis of no association. We can do hypothesis tests of this nature for mean differences, proportion differences, and correlation coefficients. 
 
 #### Example: mean differences
+
+{{< video https://youtu.be/7us5mrN1UsQ >}}
 
 Lets look at differences in mean income (measured in $1000) by religion in the politics dataset.
 
@@ -809,6 +826,8 @@ The t-statistic of 1.13 is not very large. I am only 1.13 standard errors above 
 In a sample of this size, there is an 26% chance of observing a mean income difference of $3,475 or more between Mainline Protestants and Catholics, just by sampling error, assuming that there is no difference in income between these groups in the population. Therefore, I **fail to reject the null hypothesis** that Mainline Protestants and Catholics make the same income. 
 
 #### Example of proportion differences
+
+{{< video https://youtu.be/WZTrhxCUebY >}}
 
 Lets look at the difference in smoking behavior between white and black students in the popularity data. Our null hypothesis is:
 
@@ -865,6 +884,8 @@ Thats a really small number! If you see output in terms of scientific notation, 
 
 
 #### Example of correlation coefficient
+
+{{< video https://youtu.be/-IMXMeBsvY0 >}}
 
 Lets look at the correlation between the parental income of a student and the number of friend nominations they receive. Our null hypothesis will be that there is no relationship between parental income and student popularity in the population of US adolescents. Lets look at the data in our sample:
 

@@ -18,6 +18,8 @@ source(here("scripts","load_example_data.R"))
 
 ## The OLS Regression Line
 
+{{< video https://youtu.be/5BsCc7sXmmA >}}
+
 @fig-scatter-age-violent-line shows a scatterplot of the relationship between median age and violent crime rates:
 
 ```{r}
@@ -137,6 +139,8 @@ Some of the earliest uses of the OLS regression line were in psychometrics which
 
 #### Using the `lm` command to calculate OLS regression lines
 
+{{< video https://youtu.be/JO8q-1A3p3c >}}
+
 The `lm` command stands for "linear model" and can be used to run a variety of linear models that we will learn including the basic one we are estimating currently.
 
 In order to run the `lm` command, you need to input a formula. The structure of this formula looks like `dependent~independent` where `dependent` and `independent` should be replaced by your specific variables. The tilde (`~`) sign indicates the relationship. So, if we wanted to use `lm` to calculate the OLS regression line between violent crime rates (the dependent variable) and median age (the independent variable), I would do the following:
@@ -238,6 +242,8 @@ Just as the general term "model" is used to describe something that is not reali
 However, we always have to consider that our model is not a very good representation of the relationship. The most obvious potential problem is if the relationship is non-linear and yet we fit the relationship by a linear model, but there can be other problems as well. I will discuss these more below and the next few sections of this chapter will give us techniques for building better models. However, we first need to focus on how to interpret the results we just calculated. 
 
 ### Interpeting slopes and intercepts
+
+{{< video https://youtu.be/dPJCN_xP9AY >}}
 
 Learning to properly interpret slopes and intercepts (especially slopes) is the most important thing you will learn in this chapter, because of how common the use of linear models is in social science statistics. Caclulation is easy, but correct interpretation is much more difficult. So take the time to be careful and thoughtful when interpreting the numbers from linear models. 
 
@@ -389,6 +395,8 @@ How would you interpret the intercept in the model output?
 
 ### How good is $x$ as a predictor of $y$?
 
+{{< video https://youtu.be/S_IQkigynmA >}}
+
 If I selected a random observation from the dataset and asked you to predict the value of $y$ for this observation, what value would you guess? Your best guess would be the mean of $y$ because this is the case where your average error would be smallest. This error is defined by the distance between the mean of $y$ and the selected value, $y_i-\bar{y}$. 
 
 Now, lets say instead of making you guess randomly I first told you the value of another variable $x$ and gave you the slope and intercept predicting $y$ from $x$. What is your best guess now? You should guess the predicted value of $\hat{y}_i$ from the model because now you have some additional information. There is no way that having this information could make your guess worse than just guessing the mean. The question is how much better do you do than guessing the mean? Answering this question will give us some idea of how good $x$ is as a predictor of $y$. 
@@ -448,6 +456,8 @@ About 14.3% of the variation in violent crime rates across states can be account
 
 ### Inference for linear models
 
+
+{{< video https://youtu.be/eHp3n_69pSQ >}}
 When working with sample data, our usual issues of statistical inference apply to linear models. In this case, our primary concern is the estimate of the slope because the slope measures the relationship between $x$ and $y$. We can think of an underlying linear model in the population: 
 
 $$\hat{y}_i=\beta_0+\beta_1x_i$$
@@ -468,6 +478,8 @@ summary(model)
 The "Coefficients" table in the middle gives us all the information we need. The first column gives us the sample slope of -27.564. The second column gives us the standard error for this slope of 9.632. The third column gives us the t-statistic derived by dividing the first column by the second column. The final column gives us the p-value for the hypothesis test. In this case, there is about a 0.6% chance of getting a sample slope this large on a sample of 51 cases if the true value in the population is zero. Of course, in this case its nonsensical because we don't have a sample, but the numbers here will be valuable in cases with real sample data. 
 
 ### Linear model cautions
+
+{{< video https://youtu.be/uVrqWj4w-b0 >}}
 
 Linear models can be very useful for understanding relationships, but they do have some important limitations that you should be aware of when you are doing statistical analysis. 
 
@@ -569,6 +581,8 @@ Its dangerous enough to assume that a linear relationship holds for your data. I
 Another trivial example would be to look at the growth rate of children 5-15 years of age by correlating age with height. It would be acceptable to use this model to predict the height of a 14 year old, but not a 40 year old.  We expect that this growth will eventually end sometime outside the range of our data when individuals reach their final adult height. If we extrapolated the data, we would predict that 40 year olds would be very tall. 
 
 ## The Power of Controlling for Other Variables
+
+{{< video https://youtu.be/BPVtvtqRhMA >}}
 
 What factors predict how many Oscar awards a movie will receive. Lets try a simple model that predicts Oscar awards from movie runtime.
 
@@ -720,6 +734,8 @@ $$\hat{y}_i=b_0+b_1x_{i1}+b_2x_{i2}+b_3x_{i3}+\ldots+b_px_{ip}$$
 The intercept is given by $b_0$. This is the predicted value of $y$ when all of the independent variables are zero. The remaining $b$'s give the slopes for all of the variables up through the $p$th variable. Each of these gives the predicted change in $y$ for a unit increase in that independent variable, **holding all other independent variables constant**. 
 
 ### How to read a table of model results
+
+{{< video https://youtu.be/ZMNfhY_-5xc >}}
 
 In academic journal articles and books, the results of linear models are represented in a fairly standard way. In order to understand how to read these articles, you need to understand this presentation style. Its not immediately intuitive for everyone. @tbl-model-example below shows the typical style. In this table, I am reporting three linear models with the property crime rates as the dependent variable and three different independent variables.
 

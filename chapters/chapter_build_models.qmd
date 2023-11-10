@@ -778,6 +778,8 @@ To this point, we only know how to include quantitative variables into linear mo
 
 ### Indicator variables
 
+{{< video https://youtu.be/jokk5BG5oMg >}}
+
 As an example, I am going to look at the relationship between religious affiliation and sexual frequency. To keep this example simple I am going to **dichotomize** the religious affiliation variable, which means I am going to collapse it into two categories, rather than the six categories in the dataset. I will use a simply dichotomy of "Not Religious/Religious." In R, I can create this variable like so:
 
 ```{r}
@@ -901,6 +903,8 @@ Both models give me the exact same information, but from the perspective of a di
 
 ### Categorical variables with more than two categories
 
+{{< video https://youtu.be/5Gs-bn7Stw4 >}}
+
 What if I have a categorical variable that has more than two categories? Lets expand the religious variable that I dichotomized back to its original scale. There are six different categories: Fundamentalist Protestant, Mainline Protestant, Catholic, Jewish, Other, and None:
 
 ```{r}
@@ -996,6 +1000,8 @@ coef(model)
 You can tell which category is the reference by which category is left out here. Note how the coefficients (given by the estimates column) match the mean differences I calculated above in the graph. We are simply reproducing these mean differences in a linear model framework.
 
 ### Categorical and quantitative variables combined in a single model
+
+{{< video https://youtu.be/YlWB29Za-XQ >}}
 
 If all we are doing is reproducing mean differences between categories, what good is this method? After all, we already know how to do that. The major advantage of putting these mean differences into a linear model framework is that we can **control for other potentially confounding variables**. 
 
@@ -1107,6 +1113,8 @@ How would you interpret all of the slopes and intercepts in the model output? Ar
 
 
 ## Interaction Terms
+
+{{< video https://youtu.be/M9zoKc-c_qs >}}
 
 By definition, a linear model is an **additive** model. As you increase or decrease the value of one independent variable you increase or decrease the predicted value of the dependent variable by a set amount, **regardless of the other values of the independent variables in the model**. This is an assumption built into the linear model by its additive form, and it may misrepresent some relationships where independent variables **interact** with one another to produce more complicated relationships. In particular, in this section, we want to know whether the effect (i.e. the slope) of one independent variable varies by the value of another independent variable. 
 
@@ -1356,6 +1364,8 @@ ggplot(movies,
 We can clearly see from @fig-fullinteraction-maturity that the biggest return for a minute increase in runtime is for G-rated movies which is confirmed by the negative values on all of the interaction terms in the model. 
 
 ### Interaction terms with two categorical variables
+
+{{< video https://youtu.be/k7O0803f7AM >}}
 
 The examples so far have involved interacting a quantitative variable with a categorical variable which gives you a different line for each category of your categorical variable. However, we can also create an interaction term between two categorical variables. 
 

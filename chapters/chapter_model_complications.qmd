@@ -1,0 +1,959 @@
+# Model Complications {#sec-model-complications}
+
+```{r}
+#| label: load-libs-data
+#| include: false
+library(here)
+source(here("scripts","check_packages.R"))
+source(here("scripts","load_example_data.R"))
+```
+
+In this chapter, we will expand our understanding of the linear model to address many issues that the practical researcher must face. We begin with a review and reformulation of the linear model. We then move on to discuss how to address violations of assumptions such as non-linearity and heteroskedasticity (yes, this is a real word), sample design and weighting, missing values, multicollinearity, and model selection. By the end of this chapter, you will be well-supplied with the tools for conducting a real-world analysis using the linear model framework. 
+
+
+## The Linear Model, Revisited
+
+### Reformulating the linear model
+
+Up until now, we have used the following equation to describe the linear model mathematically:
+
+$$\hat{y}_i=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\ldots+\beta_px_{ip}$$
+In this formulation, $\hat{y}_i$ is the predicted value of the dependent variable for the $i$th observation and $x_{i1}$, $x_{i2}$. through $x_{ip}$ are the values of $p$ independent variables that predict $\hat{y}_i$ by a linear function. $\beta_0$ is the y-intercept which is the predicted value of dependent variable when all the independent variables are zero. $\beta_1$ through $\beta_p$ are the slopes giving the predicted change in the dependent variable for a one unit increase in a given independent variable holding all of the other variables constant. 
+
+This formulation is useful, but we can now expand and re-formulate it in a way that will help us understand some of the more advanced topics we will discuss in this and later chapters. The formula is above is only the "structural" part of the full linear model. The full linear model is given by:
+
+$$y_i=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\ldots+\beta_px_{ip}+\epsilon_i$$
+
+I have changed two things in this new formula. On the left-hand side, we have the actual value of the dependent variable for the $i$th observation. In order to make things balance on the right-hand side of the equation, I have added $\epsilon_i$ which is simply the residual or error term for the $i$th observation. We now have a full model that predicts the actual values of $y$ from the actual values of $x$. 
+
+If we compare this to the first formula, it should become clear that every term except the residual term can be substituted for by $\hat{y}_i$. So, we can restate our linear model using two separate formulas as follows:
+
+$$\hat{y}_i=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\ldots+\beta_px_{ip}$$
+
+$$y_i=\hat{y}_i+\epsilon_i$$
+
+By dividing up the formula into two separate components, we can begin to think of our linear model as containing a structural component and a random (or stochastic) component. The structural component is the linear equation predicting $\hat{y}_i$. This is the formal relationship we are trying to fit between the dependent and independent variables. The stochastic component on the other hand is given by the $\epsilon_i$ term in the second formula. In order to get back to the actual values of the dependent variable, we have to add in the residual component that is not accounted for by the linear model. 
+
+From this perspective, we can rethink our entire linear model as a partition of the total variation in the dependent variable into the structural component that can be accounted for by our linear model and the residual component that is unaccounted for by the model. This is exactly as we envisioned things when we learned to calculate $R^2$ in previous chapters. 
+
+### Marginal effects
+
+The **marginal effect** of $x$ on $y$ gives the expected change in $y$ for a one unit increase in $x$ at a given value of $x$. If that sounds familiar, its because this is very similar to the interpretation we give of the slope in a linear model. In a basic linear model with no interaction terms, the marginal effect of a given independent variable is in fact given by the slope.
+
+The difference in interpretation is the little part about "at a given value of x." In a basic linear model this addendum is irrelevant because the expected increase in $y$ for a one unit increase in $x$ is the same regardless of the current value of $x$ -- thats what it means for an effect to be linear. However, when we start delving into more complex model structures, such as interaction terms and some of the models we will discuss in this module, things get more complicated. The marginal effect can help us make sense of complicated models.
+
+The marginal effect is calculated using calculus. I won't delve too deeply into the details here, but the marginal effect is equal to the partial derivative of y with respect to x. This partial derivative gives us what is called the *tangent line* of a curve at any point of $x$ which measures the instantenous rate of change in some mathematical function. 
+
+Lets take the case of a simple linear model with two predictor variables:
+
+$$y_i=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\epsilon_i$$
+
+We can calculate the marginal effect of $x_1$ and $x_2$ by taking their partial derivatives. If you don't know how to do that, its fine. But if you do know a little calculus, this is a simple calculation:
+
+$$\frac{\partial y}{\partial x_1}=\beta_1$$
+$$\frac{\partial y}{\partial x_2}=\beta_2$$
+
+As stated above, the marginal effects are just given by the slope for each variable, respectively.
+
+Marginal effects really become useful when we have more complex models. Lets now try a model similar to the one above but with an interaction term:
+
+$$y_i=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\beta_3x_{i1}x_{i2}+\epsilon_i$$
+
+The partial derivatives of this model turn out to be:
+
+$$\frac{\partial y}{\partial x_1}=\beta_1+\beta_3x_{i2}$$
+$$\frac{\partial y}{\partial x_2}=\beta_2+\beta_3x_{i1}$$
+
+The marginal effect of each independent variable on $y$ now depends on the value of the other independent variable. Thats how interaction terms work, but now we can see that effect much more clearly in a mathematical sense. The slope of each independent variable is itself determined by a linear function rather than being a single constant value. 
+
+#### Marginal effect interaction example
+
+Lets try this with a concrete example. For this case, I will look at the effect on wages of the interaction between number of children in the household and gender:
+
+```{r}
+#| label: marginal-interaction
+model <- lm(wages~nchild*gender, data=earnings)
+round(coef(model), 3)
+```
+
+So, my full model is given by:
+
+$$\hat{\text{wages}}_i=24.720+1.779(\text{nchildren}_i)-2.839(\text{female}_i)-1.335(\text{nchildren}_i)(\text{female}_i)$$
+
+Following the formulas above, the marginal effect of number of children is given by:
+
+$$1.779-1.335(\text{female}_i)$$
+
+Note that this only takes two values because female is an indicator variable. When we have a man, the $\text{female}$ variable will be zero and therefore the effect of an additional child will be 1.779. When we have a woman,  $\text{female}$ variable will be one, and the effect of an additional child will be $1.779-1.335=0.444$.
+
+The marginal effect for the gender gap will be given by:
+
+$$-2.839-1.335(\text{nchildren}_i)$$
+
+So the gender gap starts at 2.839 with no children in the household and grows by 1.335 for each additional child. 
+
+@fig-marginal-fx is a **marginal effects graph** that shows us how the gender gap changes by number of children in the household. 
+
+```{r}
+#| label: fig-marginal-fx
+#| fig-cap: Marginal effect of number of children on the gender gap in wages
+nchild <- 0:6
+gender_gap <- -2.839-1.335*nchild
+df <- data.frame(nchild, gender_gap)
+ggplot(df, aes(x=nchild, y=gender_gap))+
+  geom_line(linetype=2, color="grey")+
+  geom_point()+
+  labs(x="number of children in household",
+       y="predicted gender gap in hourly wages")+
+  scale_y_continuous(labels = scales::dollar)+
+  theme_bw()
+```
+
+### Linear model assumptions
+
+Two important assumptions underlie the linear model. The first assumption is the assumption of **linearity**. In short, we assume that the the relationship between the dependent and independent variables is best described by a linear function. In prior chapters, we have seen examples where this assumption of linearity was clearly violated. When we choose the wrong model for the given relationship, we have made a *specification error*. Fitting a linear model to a non-linear relationship is one of the most common forms of specification error. However, this assumption is not as deadly as it sounds. Provided that we correctly diagnose the problem, there are a variety of tools that we can use to fit a non-linear relationship within the linear model framework. We will cover this techniques in the next section. 
+
+The second assumption of linear models is that the residual or error terms $\epsilon_i$ are **independent** of one another and **identically distributed**. This is often called the **i.i.d. assumption**, for short. This assumption is a little more subtle. In order to understand, we need to return to this equation from earlier:
+
+$$y_i=\hat{y}_i+\epsilon_i$$
+
+One way to think about what is going on here is that in order to get an actual value of $y_i$ you feed in all of the independent variables into your linear model equation to get $\hat{y}_i$ and then you reach into some distribution of numbers (or a bag of numbers if you need something more concrete to visualize) to pull out a random value of $\epsilon_i$ which you add to the end of your predicted value to get the actual value. When we think about the equation this way, we are thinking about it as a **data generating process** in which we get $y_i$ values from completing the equation on the right. 
+
+The i.i.d. assumption comes into play when we reach into that distribution (or bag) to draw out our random values. **Independence** assumes that what we drew previously won't affect what we draw in the future. The most common violation of this assumption is in time series data in which peaks and valleys in the time series tend to come clustered in time, so that when you have a high (or low) error in one year, you are likely to have a similar error in the next year. **Identically distributed** means that you are drawn from the same distribution (or bag) each time you make a draw. One of the most common violation of this assumption is when error terms tend to get larger in absolute size as the predicted value grows in size. 
+
+In later sections of this chapter, we will cover the i.i.d. assumption in more detail including the consequences of violating it, diagnostics for detecting it, and some corrections for when it does occur. 
+
+### Estimating a linear model
+
+Up until now, we have not discussed how R actually calculates all of the slopes and intercept for a linear model with multiple independent variables. We only know the equations for a linear model with one independent variable. 
+
+Even though we don't know the math yet behind how linear model parameters are estimated, we do know the rationale for why they are selected. We choose the parameters that minimized the sum of squared residuals given by:
+
+$$\sum_{i=1}^n (y_i-\hat{y}_i)^2$$
+In this section, we will learn the formal math that underlies how this estimation occurs, but first a warning: there is a lot of math ahead. In normal everyday practice, you don't have to do any of this math, because R will do it for you. However, it is useful to know how linear model estimating works "under the hood" and it will help with some of the techniques we will learn later in the book. 
+
+#### Matrix algebra crash course
+
+In order to learn how to estimate linear model parameters, we will need to learn a little bit of matrix algebra. In matrix algebra we can collect numbers into **vectors** which are single dimension arrays of numbers and **matrices** which are two-dimensional arrays of numbers. We can use matrix algebra to represent our linear regression model equation using one-dimensional **vectors** and two-dimensional **matrices**. We can imagine $y$ below as a vector of dimension 3x1 and $\mathbf{X}$ as a matrix of dimension 3x3. 
+
+$$
+\mathbf{y}=\begin{pmatrix}
+4\\
+5\\
+3\\
+\end{pmatrix}
+\mathbf{X}=
+\begin{pmatrix}
+1 & 7 & 4\\
+1 & 3 & 2\\
+1 & 1 & 6\\
+\end{pmatrix}
+$$
+
+We can multiply vectors and matrices together by taking each element in the row of a matrix by the corresponding element in the vector and summing them up:
+
+$$\begin{pmatrix}
+1 & 7 & 4\\
+1 & 3 & 2\\
+1 & 1 & 6\\
+\end{pmatrix}
+\begin{pmatrix}
+4\\
+5\\
+3\\
+\end{pmatrix}=
+\begin{pmatrix}
+1*4+7*5+3*4\\
+1*4+3*5+2*3\\
+1*4+1*5+6*3\\
+\end{pmatrix}=
+\begin{pmatrix}
+51\\
+25\\
+27\\
+\end{pmatrix}$$
+
+You can also transpose a vector or matrix by flipping its rows and columns. My transposed version of $\mathbf{X}$ is $\mathbf{X}'$ which is:
+
+$$\mathbf{X}=
+\begin{pmatrix}
+1 & 1 & 1\\
+7 & 3 & 1\\
+4 & 2 & 6\\
+\end{pmatrix}$$
+
+You can also multiple matrices by each other using the same pattern as for multiplying vectors and matrices but now you start a new column each time you move down a row of the first matrix. So to "square" my \mathbf{X} matrix:
+
+$$
+\begin{eqnarray*}
+\mathbf{X}'\mathbf{X}&=&
+\begin{pmatrix}
+1 & 1 & 1\\
+7 & 3 & 1\\
+4 & 2 & 6\\
+\end{pmatrix}
+\begin{pmatrix}
+1 & 7 & 4\\
+1 & 3 & 2\\
+1 & 1 & 6\\
+\end{pmatrix}&\\
+& =& \begin{pmatrix}
+1*1+1*1+1*1 & 1*7+1*3+1*1 & 1*4+1*2+1*6\\
+7*1+3*1+1*1 & 7*7+3*3+1*1 & 7*4+3*2+1*6\\
+4*1+2*1+6*1 & 4*7+2*3+6*1 & 4*4+2*2+6*6\\
+\end{pmatrix}\\
+& =&  \begin{pmatrix}
+3 & 11 & 12\\
+11 & 59 & 40\\
+12 & 40 & 56\\
+\end{pmatrix}
+\end{eqnarray*}
+$$
+
+R can help us with these calculations. the `t` command will transpose a matrix or vector and the `%*%` operator will to matrix algebra multiplication.
+
+```{r}
+#| label: matrix-algebra
+y <- c(4,5,3)
+X <- rbind(c(1,7,4),c(1,3,2),c(1,1,6))
+X
+t(X)
+X%*%y
+t(X)%*%X
+# a shortcut for squaring a matrix
+crossprod(X)
+```
+
+We can also calculate the **inverse** of a matrix. The inverse of a matrix ($\mathbf{X}^{-1}$) is the matrix that when multiplied by the original matrix produces the **identity** matrix which is just a matrix of ones along the diagonal cells and zeroes elsewhere. Anything multiplied by the identity matrix is just itself, so the identity matrix is like 1 at the matrix algebra level. Calculating an inverse is a difficult calculation that I won't go through here, but R can do it for us easily with the `solve` command:
+
+```{r}
+#| label: inverse-matrix
+inverse.X <- solve(X)
+inverse.X
+round(inverse.X %*% X,0)
+```
+
+#### Linear model in matrix form
+
+We now have enough matrix algebra under our belt that we can re-specify the linear model equation in matrix algebra format: 
+
+$$\mathbf{y}=\mathbf{X\beta+\epsilon}$$
+
+$\begin{gather*}
+\mathbf{y}=\begin{pmatrix}
+y_{1}\\
+y_{2}\\
+\vdots\\
+y_{n}\\
+\end{pmatrix}
+\end{gather*}$,
+$\begin{gather*}
+\mathbf{X}=
+\begin{pmatrix}
+1 & x_{11} & x_{12} & \ldots & x_{1p}\\
+1 & x_{21} & x_{22} & \ldots & x_{2p}\\
+\vdots & \vdots & \ldots & \vdots\\
+1 & x_{n1} & x_{n2} & \ldots & x_{np}\\
+\end{pmatrix}
+\end{gather*}$,
+$\begin{gather*}
+\mathbf{\epsilon}=\begin{pmatrix}
+\epsilon_{1}\\
+\epsilon_{2}\\
+\vdots\\
+\epsilon_{n}\\
+\end{pmatrix}
+\end{gather*}$,
+$\begin{gather*}
+\mathbf{\beta}=\begin{pmatrix}
+\beta_{1}\\
+\beta_{2}\\
+\vdots\\
+\beta_{p}\\
+\end{pmatrix}
+\end{gather*}$
+
+Where:
+
+- $\mathbf{y}$ is a vector of known values of the independent variable of length $n$.
+- $\mathbf{X}$ is a matrix of known values of the independent variables of dimensions $n$ by $p+1$. This matrix is sometimes referred to as the **design matrix**. 
+- $\mathbf{\beta}$ is a vector of to-be-estimated values of intercepts and slopes of length $p+1$.
+- $\mathbf{\epsilon}$ is a vector of residuals of length $n$ that will be equal to $\mathbf{y-X\beta}$.
+
+Note that we only know $\mathbf{y}$ and $\mathbf{X}$. We need to estimate a $\mathbf{\beta}$ vector from these known quantities. Once we know the $\mathbf{\beta}$ vector, we can calculate $\mathbf{\epsilon}$ by just taking $\mathbf{y-X\beta}$. 
+
+We want to estimate $\mathbf{\beta}$ in order to minimize the sum of squared residuals. We can represent this sum of squared residuals in matrix algebra format as a function of $\mathbf{\beta}$: 
+
+$$\begin{eqnarray*}
+SSR(\beta)&=&(\mathbf{y}-\mathbf{X\beta})'(\mathbf{y}-\mathbf{X\beta})\\
+&=&\mathbf{y}'\mathbf{y}-2\mathbf{y}'\mathbf{X\beta}+\mathbf{\beta}'\mathbf{X'X\beta}
+\end{eqnarray*}$$
+
+If you remember the old FOIL technique from high school algebra (first, outside, inside, last) that is exactly what we are doing here, in matrix algebra form. 
+
+We now have a function that defines our sum of squared residuals. We want to choose the values of $\mathbf{\beta}$ that minimize the value of this function. In order to do that, I need to introduce a teensy bit of calculus. To find the minimum (or maximum) value of a function, you calculate the derivative of the function with respect to the variable you care about and then solve for zero. Technically, you also need to calculate second derivatives in order to determine if its a minimum or maximum, but since this function has no maximum value, we know that the result has to be a minimum. I don't expect you to learn calculus for this course, so I will just mathemagically tell you that the derivative of $SSR(\beta)$ with respect to $\mathbf{\beta}$ is given by: 
+
+$$-2\mathbf{X'y}+2\mathbf{X'X\beta}$$
+
+We can now set this to zero and solve for $\mathbf{\beta}$:
+
+$$\begin{eqnarray*}
+0&=&-2\mathbf{X'y}+2\mathbf{X'X\beta}\\
+-2\mathbf{X'X\beta}&=&-2\mathbf{X'y}\\
+(\mathbf{X'X})^{-1}\mathbf{X'X\beta}&=&(\mathbf{X'X})^{-1}\mathbf{X'y}\\
+\mathbf{\beta}&=&(\mathbf{X'X})^{-1}\mathbf{X'y}\\
+\end{eqnarray*}$$
+
+Ta-dah! We have arrived at the matrix algebra solution for the best fitting parameters for a linear model with any number of independent variables. Lets try this formula out in R:
+
+```{r}
+#| label: matrix-lm
+X <- as.matrix(cbind(rep(1, nrow(movies)), movies[,c("runtime","box_office")]))
+head(X)
+y <- movies$rating_imdb 
+beta <- solve(crossprod(X))%*%crossprod(X,y) 
+beta
+model <- lm(rating_imdb~runtime+box_office, data=movies)
+coef(model)
+```
+
+It works!
+
+We can also estimate standard errors using this matrix algebra format. To get the standard errors, we first need to calculate the **covariance matrix**. 
+
+$$\sigma^{2}(\mathbf{X'X})^{-1}$$
+
+The $\sigma^2$ here is the variance of our residuals. Technically, this is the variance of the residuals in the population but since we usually only have a sample we actually calculate:
+
+$$s^2=\frac{\sum(y_i-\hat{y}_i)^2}{n-p-1}$$
+
+based on the fitted values of $\hat{y}_i$ from our linear model. $p$ is the number of independent variables in our model. 
+
+The covariance matrix actually provides us with some interesting information about the correlation of our independent variables. For our purposes we just want the square root of the diagonal elements, which gives us the standard error for our model. Continuing with the example estimating tomato meter ratings by run time and box office returns in our movies dataset, lets calculate all the numbers we need for an inference test:
+
+```{r matrix-se}
+#get the predicted values of y
+y.hat <- X%*%beta 
+df <- length(y)-ncol(X) 
+#calculate our sample variance of the residual terms
+s.sq <- sum((y-y.hat)^2)/df 
+#calculate the covariance matrix
+covar.matrix <- s.sq*solve(crossprod(X)) 
+#extract SEs from the square root of the diagonal
+se <- sqrt(diag(covar.matrix)) 
+## calculate t-stats from our betas and SEs
+t.stat <- beta/se 
+#calculate p-values from the t-stat
+p.value <- 2*pt(-1*abs(t.stat), df) 
+data.frame(beta,se,t.stat,p.value)
+#compare to the lm command
+summary(model)$coef
+```
+
+And it all works. As I said at the beginning, this is a lot of math and not something you need to think about every day. I am not expecting all of this will stick the first time around, but I want it to be here for you as a handy reference for the future.
+
+## Modeling Non-Linearity
+
+By definition, a linear model is only appropriate if the underlying relationship being modeled can accurately be described as linear. To begin, lets revisit a very clear example of non-linearity introduced in an earlier chapter. The example is the relationship between GDP per capita in a country and that country's life expectancy. We use data from Gapminder to show this relationship with 2007 data.^[To access the gapminder data, just install and load the gapminder *R* package.]
+
+```{r}
+#| label: fig-exp-non-linear
+#| fig-cap: The scatterplot of life expectancy and GDP per capita from 2007 shows a clear non-linear diminishing returns relationship
+ggplot(subset(gapminder, year==2007), aes(x=gdpPercap, y=lifeExp))+
+  geom_point(alpha=0.7)+
+  geom_smooth(method="lm", se=FALSE)+
+  geom_text_repel(data=subset(gapminder, year==2007 & gdpPercap>5000 & lifeExp<60), 
+                  aes(label=country), size=2)+
+  labs(x="GDP per capita", y="Life expectancy at birth", subtitle = "2007 data from Gapminder")+
+  scale_x_continuous(labels=scales::dollar)+
+  theme_bw()
+```
+
+@fig-exp-non-linear shows a scatterplot of this relationship. The relationship is so strong that its non-linearity is readily apparent. Although GDP per capita is positively related to life expectancy, the strength of this relationship diminishes substantial at higher levels of GDP. This is a particular form of non-linearity that is often called a "diminishing returns" relationship. The greater the level of GDP already, the less return you get on life expectancy for an additional dollar. 
+
+@fig-exp-non-linear also shows the best fitting line for this scatterplot in blue. This line is added with the `geom_smooth(method="lm")` argument in `ggplot2`. We can see that this line does not represent the relationship very well. How could it really, given that the underlying relationship clearly curves in a way that a straight line cannot? Even more problematic, the linear fit will produce systematic patterns in the error terms for the linear model. for countries in the middle range of GDP per capita, the line will consistently underestimate life expectancy. At the low and high ends of GDP per capita, the line will consistently overestimate life expectancy. This identifiable pattern in the residuals is an important consequence of fitting a non-linear relationship with a linear model and is in fact one of the ways we will learn to diagnose non-linearity below. 
+
+Non-linearity is not always this obvious. One of the reasons that it is so clear in @fig-exp-non-linear is that the relationship between GDP per capita and life expectancy is so strong. When the relationship is weaker, then points tend to be more dispersed and non-linearity might not be so easily diagnosed from the scatterplot. @fig-non-linear-movies and @fig-non-linear-wages) show two examples that are a bit more difficult to diagnose.
+
+```{r}
+#| label: fig-non-linear-movies
+#| fig-cap: Is this scatterplot of tomato rating by box office returns non-linear?
+ggplot(movies, aes(x=rating_imdb, y=box_office))+
+  geom_jitter(alpha=0.2)+
+  scale_y_continuous(labels = scales::dollar)+
+  labs(x="IMDB rating", y="Box Office Returns (millions)")+
+  theme_bw()
+```
+
+@fig-non-linear-movies shows a scatterplot of the relationship between IMDB ratings and box office returns in the movies dataset. I have already made a few additions to this plot to help with the visual display. The IMDB rating only comes rounded to the first decimal place, so I use `geom_jitter` rather than `geom_point` to perturb the points slightly and reduce overplotting. I also use `alpha=0.2` to set the point as semi-transparent. This is also helps with identifying areas of the scatterplot that are dense with points because they turn darker. 
+
+The linearity of this plot is hard to determine. This is partially because of the heavy right-skew of the box office returns. Many of the points are densely packed along the x-axis because the range of the y-axis is so large to include a few extreme values. Nonetheless, visually we might be seeing some evidence of an increasing slope as IMDG rating gets higher - this is an exponential relationship which is the inverse of the diminishing returns relationship we saw earlier. Still, its hard to know if we are really seeing it or not with the data in this form. 
+
+```{r}
+#| label: fig-non-linear-wages
+#| fig-cap: Is the relationship between age and hourly wage non-linear?
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_jitter(alpha=0.01, width=1)+
+  scale_y_continuous(labels = scales::dollar)+
+  labs(x="age", y="hourly wages")+
+  theme_bw()
+```
+
+@fig-non-linear-wages shows the relationship between a respondent's age and their hourly wages from the earnings data. There are so many observations here that I reduce `alpha` all the way to 0.01 to address overplotting. We also have a problem of a right-skewed dependent variable here. Nonetheless, you can make out a fairly clear dark band across the plot that seems to show a positive relationship. It also appears that this relationship may be of a diminishing returns type with a lower return to age after age 30 or so. However, with the wide dispersion of the data, it is difficult to feel very confident about the results. 
+
+The kind of uncertainty inherent in Figures @fig-non-linear-movies and @fig-non-linear-wages is far more common in practice than the clarity in Figure @fig-exp-non-linear. Scatterplots can be a first step to detecting non-linearity, but usually we need some additional diagnostics. In the next two sections, I will cover two diagnostic approaches to identifying non-linearity: smoothing and residual plots. 
+
+### Smoothing
+
+Smoothing is a technique for estimating the relationship in a scatterplot without the assumption that this relationship be linear. In order to understand what smoothing does, it will be first helpful to draw a non-smoothed line between all the points in a scatterplot, starting with the smallest value of the independent variable to the largest value. I do that in @fig-connect-dots. As you can see this produces a very jagged line that does not give us much sense of the relationship because it bounces around so much. 
+
+```{r}
+#| label: fig-connect-dots
+#| fig-cap: Connecting the dots in our scatterplot leads to a very jagged line.
+movies |>
+  arrange(rating_imdb) |>
+  ggplot(aes(x=rating_imdb, y=box_office))+
+  geom_point(alpha=0.05)+
+  geom_line()+
+  scale_y_continuous(labels = scales::dollar)+
+  labs(x="IMDB Rating", y="Box Office Returns (millions)")+
+  theme_bw()
+```
+
+The basic idea of smoothing is to smooth out that jagged line. This is done by replacing each actual value of $y$ with a predicted value $\hat{y}$ that is determined by that point and its nearby neighbors. The simplest kind of smoother is often called a "running average." In this type of smoother, you simply take $k$ observations above and below the given point and calculate the mean or median. For example, lets say we wanted to smooth the box office return value for the movie *Rush Hour 3*. We want to do this by reaching out to the two neighbors above and below this movie in terms of the tomato rating. After sorting movies by tomato rating, here are the values for *Rush Hour 3* and the two movies closest to it in either direction. @tbl-rush-hour-three shows all five of these movies.^[Technically, this is somewhat inaccurate as many more movies than these five were tied at an IMDB rating of 6.2 and the second sorting factor here is alphabetical title.]
+
+```{r}
+#| label: tbl-rush-hour-three
+#| tbl-cap: Rush Hour 3 and its two nearest neighbors in either direction.
+#| echo: false
+movies <- movies[order(movies$rating_imdb),]
+i <- which(movies$title=="Rush Hour 3")
+knitr::kable(movies[(i-2):(i+2),c("title", "rating_imdb", "box_office")])
+```
+
+To smooth the value for Rush Hour 3, we can take either the median or the mean of the box office returns for these five values:
+
+```{r}
+#| label: rush-hour-smooth
+box_office <- c(0.5, 50.6, 140.1, 336.5, 21.5)
+mean(box_office)
+median(box_office)
+```
+
+The mean smoother would give us a value of \$109.84 million and the median smoother a value of \$50.6 million. In either case, the value for *Rush Hour 3* is pulled substantially away from its  position at \$140.1 million, bringing it closer to its neighbors' values.
+
+To get a smoothed line, we need to repeat this process for every point in the dataset. The `runmed` command will do this for us once we have the data sorted correctly by the independent variable.  @fig-median-smoothing shows two different smoothed lines applied to the movie scatterplot, with different windows. 
+
+```{r}
+#| label: fig-median-smoothing
+#| fig-cap: Two different median smoothers are shown. The one in blue uses a window of two neighbors to each side while the one one in red uses a window of 250 neighbors on each side.
+
+movies <- movies[order(movies$rating_imdb),]
+movies$box_office_sm1 <- runmed(movies$box_office, 5)
+movies$box_office_sm2 <- runmed(movies$box_office, 501)
+ggplot(movies, aes(x=rating_imdb, y=box_office))+
+  geom_point(alpha=0.2)+
+  geom_line(col="grey", size=1, alpha=0.7)+
+  geom_line(aes(y=box_office_sm1), col="blue", size=1, alpha=0.7)+
+  geom_line(aes(y=box_office_sm2), col="red", size=1, alpha=0.7)+
+  scale_y_continuous(labels = scales::dollar)+
+  labs(x="IMDB Rating", y="Box Office Returns (millions)")+
+  theme_bw()
+```
+
+It is clear here that using two neighbors on each side is not sufficient in a dataset of this size. With 250 neighbors on each side, we get something much smoother. This second smoothing line also reveals a sharp uptick at the high end of the dataset, which suggests some possible non-linearity. 
+
+A more sophisticated smoothing procedure is available via the LOESS (locally estimated scatterplot smoothing) smoother. The LOESS smoother uses a linear model with polynomial terms (discussed below) on a local subset of the data to estimate a predicted value for each observation. The model also weights values so that observations closer to the index observation count more in the estimation. This technique tends to produce better results than median or mean smoothing. 
+
+You can easily fit a LOESS smoother to a scatterplot in `ggplot2` by specifying `method="loess"` in the `geom_smooth` function. In fact, this is the default method for `geom_smooth` for datasets smaller than a thousand observations. @fig-smooth-movies plots this LOESS smoother as well as a linear fit for comparison.
+
+```{r}
+#| label: fig-smooth-movies
+#| fig-cap: A LOESS smoother to the data is shown in blue while a linear fit is shown in red.
+#| message: false
+ggplot(movies, aes(x=rating_imdb, y=box_office))+
+  geom_jitter(alpha=0.2)+
+  geom_smooth(method="lm", color="red", se=FALSE)+
+  geom_smooth(se=FALSE, method="loess")+
+  scale_y_continuous(labels = scales::dollar)+
+  labs(x="IMDB Rating", y="Box Office Returns (millions)")+
+  theme_bw()
+```
+
+Again we see the exponential relationship in the LOESS smoother. The LOESS smoother is also much smoother than the median smoothers we calculated before. 
+
+By default the LOESS smoother in `geom_smooth` will use 75% of the full data in its subset for calculating the smoothed value of each point. This may seem like a lot, but remember that it weights values closer to the index point. You can adjust this percentage using the `span` argument in `geom_smooth`. 
+
+The main disadvantage of the LOESS smoother is that it becomes computationally inefficient as the number of observations increases. If I were to apply the LOESS smoother to the `r format(nrow(earnings), big.mark = ",")` observations in the earnings data, it would kill R before producing a result. For larger datasets like this one, another option for smoothing is the general additive model (GAM). This model is complex and I won't go into the details here, but it provides the same kinds of smoothing as LOESS but is much less computationally expensive. GAM smoothing is the default in `geom_smooth` for datasets larger than a thousand observations, so you do not need to include a method. @fig-smooth-wages shows A GAM smoother applied to the relationship between wages and age. The non-linear diminishing returns relationship is clearly visible in the smoothed line. 
+
+```{r}
+#| label: fig-smooth-wages
+#| fig-cap: A GAM smoother (shown in blue) applied to the relationship between age and wages in the earnings data. A linear fit is shown in red.
+
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_jitter(alpha=0.01, width=1)+
+  geom_smooth(method="lm", color="red", se=FALSE)+
+  geom_smooth(se=FALSE)+
+  scale_y_continuous(labels = scales::dollar)+
+  labs(x="age", y="hourly wages")+
+  theme_bw()
+```
+
+
+### Residual Plots
+
+Another technique for detecting non-linearity is the to plot the fitted values of a model by the residuals. To demonstrate how this works, lets first calculate a model predicting life expectancy by GDP per capita from the gapminder data earlier.
+
+```{r}
+#| label: model-le-gep
+
+model <- lm(lifeExp~gdpPercap, data=subset(gapminder, year==2007))
+```
+
+If you type `plot(model)`, you will get a series of model diagnostic plots in base R. The first of these plots is the residual vs. fitted values plot. We are going to make the same plot, but in `ggplot`. In order to do that, I need to introduce a new package called `broom` that has some nice features for summarizing results from your model. It is part of the Tidyverse set of packages. To install it type `install.packages("broom")`. You can then load it with `library(broom)`. The broom package has three key commands:
+
+- `tidy` which shows the key results from the model including coefficients, standard errors and the like. 
+- `augment` which adds a variety of diagnostic information to the original data used to calculate the model. This includes residuals, cooks distance, fitted values, etc.
+- `glance` which gives a summary of model level goodness of fit statistics. 
+
+At the moment, we want to use the `augment` command. Here is what the it looks like:
+
+```{r augment-broom}
+augment(model)
+```
+
+We can use the dataset returned here to build a plot of the fitted values (`.fitted`) by the residuals (`.resid`) like this:
+
+```{r}
+#| label: fig-resid-fitted
+#| fig-cap: A residual vs. fitted values plot for a model predicting life expectancy by GDP per capita. Their is a clear trend here whigh signifies non-linearity.
+
+ggplot(augment(model), aes(x=.fitted, y=.resid))+
+  geom_point()+
+  geom_hline(yintercept = 0, linetype=2)+
+  geom_smooth(se=FALSE)+
+  labs(x="fitted values of life expectancy", y="model residuals")+
+  theme_bw()
+```
+
+If a linear model fitted the data well, then we would expect to see no evidence of a pattern in the scatterplot of @fig-resid-fitted. We should just see a cloud of points centered around the value of zero. The smoothing line helps us see patterns, but in this case the non-linearity is so strong that we would be able to detect it even without the smoothing. This clear pattern indicates that we have non-linearity in our model and we should probably reconsider our approach. 
+
+@fig-resid-fitted-movies and @fig-resid-fitted-wages show residual vs. fitted value plots for the two other cases of movie box office returns and wages that we have been examining. In these cases, the patterns are somewhat less apparent without the smoothing. The movie case does not appear particularly problematic although there is some argument for exponential increase at very high values of tomato rating. The results for wages suggest a similar diminishing returns type problem.^[Both of these figures also reveal an additional problem unrelated to non-linearity. Both figures show something of a cone shape to the scatterplot in which the variance of the residuals gets larger at higher fitted values. This is the problem of heteroskedasticity that we will return to in the next section.] 
+
+```{r}
+#| label: fig-resid-fitted-movies
+#| fig-cap: A residual vs. fitted values plot for a model predicting movie box office returns by tomato rating.
+#| echo: false
+
+model <- lm(box_office~rating_imdb, data=movies)
+ggplot(augment(model), aes(x=.fitted, y=.resid))+
+  geom_jitter(alpha=0.2)+
+  geom_hline(yintercept = 0, linetype=2)+
+  geom_smooth(se=FALSE)+
+  labs(x="fitted values of box office returns", y="model residuals")+
+  theme_bw()
+```
+
+```{r}
+#| label: fig-resid-fitted-wages
+#| fig-cap: A residual vs. fitted values plot for a model predicting movie box office returns by tomato rating.
+#| echo: false
+
+model <- lm(wages~age, data=earnings)
+ggplot(augment(model), aes(x=.fitted, y=.resid))+
+  geom_jitter(alpha=0.01)+
+  geom_hline(yintercept = 0, linetype=2)+
+  geom_smooth(se=FALSE)+
+  labs(x="fitted values of hourly wages", y="model residuals")+
+  theme_bw()
+```
+
+Now that we have diagnosed the problem of non-linearity, what can we do about it? There are several ways that we can make adjustments to our models to allow for non-linearity. The most common technique is to use **transformations** to change the relationship between independent and dependent variables. Another approach is to include **polynomial terms** into the model that can simulate a parabola. A third, less common, option is to create a *spline* term that allows for non-linearity at specific points. I cover each of these techniques below. 
+
+### Transformations
+
+You **transform** your data when you apply a mathematical function to a variable to transform its values into different values. There are a variety of different transformations that are commonly used in statistics, but we will focus on the one transformation that is most common in the social sciences: the log transformation.
+
+Transformations can directly address issues of non-linearity. By definition if you transform the independent variable, the dependent variable, or both variables in your model, then the linear relationship assumed by the model between the transformed variables. On the original scale of the variables, the relationship is non-linear.
+
+Transformations can also have additional side benefits besides fitting non-linear relationships. The log transformation, for example, will pull in extreme values and skewness in a distribution, reducing the potential for outliers to exert a strong influence on results. Take @fig-wages-skew for example. This figure shows the distribution of hourly wages in the earnings data. This distribution is heavily right-skewed, despite the fact that wages have been top-coded at \$100. Any model of wages is likely to be influenced considerably by the relatively small but still numerically substantial number of respondents with high wages. 
+
+```{r}
+#| label: fig-wages-skew
+#| fig-cap: Hourly wages are heavily right skewed even after top-coding the data at a wage of $100.
+#| echo: false
+
+ggplot(earnings, aes(x=wages))+
+  geom_histogram(fill="grey", color="black")+
+  labs(x="hourly wages")+
+  theme_bw()
+```
+
+Lets look at that distribution again, but this time on the log-scale. We will cover in more detail below what the mathematical log means, but for now you can just think of the log-scale as converting from an additive scale to a multiplicative scale. On the absolute scale, we want to have equally spaced intervals on the axes of our graph to represent a constant absolute amount difference. You can see in @fig-wages-skew that the tick-marks for wages are at evenly spaced intervals of \$25. On the log-scale we want evenly-spaced intervals on the axes of our graph to correspond to multiplicative changes. So on a log base 10 scale, we would want the numbers 1, 10, and 100, to be evenly spaced because each one represents a 10 fold multiplicative increase. In `ggplot2`, you can change the axis to a log-scale with the argument `scale_x_log10`. @fig-wages-skew-log shows the same distribution of hourly wages, but this time using the log-scale. 
+
+```{r}
+#| label: fig-wages-skew-log
+#| fig-cap: On the log-scale, hourly wages is less skewed, although now we have a slight problem of a left-skew
+#| echo: false
+ggplot(earnings, aes(x=wages))+
+  geom_histogram(fill="grey", color="black")+
+  scale_x_log10()+
+  labs(x="hourly wages")+
+  theme_bw()
+```
+
+You can clearly see in @fig-wages-skew-log that we have pulled in the extreme right tail of the distribution and have a somewhat more symmetric distribution. The transformation here hasn't perfectly solved things, because now we have a slight left-skew for very low hourly wages. Nonetheless, even these values are closer in absolute value after the transformation and so will be less likely to substantially influence our model. This transformation can also help us with the cone-shaped residual issue we saw earlier (i.e. heteroskedasticity), but we will discuss that more in the next section.
+
+Because transformations can often solve multiple problems at once, they are very popular. In fact, for some common analyses like estimating wages or CO2 emissions, log transformations are virtually universal. The difficult part about transformations is understanding exactly what kind of non-linear relationship you are estimating by transforming and how to interpret the results from models with transformed variables. We will develop this understanding using the natural log transformation on the examples we have been looking at in this section.
+
+#### The log transformation
+
+Before getting into the mathematical details of the log transformation, lets first demonstrate its power. Figure @fig-log-scale-movies shows the relationship between IMDB rating and box office returns in our movies data. However, this time I have applied a log-scale to box office returns. Although we still see some evidence of non-linearity in the LOESS estimator, the relationship looks much more clearly linear than before. But the big question is how do we interpret the slope and intercept for the linear model fit to this log-transformed data? 
+
+```{r}
+#| label: fig-log-scale-movies
+#| fig-cap: Scatterplot of the relationship between rotten tomatoes rating and box office returns, with a log-scale applied to box office returns.
+ggplot(movies, aes(x=rating_imdb, y=box_office))+
+  geom_jitter(alpha=0.2)+
+  geom_smooth(method="lm", color="red", se=FALSE)+
+  geom_smooth(se=FALSE, method="loess")+
+  scale_y_log10(labels = scales::dollar)+
+  labs(x="IMDB Rating", y="Box Office Returns (millions)")+
+  theme_bw()
+```
+
+In order to understand the model implied by that straight red line, we need to delve a little more deeply into the math of the log transformation. In general, the log equation means converting some number into the exponential value of some base multiplier. So, if we wanted to know what the log base 10 value of 27 is, we need to know what exponential value applied to 10 would produce 27:
+
+$$27=10^x$$
+
+We can calculate this number easily in *R*:
+
+```{r}
+#| label: log-base-ten
+x <- log(27, base=10)
+x
+10^x
+```
+
+Log base 10 and log base 2 are both common values used in teaching log transformations, but the standard base we use in statistics is the mathematical constant $e$ (2.718282). This number is of similar importance in mathematics as $\pi$ and is based on the idea of what happens to compound interest as the period of interest accumulation approaches zero. This has a variety of applications from finance to population growth, but none of this concerns us directly. We are interested in $e$ as a base for our log function because of certain other useful properties discussed further below that ease interpretation.
+
+When we use $e$ as the base for our log function, then we are using what is often called the "natural log." We can ask the same question about 27 as before but now with the natural log:
+
+```{r}
+#| label: log-naturale
+x <- log(27)
+x
+exp(x)
+```
+
+I didn't have to specify a base here because *R* defaults to the natural log. The `exp` function calculates $e^x$. 
+
+For our purposes, the most important characteristic of the log transformation is that it converts multiplicative relationships into additive relationships. This is because of a basic mathematical relationship where:
+
+$$e^a*a^b=e^{a+b}$$
+$$log(x*y) = log(x)+log(y)$$
+You can try this out in R to see that it works:
+
+```{r}
+#| label: how-logs-work
+exp(2)*exp(3)
+exp(2+3)
+log(5*4)
+log(5)+log(4)
+```
+
+We can use these mathematical relationships to help understand a model with log-transformed variables. First lets calculate the model implied by the scatterplot in @fig-log-scale-movies. We can just use the `log` command to directly transform box office returns in the `lm` formula:
+
+```{r}
+#| label: movides-log-model
+model <- lm(log(box_office)~rating_imdb, data=movies)
+round(coef(model), 3)
+```
+
+OK, so what does that mean? It might be tempting to interpret the results here as you normally would. We can see that IMDB rating has a positive effect on box office returns. So, a one point increase in IMDB rating is associated with a 0.371 increase in ... what? Remember that our dependent variable here is now the natural log of box office returns, not box office returns itself. We could literally say that it is a 0.371 increase in log box office returns, but that is not a very helpful or intuitive way to think about the result. Similarly the intercept gives us the predicted log box office returns when IMDB rating is zero. That is not helpful for two reasons: its outside the scope of the data (the lowest IMDB rating in the database is 1.5), and we don't really know how to think about log box office returns of 0.016. 
+
+In order to translate this into something meaningful, lets try looking at this in equation format. Here is what we have:
+
+$$\hat{\log(y_i)}=0.016+0.371*x_i$$
+
+What we really want is to be able to understand this equation back on the original scale of the dependent variable, which in this case is box office returns in millions of dollars. Keep in mind that taking $e^{\log(y)}$ just gives us back $y$. We can use that logic here. If we "exponentiate" (take $e$ to the power of the values) the left-hand side of the equation, then we can get back to $\hat{y}_i$. However, remember from algebra, that what we do to one side of the equation, we have to do to both sides. That means:
+
+$$e^{\hat{\log(y_i)}}=e^{0.016+0.371*x_i}$$
+$$\hat{y}_i=(e^{0.016})*(e^{0.371})^{x_i}$$
+We now have quite a different looking equation for predicting box office returns. The good news is that we now just have our predicted box office returns back on the left-hand side of the equation. The bad news is that the right hand side looks a bit complex. Since $e$ is just a constant value, we can go ahead and calculate the values in those parentheses (called "exponentiating"):
+
+```{r exponentiate}
+exp(0.016)
+exp(0.371)
+```
+
+That means:
+
+$$\hat{y}_i=(1.016)*(1.449)^{x_i}$$
+We now have a **multiplicative** relationship rather than an additive relationship. How does this changes our understanding of the results? To see, lets plug in some values for $x_i$ and see how it changes our predicted income value. An IMDB rating of zero is outside the scope of our data, but lets plug it in for instructional purposes anyway:
+
+$$\hat{y}_i=(1.016)*(1.449)^{0}=(1.016)(1)=1.016$$
+So, the predicted box office returns when $x$ is zero is just given by exponentiating the intercept. Lets try increasing IMDB rating by one point:
+
+$$\hat{y}_i=(1.016)*(1.449)^{1}=(1.016)(1.449)$$
+I could go ahead and finish that multiplication, but I want to leave it here to better show how to think about the change. A one point increase in IMDG rating is associated with an increase in box office returns by a **multiplicative** factor of 1.449. In other words, a one point increase in IMDB rating is associated with a 44.9% increase in box office returns, on average. What happens if I add another point to IMDB?
+
+$$\hat{y}_i=(1.016)*(1.449)^{2}=(1.016)(1.449)(1.449)$$
+Each additional point leads to a 44.9% increase in predicted box office returns. This is what I mean by a multiplicative increase. We are no longer talking about the predicted change in box office returns in terms of **absolute** numbers of dollars, but rather in **relative** terms of percentage increase. 
+
+In general, in order to properly interpret your results when you log the dependent variable, you must exponentiate all of your slopes and the intercept. You can then interpret them as:
+
+> The model predicts that a one-unit increase in $x_j$ is associated with a $e^{b_j}$ multiplicative increase in $y$, on average while holding all other independent variables constant. 
+> The model predicts that $y$ will be $e^{b_0}$ on average when all independent variables are zero. 
+
+Of course, just like all of our prior examples, you are responsible for converting this into sensible English. 
+
+Lets try a more complex model in which we predict log box office returns by tomato rating, runtime and movie maturity rating:
+
+```{r model-log-box-office}
+model <- lm(log(box_office)~rating_imdb+runtime+maturity_rating, data=movies)
+coef(model)
+```
+
+We have a couple of added complexities here. We now have results for categorical variables as well as negative numbers to interpret. In all cases, we want to exponentiate to interpret correctly, so lets go ahead and do that:
+
+```{r exponentiate-coefs}
+exp(coef(model))
+```
+
+The IDMB rating effect can be interpreted as before but now with control variables:
+
+> The model predicts that a one point increase in the IMDB rating is associated with a 25% increase in box office returns, on average, holding constant movie runtime and maturity rating. 
+
+The runtime effect can be interpreted in a similar way.
+
+> The model predicts that a one minute increase in movie runtime is associated with a 3.5% increase in box office returns, on average, holding constant movie IMDB rating and maturity rating. 
+
+In both of these cases, it makes sense to take the multiplicative effect and convert that into a percentage increase. If I multiply the predicted box office returns by 1.035, then I am increasing it by 3.5%. When effects get large, however, it sometimes makes more sense to just interpret it as a multiplicative factor. For example, if the exponentiated coefficient was 3, I could interpret this as a 200% increase. However, it probably makes more sense in this case to just say something along the lines of the "predicted value of $y$ triples in size for a one point increase in $x$."
+
+The categorical variables can be interpreted as we normally do in terms of the average difference between the indicated category and the reference category. However, now it is the multiplicative difference. So, taking the exponentiated PG effect of 0.378, we could just say:
+
+> The model predicts that, controlling for tomato rating and runtime, PG-rated movies make 37.8% as much as G-rated movies at the box office, on average.
+
+However, its also possible to talk about how much less a PG-rated movie makes than a G-rated movie. If a PG  movie makes 37.8% as much, then it equivalently makes 62.2% less. We get this number by just subtracting the original percentage from 100. So I could have said:
+
+> The model predicts that, controlling for tomato rating and runtime, PG-rated movies make 62.2% less than G-rated movies, on average. 
+
+In general to convert any coefficient $\beta_j$ from a model with a logged dependent variable to a percentage change scale we can follow this formula:
+
+$$(e^{\beta_j}-1)*100$$
+
+This will give us the percentage change and the correct direction of the relationship.
+
+You may have noted that the effect of runtime in the model above before exponentiating was 0.0348 and after we exponentiated the result, we concluded that the effect of one minute increase in runtime was 3.5%. If you move over the decimal place two digits, those numbers are very similar. This is not a coincidence. It follows from what is known as the Taylor series expansion for the exponential:
+
+$$e^x=1+x-\frac{x^2}{2!}+\frac{x^3}{3!}-\frac{x^4}{4!}+\ldots$$
+Any exponential value $e^x$ can be calculated from this Taylor series expansion which continues indefinitely. However, when $x$ is a small value less than one, note that you are squaring, cubing, and so forth, which results in an even smaller number that is divided by an increasingly large number. So, for small values of $x$, the following approximation works reasonably well:
+
+$$e^x\approx1+x$$
+
+In the case I just noted where $x=0.0338$, the actual value of $e^{0.0348}$ is 1.035413 while the approximation gives us 1.0348. That is pretty close. This approximation starts to break down around $x=0.2$. The actual value of $e^{0.2}$ is 1.221 or about a 22.1% increase, whereas the approximation gives us 1.2 or a straight 20% increase. 
+
+You can use this approximation to get a ballpark estimate of the effect size in percentage change terms for coefficients that are not too large without having to exponentiate. So I can see that the coefficient of 0.222 for IMDB rating is going to be a bit over a 22%  increase and the coefficient of 0.0348 is going to be around a 3.5% increase, all without having to exponentiate. Notice that this does not work at all well for the very large coefficients for movie maturity rating. 
+
+#####  Logging the independent variable 
+
+The previous example showed how to interpret results when you log the dependent variables. Logging the dependent variable will help address exponential type relationships. However in cases of a diminishing returns type relationship, we instead need to log the independent variable. @fig-gapminder-log-scale shows the GDP per capita by life expectancy scatterplot from before but now with GDP per capita on a log scale. 
+
+```{r}
+#| label: fig-gapminder-log-scale
+#| fig-cap: Scatterplot of life expectancy by GDP per capita, with a log-scale applied to GDP per capita. Look how much more linear the relationship looks.
+#| echo: false
+ggplot(subset(gapminder, year==2007), aes(x=gdpPercap, y=lifeExp))+
+  geom_point(alpha=0.7)+
+  geom_smooth(se=FALSE, method="lm", color="red")+
+  geom_smooth(se=FALSE)+
+  labs(x="GDP per capita", y="Life expectancy at birth", 
+       caption = "2007 data from Gapminder")+
+  scale_x_log10(labels=scales::dollar)+
+  theme_bw()
+```
+
+It is really quite remarkable how this simple transformation straightened out that very clear diminishing returns type relationship we observed before. This is because on the log-scale a one unit increase means a multiplicative change, so you have to make a much larger absolute change when you are already high in GDP per capita to get the same return in life expectancy. 
+
+Models with logged independent variables are a little trickier to interpret. To understand how it works, lets go ahead and calculate the model:
+
+```{r}
+#| label: log-gdp-model
+model <- lm(lifeExp~log(gdpPercap), data=subset(gapminder, year==2007))
+round(coef(model), 5)
+```
+
+So our model is:
+
+$$\hat{y}_i=4.9+7.2\log{x_i}$$
+
+Because the log transformation is on the right hand side we can no longer use the trick of exponentiating coefficient values. It would also be impractical if we added other independent variables to the model.
+
+Instead, we can interpret our slope by thinking about how a 1% increase in $x$ would change the predicted value of $y$. For ease of interpretation, lets start with $x=1$. The log of 1 is always zero, so:
+
+$$\hat{y}_i=4.9+7.2\log{1}=4.9+7.2*0=\beta_0$$
+
+So, the intercept here is actually the predicted value of life expectancy when GDP per capita is \$1. This is not a terribly realistic value for GDP per capita where the lowest value in the dataset is \$241, so its not surprising that we get an unrealistically low life expectancy value.  
+
+Now what happens if we raise GDP per capita by 1%? A 1% increase from a value of 1 would give us a value of 1.01. So:
+
+$$\hat{y}_i=4.9+7.2\log{1.01}$$
+
+From the Taylor series above, we can deduce that the $\log{1.01}$ is roughly equal to 0.01. So:
+
+$$\hat{y}_i=4.9+7.2*0.01=4.9+0.072$$
+
+This same logic will apply to any 1% increase in GDP per capita. So, the model predicts that a 1% increase in GDP per capita is associated with a 0.072 year increase in the life expectancy. 
+
+In general, you can interpret any coefficient $\beta_j$ with a logged independent variable but not logged dependent variable as:
+
+> The model predicts that a a 1% increase in x is associated with a $\beta_j/100$ unit increase in y.
+
+One easy way to remember what the log transformation does is that it makes your measure of change relative rather than absolute for the variable transformed. When we logged the dependent variable before then our slope could be interpreted as the percentage change in the dependent variable (relative) for a one unit increase (absolute) in the independent variable. When we log the independent variable, the slope can be interpreted as the unit change in the dependent variable (absolute) for a 1% increase (relative) in the independent variable. 
+
+##### Logging both independent and dependent variables: The elasticity model
+
+If logging the dependent variable will make change in the dependent variable relative, and logging the independent variable will make change in the independent variable relative, then what happens if you log transform both? Then you get a model which predicts relative change by relative change. This model is often called an "elasticity" model because the predicted slopes are equivalent to the concept of elasticity in economics: how much does of a percent change in $y$ results from a 1% increase in $x$. 
+
+The relationship between age and wages may benefit from logging both variables. We have already seen a diminishing returns type relationship which suggests logging the independent variable. We also know that wages are highly right-skewed and so might also benefit from being logged. 
+
+```{r}
+#| label: fig-transform-wages
+#| fig-cap: Is the relationship between age and hourly wage non-linear?
+#| echo: false
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_jitter(alpha=0.01, width=0.1)+
+  geom_smooth(se=FALSE, method="lm", color="red")+
+  geom_smooth(se=FALSE)+
+  scale_y_log10(labels = scales::dollar)+
+  scale_x_log10()+
+  labs(x="age", y="hourly wages")+
+  theme_bw()
+```
+
+@fig-transform-wages shows the relationship between age and wages when we apply a log scale to both variables. It looks a little better although there is still some evidence of diminishing returns even on this scale. Lets go with it for now, though. 
+
+Lets take a look at the coefficients from this model:
+
+```{r}
+#| label: elasticity-model
+model <- lm(log(wages)~log(age), data=earnings)
+coef(model)
+```
+
+One of the advantages of the elasticity model is that slopes can be easily interpreted. We can use the same techniques when logging independent variables to divide our slope by 100 to see that a one percent increase in age is associated with a 0.0051 increase in the dependent variable. However this dependent variable is the log of wages. To interpret the effect on wages, we need to exponentiate this value, subtract 1, and multiply by 100. However since the value is small, we know that this is going to be roughly a 0.51% increase. So:
+
+> The model predicts that a one percent increase in age is associated with a 0.51% increase in wages, on average. 
+
+In other words, we don't have to make any changes at all. The slope is already the expected percent change in $y$ for a one percent increase in $x$. 
+
+The STRIPAT model that Richard York helped to develop is an example of an elasticity model that is popular in environmental sociology. In this model, the dependent variable is some measure of environmental degradation, such as CO2 emissions. The independent variable can be things like GDP per capita, population size and growth, etc. All variables are logged so that model parameters can be interpreted as elasticities. 
+
+### Polynomial Models
+
+Another method that can be used to fit non-linear relationships is to fit *polynomial* terms. You may recall the the following formula from basic algebra:
+
+$$y=a+bx+cx^2$$
+
+This formula defines a parabola which fits not a straight line but a curve with one point of inflection. We can fit this curve in a linear model by simply including the square of a given independent variable as an additional variable in the model. Before we do this it is usually a good idea to re-center the original variable somewhere around the mean because this will reduce the correlation between the original term and its square. 
+
+For example, I could fit the relationship between age and wages using polynomial terms:
+
+```{r}
+#| label: quadratic-model
+model <- lm(wages~I(age-40)+I((age-40)^2), data=earnings)
+coef(model)
+```
+
+The coefficients for such a model are a little hard to interpret directly. This is a case where **marginal effects** can help us understand what is going on. 
+
+The marginal effect can be calculated by taking the partial derivative (using calculus) of the model equation with respect to $x$. I don't expect you to know how to do this, so I will just tell how it turns out. In a model with a squared term:
+
+$$\hat{y}=\beta_0+\beta_1x+\beta_2x^2$$
+
+The marginal effect (or slope) is given by:
+
+$$\beta_1+2\beta_2x$$
+ 
+Note that the slope of $x$ is itself partially determined by the value of $x$. This is what drives the non-linearity. If we plug in the values for the model above, the relationship will be clearer:
+
+$$0.3171+2(-0.0178)x=0.3171-0.0356x$$
+
+So when $x=0$, which in this case means age 40, a one year increase in age is associated with a \$0.32 increase in hourly wage, on average. For every increase in the year of age past 40, that effect of a one year increase in age on wages decreases in size by \$0.035. For every year below age 40, the effect increases by \$0.035.
+
+Because $\beta_1$ is positive and $\beta_2$ is negative, we have a diminishing returns kind of relationship. Unlike the log transformation however, the relationship can ultimately reverse direction from positive to negative. I can figure out the inflection point at which it will transition from a positive to a negative relationship. I won't delve into the details here, but this point is given by setting the derivative of this equation with respect to age equal to zero and solving for age. In general, this will give me:
+
+$$\beta_j/(-2*\beta_{sq})$$
+
+Where $\beta_j$ is the coefficient for the linear effect of the variable (in this case, age), and $\beta_{sq}$ is the coefficient for the squared effect. In my case, I get:
+
+$$0.3171/(-2*-0.0178)=0.3171/0.0356=8.91$$
+
+Remember that we re-centered age at 40, so this means that the model predict that age will switch from a positive to a negative relationship with wages at age 48.91. 
+
+Often, the easiest way to really get a sense of the parabolic relationship we are modeling is to graph it. This can be done easily with `ggplot` by using the `geom_smooth` function. In the `geom_smooth` function you specify `lm` as the method, but also specify a `formula` argument that specifies this linear model should be fit as a parabola rather than a straight line. 
+
+```{r}
+#| label: fig-parabola-wages
+#| fig-cap: A parabolic model fit to the relationship between age and wages. The dotted red line shows the maximum value of the curve where the relationship between wages and age goes from positive to negative.
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_jitter(alpha=0.01, width=1)+
+  scale_y_continuous(labels = scales::dollar)+
+  labs(x="age", y="hourly wages")+
+  geom_smooth(se=FALSE, method="lm", formula=y~x+I(x^2))+
+  geom_vline(xintercept = 48.91, linetype=2, color="red")+
+  theme_bw()
+```
+
+
+@fig-parabola-wages shows the relationship between age and wages after adding a squared term to our linear model. I have also added a dashed line to indicate the inflection point at which the relationship shifts from positive to negative. 
+
+Polynomial models do not need to stop at a squared term. You can also add a cubic term and so on. The more polynomial terms you add, the more inflection points you are allowing for in the data, but also the more complex it will be to interpret. @fig-cubic-gapminder shows the predicted relationship between GDP per capita and life expectancy in the gapminder data when using a squared and cubic term in the model. You can see two different inflection points in the data that allow for more complex curves than one could get using transformations.
+
+```{r}
+#| label: fig-cubic-gapminder
+#| fig-cap: A model predicting life expectancy from GDP per capita with squared and cubic terms.
+ggplot(subset(gapminder, year==2007), aes(x=gdpPercap, y=lifeExp))+
+  geom_point()+
+  labs(x="GDP per capita", y="life expectancy")+
+  geom_smooth(se=FALSE, method="lm", formula=y~x+I(x^2)+I(x^3))+
+  theme_bw()
+```
+
+### Splines
+
+
+Another approach to fitting non-linearity is to fit a **spline**. Splines can become quite complex, but I will focus here on a very simple spline. In a basic spline model, you allow the slope of a variable to have a different linear effect at different cutpoints or "hinge" values of $x$. Within each segment defined by the cutpoints, we simply estimate a linear model (although more complex spline models allow for non-linear effects within segments). 
+
+Looking at the diminishing returns to wages from age in the earnings data, it might be reasonable to fit this effect with a spline model. It looks like age 35 might be a reasonable value for the hinge. 
+
+In order to fit the spline model, we need to add a spline term. This spline term will be equal to zero for all values where age is equal to or below 35 and will be equal to age minus 35 for all values where age is greater than 35. We then add this variable to the model. I fit this model below. 
+
+```{r}
+#| label: model-spline
+earnings$age.spline <- ifelse(earnings$age<35, 0, earnings$age-35)
+model <- lm(wages~age+age.spline, data=earnings)
+coef(model)
+```
+
+This spline will produce two different slopes. For individuals 35 years of age or younger, the predicted change in wages for a one year increase will be given by the main effect of age, because the spline term will be zero. For individuals over 35 years of age, a one year increase in age will produce both the main age effect *and* the spline effect, so the total effect is given by adding the two together. So in this case, I would say the following:
+
+> The model predicts that for individuals 35 years of age and younger, a one year increase in age is associated with a $0.95 increase in wages on average. The model predicts that for individuals over 35 years of age, a one year increase in age is associated with a $0.0077 (0.9742-0.9549). 
+
+We can also graph this spline model, but we cannot do it simply through the `formula` argument in `geom_smooth`.  In order to do that, you will need to learn a new command. The `predict` command can be used to get predicted values from a model for a different dataset. The `predict` command needs at least two arguments: (1) the model object for the model you want to predict, and (2) a data.frame that has the same variables as those used in the model. In this case, we can create a simple "toy" dataset that just has one person of every age from 18 to 65, with only the variables of `age` and `age.spline`. We can then use the `predict` command to get predicted wages for these individuals and add that as a variable to our new dataset. We can than plot these predicted values as a line in `ggplot` by feeding in the new data into the `geom_line` command. The r code chunk below does all of this to produce @fig-spline-wages. The spline model seems to fit pretty well here and is quite close to the smoothed line. This kind of model is sometimes called a "broken arrow" model because the two different slopes produce a visual effect much like an arrow broken at the hinge point.  
+
+```{r spline-wages}
+#| label: fig-spline-wages
+#| fig-cap: Scatterplot of age and hourly wages, with a spline fit hinged on age 35 shown in red. A smoothing line is also shown in blue.
+predict_df <- data.frame(age=18:65)
+predict_df$age.spline <- ifelse(predict_df$age<35, 0, predict_df$age-35)
+predict_df$wages <- predict(model, newdata=predict_df)
+ggplot(earnings, aes(x=age, y=wages))+
+  geom_jitter(alpha=0.01, width = 1)+
+  geom_smooth(se=FALSE)+
+  geom_line(data=predict_df, color="red", size=1.5, alpha=0.75)+
+  theme_bw()
+```
+
+

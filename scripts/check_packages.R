@@ -7,9 +7,9 @@
 packages = c("here",
              "MASS",
              "tidyverse", "janitor", "glue","broom",
-             "scales","qualpalr",
+             "scales","qualpalr", "ggrepel",
              "gt", "texreg",
-             "gtExtras", "gganimate","plotly",
+             "gtExtras","plotly",
              "gapminder")
 
 #packages = c("here","tidyverse", "broom","janitor","glue",

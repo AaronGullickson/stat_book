@@ -16,8 +16,9 @@ book:
         - chapters/chapter_measure_association.qmd
         - chapters/chapter_make_inferences.qmd
         - chapters/chapter_build_models.qmd
-#   - part: "Going Further"
-#     chapters:
+    - part: "Going Further"
+      chapters:
+        - chapters/chapter_model_complications.qmd
   appendices:
     - appendices/appendix_example_data.qmd
     - appendices/appendix_common_commands.qmd

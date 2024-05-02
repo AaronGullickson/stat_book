@@ -8,7 +8,7 @@ packages = c("here",
              "MASS",
              "tidyverse", "janitor", "glue","broom",
              "scales","qualpalr", "ggrepel",
-             "gt", "texreg",
+             "gt", "texreg", "modelsummary",
              "gtExtras","plotly",
              "gapminder")
 

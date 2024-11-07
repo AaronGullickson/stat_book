@@ -1294,3 +1294,5 @@ You can implement a penalized likelihood model in *R* using the `logistf` packag
 library(logistf)
 logistf(y~x)
 ```
+
+## Models for Polytomous Outcomes

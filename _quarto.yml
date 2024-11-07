@@ -19,6 +19,7 @@ book:
     - part: "Going Further"
       chapters:
         - chapters/chapter_model_complications.qmd
+        - chapters/chapter_model_categorical.qmd
   appendices:
     - appendices/appendix_example_data.qmd
     - appendices/appendix_common_commands.qmd

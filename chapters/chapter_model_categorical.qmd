@@ -6,6 +6,7 @@
 library(here)
 source(here("scripts", "check_packages.R"))
 source(here("scripts", "load_example_data.R"))
+source(here("scripts","preamble.R"))
 ```
 
 In this chapter, we will extend the concept of the linear model to include the case where we want to predict categorical outcomes on the left-hand side of our model equation. In order to do this, we will have to learn an extension of the OLS regression model called the **generalized linear model** which will provide a more flexible way to specify linear models, including ones with categorical outcomes. By the end of this chapter, you will be able to run full linear models with dichotomous (two categories) and polytomous (many categories) variables as outcomes. 

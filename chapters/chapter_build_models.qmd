@@ -14,6 +14,7 @@ Slides for this chapter can be found [here](https://stat-analysis-slides.netlify
 library(here)
 source(here("scripts","check_packages.R"))
 source(here("scripts","load_example_data.R"))
+source(here("scripts","preamble.R"))
 ```
 
 ## The OLS Regression Line
@@ -741,25 +742,23 @@ In academic journal articles and books, the results of linear models are represe
 
 ```{r}
 #| label: tbl-model-example
-#| tbl-cap: Linear models predicting violent crime rates for US states
+#| tbl-cap: Linear models predicting property crime rates for US states
 #| echo: false
-#| results: asis
 m1 <- lm(property_rate~percent_lhs, data=crimes)
 m2 <- lm(property_rate~percent_lhs+median_age, data=crimes)
 m3 <- lm(property_rate~percent_lhs+median_age+poverty_rate, data=crimes)
-htmlreg(list(m1, m2, m3),
-        custom.coef.names=c("Intercept",
-                            "Percent Less than HS", 
-                            "Median Age",
-                            "Poverty Rate"),
-        custom.gof.names = c("R-squared","N"),
-        caption="Linear models predicting violent crime rates for US states",
-        caption.above=TRUE,
-        digits=2,
-        star.symbol='&#42;',
-        custom.note = "%stars. Standard errors in parenthesis.",
-        include.adjrs=FALSE, include.rmse=FALSE,
-        doctype = FALSE)
+modelsummary(list("Model 1" = m1, 
+                  "Model 2" = m2, 
+                  "Model 3" = m3),
+             output = "gt",
+             stars = star_standard, 
+             fmt = 1,
+             coef_rename = c("(Intercept)" = "Intercept",
+                             "percent_lhs" = "Percent less than HS", 
+                             "median_age" = "Median age",
+                             "poverty_rate" = "Poverty rate"),
+             notes = list("Standard errors in parenthesis."),
+             gof_map = gof_standard)
 ```
 
 When reading this table and others like it, keep the following issues in mind:
@@ -1058,25 +1057,22 @@ That interpretation makes much more sense. You must be flexible enough to shift 
 #| label: tbl-model-relig-sex
 #| tbl-cap: Linear models predicting sexual frequency
 #| echo: false
-#| results: asis
 m1 <- lm(sexf~relig, data=sex)
 m2 <- lm(sexf~relig+age, data=sex)
-htmlreg(list(m1, m2),
-        custom.coef.names=c("Intercept",
-                            "Mainline Protestant",
-                            "Catholic",
-                            "Jewish",
-                            "Other",
-                            "None",
-                            "Age"),
-        custom.gof.names = c("R-squared","N"),
-        caption="Linear models predicting sexual frequency",
-        caption.above=TRUE,
-        digits=2,
-        star.symbol='&#42;',
-        custom.note = "%stars. Standard errors in parenthesis. Reference category is Evangelical Protestant",
-        include.adjrs=FALSE, include.rmse=FALSE,
-        doctype = FALSE)
+modelsummary(list("Model 1" = m1, 
+                  "Model 2" = m2),
+             output = "gt",
+             stars = star_standard, 
+             fmt = 2,
+             coef_rename = c("(Intercept)" = "Intercept",
+                             "religMainline Protestant" = "Mainline Protestant", 
+                             "religCatholic" = "Catholic",
+                             "religJewish" = "Jewish",
+                             "religOther" = "Other",
+                             "religNone" = "None",
+                             "age" = "Age"),
+             notes = list("Standard errors in parenthesis. Reference category for religion is Evangelical Protestant."),
+             gof_map = gof_standard)
 ```
 
 ::: {.callout-important collapse="true"}

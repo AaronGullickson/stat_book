@@ -19,6 +19,7 @@ Slides for this module can be found [here](https://stat-analysis-slides.netlify.
 library(here)
 source(here("scripts","check_packages.R"))
 source(here("scripts","load_example_data.R"))
+source(here("scripts","preamble.R"))
 ```
 
 ## Graphing Distributions
@@ -57,7 +58,7 @@ tab |>
   select(pclass, n) |>
   gt(rowname_col = "pclass") |>
   fmt_number(decimals=0, columns = n) |>
-  summary_rows(columns = n,
+  grand_summary_rows(columns = n,
                fns = list(Total = ~sum(.)),
                formatter = fmt_integer) |>
   cols_label(n="Frequency") |>
@@ -99,7 +100,7 @@ tab |>
   gt(rowname_col = "pclass") |>
   fmt_number(decimals=0, columns = n) |>
   fmt_number(decimals=3, columns = prop) |>
-  summary_rows(columns = c(n, prop),
+  grand_summary_rows(columns = c(n, prop),
                fns = list(Total = ~sum(.)),
                formatter = fmt_integer,
                missing_text = "") |>
@@ -146,7 +147,7 @@ tab |>
   fmt_number(decimals=0, columns = n) |>
   fmt_number(decimals=3, columns = prop) |>
   fmt_percent(decimals=1, columns = percent, scale_values = FALSE) |>
-  summary_rows(columns = c(n, prop, percent),
+  grand_summary_rows(columns = c(n, prop, percent),
                fns = list(Total = ~sum(.)),
                formatter = fmt_integer,
                missing_text = "") |>
@@ -627,7 +628,7 @@ movies |>
   gt(rowname_col = "title") |>
   cols_label(metascore="Metacritic Score") |>
   tab_stubhead("Title") |>
-  summary_rows(columns = metascore,
+  grand_summary_rows(columns = metascore,
                fns = list(Sum = ~sum(.)),
                missing_text = "",
                formatter = fmt_integer)

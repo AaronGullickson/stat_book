@@ -6,6 +6,7 @@
 library(here)
 source(here("scripts", "check_packages.R"))
 source(here("scripts", "load_example_data.R"))
+source(here("scripts","preamble.R"))
 load(here("data", "gss_relig.RData"))
 load(here("data", "nyc.RData"))
 load(here("data", "pew.RData"))
@@ -1406,8 +1407,9 @@ modelsummary(list(
   "survey: weights" =model_svy2, 
   "survey: weights+cluster" = model_svy
   ),
-  stars = TRUE,
-  gof_map = c("nobs", "r.squared"))
+  stars = star_standard,
+  gof_map = gof_standard,
+  output = "gt")
 ```
 
 @tbl-addhealthweight-compare shows all of the models estimated above plus an additional model that uses the `survey` library but only adjust for weights. All of the techniques except for the unweighted linear model produce identical and properly weighted estimates of the slope and intercept. They vary in the standard errors. The robust standard error approach produces results identical to the `survey` library method that only adjusts for weights. Only the final model using the `survey` library for weights and clustering addresses all of the design effects. 
@@ -1563,7 +1565,10 @@ As a sidenote, I am introducing a new function here called `update` that can be 
 #| label: tbl-avail-case
 #| tbl-cap: Models predicting number of friend nominations in Add Health data, using available-case analysis
 #| echo: false
-modelsummary(list(model1.avail, model2.avail, model3.avail), stars = TRUE)
+modelsummary(list(model1.avail, model2.avail, model3.avail), 
+             stars = star_standard,
+             gof_map = gof_standard,
+             output = "gt")
 ```
 
 @tbl-avail-case shows the results of the nested models in table form. Pay particular attention to the change in the number of observations in each model. In the first model, there are no missing values on `nsports` or `indegree` so we have the full sample size of 4397. In model 2, we are missing a few values on drinking and smoking behavior, so the sample size drops to 4343. In Model 3, we are missing a large number of observations, so the sample size drops to 3332. We lose nearly a quarter of the data from Model 2 to Model 3. 
@@ -1578,7 +1583,7 @@ In complete-case analysis (also called **listwise deletion**) you remove observa
 
 In our example, I need to restrict my sample to only observations that have valid responses for all five of the variables that will be used in my most complex model. I can do this easily with the `na.omit` command which will remove any observation that is missing any value in a given dataset:
 
-```{r na-omit}
+```{r}
 #| label: na-omit-example
 addhealth.complete <- na.omit(addhealth[,c("nominations","nsports","alcohol_use",
                                            "smoker","parent_income")])
@@ -1587,12 +1592,14 @@ model2.complete <- update(model1.complete, .~.+alcohol_use+smoker)
 model3.complete <- update(model2.complete, .~.+parent_income)
 ```
 
-```{r complete-case-table, echo=FALSE, results='asis'}
+```{r}
 #| label: tbl-complete-case
 #| tbl-cap: Models predicting number of friend nominations in Add Health data, using complete-case analysis
 #| echo: false
 modelsummary(list(model1.complete, model2.complete, model3.complete), 
-             stars = TRUE)
+             stars = star_standard,
+             gof_map = gof_standard, 
+             output = "gt")
 ```
 
 @tbl-complete-case shows the results for the models using complete-case analysis. Note that the sample size for each model is the same and is equivalent to that for the most complex model in the available-case analysis above.
@@ -1725,7 +1732,10 @@ model.mdummyi <- lm(nominations~parent_income.meani+nsports+parent_income_missin
 #| label: tbl-mdummy
 #| tbl-cap: Models predicting number of friend nominations in Add Health data, using different methods of imputation
 #| echo: false
-modelsummary(list(model.valid, model.meani, model.mdummyi), stars = TRUE)
+modelsummary(list(model.valid, model.meani, model.mdummyi), 
+             stars = star_standard, 
+             gof_map = gof_standard,
+             output = "gt")
 ```
 
 @tbl-mdummy shows the results of these models. In this case, the results are very similar. The coefficient on the income missing dummy basically tells us how far the average number of friend nominations was off for cases with income missing relative to what was predicted by the model. In this case, the model is telling us that with a mean imputation the predicted value of friend nominations for respondents with missing income data is 0.12 nominations higher than where it is in actuality. If we believe our model, this might suggest that the parental income of those with missing income is somewhat lower than those who are not missing, on average. 
@@ -2057,7 +2067,9 @@ model.allthree <- update(model.povunemp, .~.+lincome)
 modelsummary(list(model.pov, model.unemp, model.income,
                model.povunemp, model.unempinc, model.povinc,
                model.allthree),
-             stars = TRUE)
+             stars = star_standard,
+             gof_map = gof_standard,
+             output = "gt")
 ```
 
 The presence of multicollinearity is most easily detectable in models with both the poverty rate and median household income. Compare the results from Model 5 to those from Models 1 and 3. The effect on poverty rate, more than triples in size and the standard error is doubled. The results for income completely reverse direction and become very large and the standard error more than doubles. These are clear signs of multicollinearity. These same patterns are visible in Model 7. Unemployment is less affected by these issues, but its standard error also increases fairly substantially in models with either of the other two variables. In particular the effects of income here seem particularly sensitive to the other variables. These are all hints that multicollinearity is a serious problem in the models. 
@@ -2317,7 +2329,7 @@ In practice, researchers often have to decide between a variety of possible mode
 
 For example, @tbl-model-compare shows a variety of models that could be used to predict violent crime rates across US states. Note that the model estimates for some variables such as percent male differ substantially across models. How can we possibly decide which of these models is the best model? 
 
-```{r modelcompare, echo=FALSE, message=FALSE, error=FALSE, results="asis"}
+```{r}
 #| label: tbl-model-compare
 #| tbl-cap: Models predicting violent crime rate
 #| echo: false
@@ -2329,7 +2341,8 @@ model.justunemp <- lm(violent_rate~unemploy_rate, data=crimes)
 model.another <- update(model.justunemp,.~.+gini+median_age)
 modelsummary(list(model.demog, model.ineq, model.pov, model.unemp, 
                   model.justunemp, model.another),
-             stars = TRUE,
+             stars = star_standard,
+             gof_map = gof_standard,
              output =  "gt") |>
   tab_spanner(label = "Nested models", columns = 2:5) |>
   tab_spanner(label = "Unnested models", columns = 6:7)

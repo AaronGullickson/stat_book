@@ -13,6 +13,7 @@ Slides for this module can be found [here](https://stat-analysis-slides.netlify.
 library(here)
 source(here("scripts","check_packages.R"))
 source(here("scripts","load_example_data.R"))
+source(here("scripts","preamble.R"))
 load(here("data","students","students_current.RData"))
 load(here("data","students","student_sampling_dist.RData"))
 ```

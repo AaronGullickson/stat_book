@@ -2,16 +2,16 @@
 
 {{< video https://youtu.be/yw966hUVwHw >}}
 
-The **distribution** of a variable refers to how the different values of that variable are spread out across observations. This distribution gives us a sense of what the most common values are for a given variable and how much these values vary. It can also alert us to unusual patterns in the data. Intuitively, we think about distributions in our personal life any time we think about how we "measure" up relative to everyone else on something (income, number of social media followers, GRE scores, etc.). We want to know where we "fall" in the distribution of one of these variables. 
+The **distribution** of a variable refers to how the different values of that variable are spread out across observations. This distribution gives us a sense of what the most common values are for a given variable and how much these values vary. It can also alert us to unusual patterns in the data. Intuitively, we think about distributions in our personal life any time we think about how we "measure up" relative to everyone else on something (e.g. income, number of social media followers, GRE scores, etc.). We want to know where we "fall" in the distribution of one of these variables. 
 
-In this chapter we will focus on two ways to gain better understanding of the distribution of a variable:
+In this chapter we will focus on two ways to gain better insight into the distribution of a variable:
 
 1. **Graph it**. Visualizing a distribution with a good figure is often the first step in trying to understand it.
 2. **Measure it**. For quantitative variables, we can move beyond a visual display to calculate summary statistics that provide more precise information about the distribution including its center and spread.
 
-For this module, we are only examining the distribution of a single variable. We sometimes refer to this form of analysis and the statistics we calculate from it as **univariate** which is a fancy way to say "one variable." Importantly, univariate analysis of a single variable does not tell us anything about the association of that variable with other variables.
+For this chapter, we are only examining the distribution of a single variable. We sometimes refer to this form of analysis and the statistics we calculate from it as **univariate**, which is a fancy way to say "one variable." Importantly, univariate analysis of a single variable does not tell us anything about the association of that variable with other variables.
 
-Slides for this module can be found [here](https://stat-analysis-slides.netlify.app/slides_looking_distributions.html).
+Slides for this chapter can be found [here](https://stat-analysis-slides.netlify.app/slides_looking_distributions.html).
 
 ```{r}
 #| label: load-libs-data
@@ -67,7 +67,7 @@ tab |>
 
 The Titanic contained 323 first class passengers, 277 second class passengers, and 709 third class passengers. Adding those numbers up gives us 1,309 total passengers. 
 
-We can also calculate these numbers in *R*, we can use the `table` command: 
+We can also calculate these numbers in *R* using the `table` command: 
 
 ```{r}
 #| label: table-command-pclass
@@ -77,7 +77,7 @@ table(titanic$pclass)
 ::: {.callout-note collapse="true"}
 ## Commands in *R*
 
-`table` is an example of a command (of function) in *R*. *R* comes with many built-in functions and more can be added from additional packages/libraries. You can even create your own! These commands will be the workhorse for us as they can do all kinds of calculations.
+`table` is an example of a command (or function) in *R*. *R* comes with many built-in functions and more can be added from additional packages/libraries. You can even create your own! These commands will be the workhorse for us as they can do all kinds of calculations.
 
 Command names are always followed by and opening and closing parenthesis and inside of those parenthesis you can feed in input called *arguments*. In this case, we just need one argument which is the variable for which we want the frequencies. Remember that we have to specify this with our `dataset_name$variable_name` syntax. One translation of this command in English would be "create a table of the passenger class variable from the Titanic dataset."
 
@@ -86,11 +86,11 @@ Although this command only had one argument, many commands can have multiple arg
 
 #### Frequency, proportion, and percent
 
-The frequency we just calculated is called the **absolute frequency** because it counts the raw number of observations. However such raw numbers are often not very helpful because they will vary by the overall number of observations. If I told you out of context that there were 323 first class passengers on the Titanic, would you think that is a large or small number? Most likely, you would want to know how many total passengers there were on the Titanic to evaluate the absolute frequency of 323 first class passengers.
+The frequency we just calculated is called the **absolute frequency** because it counts the raw number of observations. However such raw numbers are often not very helpful because they will vary by the overall number of observations. If I told you out of context that there were 323 first class passengers on the Titanic, would you think that is a large or small number? Most likely, you would want to know how many total passengers there were on the Titanic tp get a sense of the share of first class passengers out of the total number of passengers..
 
-Instead of relying on the absolute frequency, we generally calculate the **proportion** of observations that fall within each category. These proportions are sometimes also called the **relative frequency**.  We can calculate the proportion by simply dividing our absolute frequency by the total number of observations:
+Instead of relying on the absolute frequency, we generally calculate the **proportion** of observations that fall within each category. These proportions are sometimes also called the **relative frequency**.  We can calculate the proportion by simply dividing our absolute frequency by the total number of observations as shown in @tbl-titanic-pclass-prop.
 
-```{r pclass-table-props, echo=FALSE}
+```{r}
 #| label: tbl-titanic-pclass-prop
 #| tbl-cap: Passengers on the Titanic by passenger class
 #| echo: false
@@ -134,7 +134,7 @@ The `<-` is an *assignment operator*. It tells R that instead of printing the ou
 The reason we often prefer to wrap commands as I did above is that it reduces the lines of code and also avoids the creation of temporary data artifacts like the `tab` object. However, there may be some cases where you want to save output to an object, so its good to know how to do this.
 :::
 
-We often convert proportions to percents which are more familiar to most people. To convert a proportion to a percent, just multiply by 100:
+We often convert proportions to percents which are more familiar to most people. To convert a proportion to a percent, just multiply by 100 as shown in @tbl-titanic-pclass-percent.
 
 ```{r}
 #| label: tbl-titanic-pclass-percent
@@ -211,7 +211,7 @@ Is the result surprising to you? Notice that no candidate received even close to
 
 #### Make a barplot
 
-Now that we have the proportions/percents, we can visualize the distribution with a **barplot** in which vertical or horizontal bars give the proportion or percent. To build this barplot, we need to use `ggplot`. The `ggplot` syntax is a little different than most of the other R syntax we will look at this term, but its very important because we will use it to build all of our figures. With `ggplot`, we add several commands together with the `+` sign to create our overall plot. Each command adds a "layer" to our plot. To help you understand how ggplot works, I have annotated the code to produce @fig-barplot-passclass below to show you what each element is doing. 
+Now that we have the proportions/percents, we can visualize the distribution with a **barplot** in which vertical or horizontal bars give the proportion or percent. To build this barplot, we need to use `ggplot`. The `ggplot` syntax is a little different than most of the other *R* syntax we will use, but its very important because we will use `ggplot` to build all of our figures. With `ggplot`, we add several commands together with the `+` sign to create our overall plot. Each command adds a "layer" to our plot. To help you understand how ggplot works, I have annotated the code to produce @fig-barplot-passclass below to show you what each element is doing. 
 
 ```{r}
 #| label: fig-barplot-passclass
@@ -225,14 +225,14 @@ ggplot(titanic, aes(x=pclass, y=after_stat(prop), group=1))+   # <1>
   coord_flip()+                                                # <5>
   theme_bw()                                                   # <6>
 ```
-1. The first command is always the `ggplot` command itself which defines the dataset we will use (in this case, `titanic`) and the "aesthetics" that are listed in the `aes` argument. In this case, I defined an x (horizontal) variable as the `pclass` variable itself and the y (vertical) variable as a proportion (which in ggplot-speak is `after_stat(prop)`). The `group=1` argument is a trick for barplots that ensures the proportions are calculated by group rather than for the total sample. I can then continue to add other elements to the plot by connecting them with a `+`.
+1. The first command is always the `ggplot` command itself which defines the dataset we will use (in this case, `titanic`) and the "aesthetics" that are listed in the `aes` argument. In this case, I defined an x (horizontal) variable as the `pclass` variable itself and the y (vertical) variable as a proportion (which in ggplot-speak is `after_stat(prop)`). The `group=1` argument is a trick for barplots that ensures the proportions are calculated based on the total sample. I can then continue to add other elements to the plot by connecting them with a `+`.
 2. The `geom_bar` is an example of a `geom_` command, which tells ggplot what actual shapes to plot on the canvas - in this case, bars. At this point, I have a functional barplot, but I am going to connect other arguments with the `+` sign to make the figure look nicer.
 3. The `labs` command allows us to specify nice looking labels for the final figure. Here I use it to specify nice labels for the x and y axis. Always label your figure nicely!
-4. The `scale_` commands are not necessary but can be used when you want finer control over how the scale of one of your aesthetics (e.g. x, y, fill, color) is displayed. In this case, I am using it to make the y-axis display results as percentages.
+4. The `scale_` commands are not necessary but can be used when you want finer control over how the scale of one of your aesthetics (e.g. x, y, fill, color) is displayed. In this case, I am using it to make the y-axis tickmark labels display as percentages.
 5. The `coord_flip` command will flip the x and y axis. This is useful when you have long labels on a categorical variable that will operlap on the x-axis.
 6. The `theme_bw` (bw for black and white) sets an overall theme for the figure. I like the clean look of `theme_bw` and use it for most figures in this book.
 
-@fig-barplot-passclass shows a barplot for the distribution of passengers on the Titanic. Unlike the piechart, our eye only has to work in one dimension (in this case, horizontal). We can clearly see that third class is the largest passenger class with slightly more than 50% of all passengers. We also can see easily determine visually that third class passengers are at more than twice as common as either of the other two categories, simply by comparing the height of the bars. We can also see that slightly more passengers were in first class than second class simply by comparing the heights of those two bars.
+@fig-barplot-passclass shows a barplot for the distribution of passengers on the Titanic. We can clearly see that third class is the largest passenger class with slightly more than 50% of all passengers. We also can easily determine visually that third class passengers are more than twice as common as either of the other two categories, simply by comparing the height of the bars. We can also see that slightly more passengers were in first class than second class simply by comparing the heights of those two bars.
 
 ::: {.callout-caution collapse="true"}
 ## Don't forget the +!
@@ -323,7 +323,7 @@ p <- prop.table(table(titanic$pclass))
 pie(p)
 ```
 
-Many people feel that piecharts have an aesthetic appeal but they are actually very poor at conveying information relative to barplots. Why? In order to judge the relative size of the slices on a piechart, your eye has to make judgments in two dimensions and with an unusual pie-shaped slice ($\pi*r^2$ anyone?). As a result, it can often be difficult to decide which slice is bigger and to properly evaluate the relative sizes of each of the slices. In this case, for example, the relative size of first and second class are quite close and it is not immediately obvious which category is larger. Because barplots only work in one dimension, we can much more clearly guage the relative size of each bar in @fig-barplot-passclass which shows that first class was larger than second class by about 3-4%.
+Many people feel that piecharts have an aesthetic appeal but they are actually very poor at conveying information relative to barplots. Why? In order to judge the relative size of the slices on a piechart, your eye has to make judgments in two dimensions and with an unusual pie-shaped slice ($\pi*r^2$ anyone?). As a result, it can often be difficult to decide which slice is bigger and to properly evaluate the relative sizes of each of the slices. In this case, for example, the relative size of first and second class are quite close and it is not immediately obvious which category is larger. Because barplots only work in one dimension, we can much more clearly gauge the relative size of each bar in @fig-barplot-passclass which shows that first class was larger than second class by about 3-4%.
 
 :::
 
@@ -353,7 +353,7 @@ politics |>
 
 Now that I have the frequencies for each bin, I can plot the histogram. The histogram looks much like a barplot except for two important differences. First, on the x-axis we have a numeric scale for the quantitative variable rather than categories. Second, we don't put any space between our bars. 
 
-The annotated code below shows you how to create the histogram shown in  @fig-hist-agepol using `ggplot`.
+The annotated code below shows you how to create the histogram in @fig-hist-agepol using `ggplot`.
 
 ```{r}
 #| label: fig-hist-agepol
@@ -462,7 +462,7 @@ What kinds of things should you be looking for in your histogram? There are four
 
 #### Center
 
-Where is the center of the distribution? Loosely we can think of the center as the peak in the data, although we will develop some more technical terms for center in the next section. Some distributions might have more than one distinct peak. When a distribution has one peak, we call it a **unimodal** distribution. @fig-hist-modality-1 shows a clear unimodal distribution for the runtime of movies. We can clearly see that the peak is somewhere between 90 and 100 minutes. 
+Where is the center of the distribution? Loosely we can think of the center as the peak in the data, although we will develop some more technical terms for center below. Some distributions might have more than one distinct peak. When a distribution has one peak, we call it a **unimodal** distribution. @fig-hist-modality-1 shows a clear unimodal distribution for the runtime of movies. We can clearly see that the peak is somewhere between 90 and 100 minutes. 
 
 ```{r}
 #| label: fig-hist-modality
@@ -489,7 +489,7 @@ When a distribution has two distinct peaks, we call it a **bimodal** distributio
 
 #### Shape
 
-Is the shape symmetric or is one of the tails longer than the other? When the  long tail is on the right, we refer to this distribution as **right skewed**. When the long tail is on the left, we refer to the distribution as **left skewed**. @fig-hist-skewness-1 and @fig-hist-skewness-2 show examples of roughly symmetric and heavily right-skewed distributions, respectively, from the movies dataset. The Metacritic score that movies receive (from 0-100) is roughly symmetric with about equal numbers of movies above and below the peak. Box office returns on the other hand are heavily right-skewed. Most movies make less than \$100 million at the box office but there are few blockbusters that rake in far more money. Right-skewness to some degree or another is common in social science data, partially because many variables can't logically have values below zero and thus the left tail of the distribution is truncated. Left-skewed distributions are rare. In fact, they are so rare that I don't really have a very good example to show you from our datasets. 
+Is the shape symmetric or is one of the tails longer than the other? When the  long tail is on the right, we refer to this distribution as **right skewed**. When the long tail is on the left, we refer to the distribution as **left skewed**. @fig-hist-skewness-1 and @fig-hist-skewness-2 show examples of roughly symmetric and heavily right-skewed distributions, respectively, from the movies dataset. The Metacritic score that movies receive (from 0-100) is roughly symmetric with about equal numbers of movies above and below the peak. Box office returns on the other hand are heavily right-skewed. Most movies make less than \$100 million at the box office but there are a few blockbusters that rake in far more money. Right-skewness to some degree or another is common in social science data, partially because many variables can't logically have values below zero and thus the left tail of the distribution is truncated. Left-skewed distributions are rare. In fact, they are so rare that I don't really have a very good example to show you from our datasets. 
 
 
 ```{r}
@@ -516,7 +516,7 @@ ggplot(movies, aes(x=box_office))+
 
 How spread out are the values around the center? Do they cluster tightly around the center or are they spread out more widely? Typically this is a question that can only be asked in relative terms. We can only say that the spread of a distribution is larger or smaller than some comparable distribution. We might be interested for example in the spread of the income distribution in the US compared to Sweden, because this spread is one measure of income inequality.  
 
-@fig-hist-spread-runtime compares the distribution of movie runtime for comedy and sci-fi/fantasy movies. The figure clearly shows that the spread of movie runtime is much greater for sci-fi/fantasy movies. Comedy movies are all tightly clustered between 90 and 120 minutes while longer movies are more common for sci-fi/fantasy movies leading to a longer right tail and a correspondingly higher spread. 
+@fig-hist-spread-runtime compares the distribution of movie runtime for comedy and sci-fi/fantasy movies. The figure clearly shows that the spread of movie runtime is much greater for sci-fi/fantasy movies. Comedy movies are all tightly clustered between 90 and 120 minutes while longer movies are more common for the sci-fi/fantasy genre, leading to a longer right tail and a correspondingly higher spread. 
 
 ```{r}
 #| label: fig-hist-spread-runtime
@@ -535,7 +535,7 @@ ggplot(movies, aes(x=runtime, fill=genre, y=after_stat(density)))+
 
 #### Outliers
 
-Are there extreme values which fall outside the range of the rest of the data? We want to pay attention to these values because they may have a strong influence on the statistics that we will learn to calculate to summarize a distribution. They might also influence some of the measures of association that we will learn later. Finally, extreme outliers may help identify data coding errors. 
+Are there extreme values which fall outside the range of the rest of the data? We want to pay attention to these values because they may have a strong influence on the statistics that we will calculate to summarize a distribution. They might also influence some of the measures of association that we will learn later. Finally, extreme outliers may help identify data coding errors. 
 
 In @fig-hist-modality-2 above, we can see that Washington DC is a clear outlier in terms of the violent crime rate. Washington DC's crime rate is such an outlier relative to the other states that we will pay attention to it throughout this term as we conduct our analysis. @fig-hist-spread-runtime above shows that Peter Jackson's Return of the King was an outlier for the runtime of sci-fi/fantasy movies, although it doesn't seem quite as extreme as for the case of Washington DC. 
 
@@ -605,7 +605,7 @@ We will also learn later that we can use color as an aesthetic in the `aes` comm
 
 {{< video https://youtu.be/-Es5Jdi2fFo >}}
 
-In the previous section, we just looked at a distribution to try and gauge its center. But what do we really mean by the term "center?" We often think about this center intuitively as representing the "typical" or "average" value on a given variable. However, we can define this idea of average in multiple ways. In this section, we will move from a basic visual sense of center to more precise statistical measures of center that can be calculated for quantitative variables. Specifically, we will learn how to measure the **mean**, **median**, and **mode**. 
+In the previous section, we just looked at a distribution to try and gauge its center. But what do we really mean by the term "center?" We often think about the center intuitively as representing the "typical" or "average" value of a given variable. However, we can define this idea of "average" in multiple ways. In this section, we will move from a basic visual sense of center to more precise statistical measures of center that can be calculated for quantitative variables. Specifically, we will learn how to measure the **mean**, **median**, and **mode**. 
 
 ### The mean
 
@@ -616,7 +616,7 @@ The calculation of the mean is straightforward:
 1. Sum up all the values of your variable across all observations. 
 2. Divide this sum by the number of observations.
 
-As a workable example, lets take a sub-sample of our movie data with a small number of observations. I am going to select all nine "pure" romance movies produced in 2017 (not including romantic comedies which are coded as comedies rather than romances on the `genre` variable. @tbl-romance-sum displays these movies along with their Metacritic score.
+As a workable example, lets take a sub-sample of our movie data with a small number of observations. I am going to select all nine "pure" romance movies produced in 2017 (not including romantic comedies which are coded as comedies rather than romances on the `genre` variable). @tbl-romance-sum displays these movies along with their Metacritic score.
 
 ```{r}
 #| label: tbl-romance-sum
@@ -721,7 +721,7 @@ In the case of the Metacritic score distribution for the entire movies dataset, 
 
 ```{r}
 #| label: fig-hist-metacritic
-#| fig-cap: Histogram of Metacrtic scores from movie dataset using binwidths of size 1. The dotted red line shows the highest frequency of movies which occurred for Metacritic score 49.
+#| fig-cap: Histogram of Metacritic scores from movie dataset using binwidths of size 1. The dotted red line shows the highest frequency of movies which occurred for Metacritic score 49.
 ggplot(movies, aes(x=metascore))+
   geom_histogram(binwidth=1, col="black", fill="grey")+
   labs(x="Metacritic score")+
@@ -928,7 +928,7 @@ The exercise below allows you to adjust a slider to see different percentiles on
 knitr::include_app("https://aarongullickson.shinyapps.io/percentiles/", height="800px")
 ```
 
-In general, boxplots for a single variable do not contain as much information as a histogram and so are generally inferior for understanding the full shape of the distribution. They can be useful for detecting outliers, but tphe real advantage of boxplots will come in the next module when we learn to use comparative boxplots to make comparisons of the distribution of a quantitative variable across different categories of a categorical variable. 
+In general, boxplots for a single variable do not contain as much information as a histogram and so are generally inferior for understanding the full shape of the distribution. They can be useful for detecting outliers, but the real advantage of boxplots will come in the next chapter when we learn to use comparative boxplots to make comparisons of the distribution of a quantitative variable across different categories of a categorical variable. 
 
 ## Measuring the Spread of a Distribution
 
@@ -976,7 +976,7 @@ ggplot(titanic, aes(x="", y=fare))+
   theme_bw()
 ```
 
-The maximum value is such an outlier that the rest of the boxplot has to be "scrunched" in order to fit it all into the graph. Clearly this is not a good indicator of spread. However, we have already seen a better measure of spread using a similar idea: the **interquartile range** or **IQR**. The IQR is simply the range between the 25th and 75th percentile. We already have these numbers from the output above, so the IQR = 31.28-7.90=23.38. The difference in fare between the 25th and 75th percentile (the middle 50% of the data) was 23.4 pounds. That result suggests a much smaller spread of fares. 
+The maximum value is such an outlier that the rest of the boxplot has to be "scrunched" in order to fit it all into the graph. Clearly this is not a good indicator of spread. However, we have already seen a better measure of spread using a similar idea: the **interquartile range** or **IQR**. The IQR is simply the range between the 25th and 75th percentile. We already have these numbers from the output above, so the IQR = 31.28-7.90=23.38. The difference in fare between the 25th and 75th percentile (the middle 50% of the data) was 23.4 pounds. That result suggests a much smaller spread of fares for the middle of the distribution. 
 
 You can also use the `IQR` command in *R* to directly calculate the IQR. 
 
@@ -1028,7 +1028,7 @@ The next step is:
 
 $$\sum_{i=1}^n (x_i-\bar{x})^2$$
 
-We need to sum up all of our values. This value is sometimes  called the **sum of squared X** or **SSX** for short. It is already pretty close to a measure of variance already. 
+We need to sum up all of our values. This sum is sometimes called the **sum of squared X** or **SSX** for short. It is already pretty close to a measure of variance already. 
 
 ```{r}
 #| label: sd-eq-ssx
@@ -1039,7 +1039,7 @@ The more spread out the values are around the mean, the larger this value will b
 
 $$s^2=\frac{\sum_{i=1}^n (x_i-\bar{x})^2}{n-1}$$
 
-We are going to divide our SSX value by the number of observations minus one. The "minus one" thing is a bit tricky and I won't into the details of why we do it here. When $n$ is large, this will have little effect and basically you are taking an average of the squared distance from the mean.
+We are going to divide our SSX value by the number of observations minus one. The "minus one" thing is a bit tricky and I won't go into the details of why we do it here. When $n$ is large, this will have little effect and basically you are taking an average of the squared distance from the mean.
 
 ```{r}
 #| label: sd-eq-var

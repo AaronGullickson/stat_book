@@ -1,8 +1,8 @@
 # Understanding Data {#sec-understand-data}
 
-In this first module, we will cover what it actually means to have "data" and give a broad overview of what kinds of things we can do with data. Data are the foundation of any statistical analysis and most data that we use in the social sciences consist of **variables** measured on some **observations**. In the next two sections, we will learn more about these concepts. 
+In this first chapter, we will cover what it actually means to have "data" and give a broad overview of what kinds of things we can do with data. Data are the foundation of any statistical analysis and most data that we use in the social sciences consists of **variables** measured on some **observations**. In the next two sections, we will learn more about these concepts. 
 
-Slides for this module can be found [here](https://stat-analysis-slides.netlify.app/slides_understanding_data.html).
+Slides for this chapter can be found [here](https://stat-analysis-slides.netlify.app/slides_understanding_data.html).
 
 ```{r}
 #| label: load-libs-data
@@ -27,13 +27,15 @@ titanic[c(13, 1238, 2, 306),-1] |>
   gt()
 ```
 
-Clearly, we can see variation in who survived and died, the passenger classes they were housed in, gender, and age. We also have a measure of the fare they paid for the trip (in English pounds) and the number of family members traveling with them. To understand how to think about data, we need to understand the concepts of an **observation** and a **variable** and the distinction between them. 
+Clearly, we can see variation in who survived and died, the passenger classes they were housed in, gender, and age. We also have a measure of the fare they paid for the trip (in English pounds) and the number of family members traveling with them. To understand how to think more abstractly about this data or other forms of data, we need to understand the concepts of an **observation** and a **variable** and the distinction between them. 
 
 ### The observations
 
-The **observations** are what you have on the rows of your dataset. In the Titanic example, the observations are individual passengers on board the Titanic, but observations can take many different forms. 
+The **observations** are what you see on the rows of your dataset. In the Titanic example, the observations are individual passengers on board the Titanic, but observations can take many different forms. 
 
-We use the term **unit of analysis** to distinguish what kind of observation you have in your dataset. If you are interviewing individual people and recording their responses, then the unit of analysis is individual people. If you are collecting cross-national data by country, then the unit of analysis would be a country. If you are analyzing data on the "best colleges in the US" then the unit of analysis is a university/college. The most common unit of analysis that we will see in this course is an individual person, but several of our datasets involve other units of analysis and it is important to keep in mind that an observation can be many different kinds of things. 
+Observations can be very different sorts of things, depending on the context of your research. If you are interviewing people and recording their responses, then each row is the record for an individual person. If you are collecting cross-national data on GDP and life expectancy, then each row will represent a country. If you are analyzing data on the "best colleges in the US" then each row will represent a different college or university.
+
+We use the term **unit of analysis** to identify what kind of observation you have in your dataset. Your unit of analysis is the *who* of your study. A common question you might get about a research project is "what is the unit of analysis?" This is a fancy way of asking what each row represents.
 
 ### The variables
 
@@ -47,27 +49,36 @@ Quantitative variables measure quantities of something. A person's height, a wor
 
 Quantitative variables can be further divided into two important sub-types: **discrete** and **continuous** variables. **Discrete variables** can logically only take certain values within a range. The most common example of a discrete variable is a count variable. The number of children that a woman has birthed is an example of a count variable. This number can only take the value of whole numbers (integers) such as 0, 1, 2, 3, and so on. It would make no sense for a respondent to say they had given birth to 2.5 children. Count variables are discrete variables because only whole numbers are logical responses.
 
-On the other hand, **continuous variables** can logically take any value within a range. A person's height is an example of a continuous variable. It is true that we typically measure height only down to a certain level of precision such as inches. We might think that if we were to measure a person's height in inches, it would only take whole number values and therefore be a discrete variable. However, limitations in measurement precision don't define whether a variable is continuous or discrete. Rather the distinction is whether the value could be **logically** measured to any degree of accuracy. We often measure height out to half inches and we could imagine that if we have a precise enough measurement instrument, we could measure a person's height out to any decimal level that we desired. So, it is perfectly sensible for someone to say they were 69.825467 inches tall, even though we might think they are being a bit tedious. 
+On the other hand, **continuous variables** can logically take any value within a range. A person's height is an example of a continuous variable. It is true that we typically measure height only down to a certain level of precision such as inches (or centimeters). We might think that if we were to measure a person's height in inches, it would only take whole number values and therefore be a discrete variable. However, limitations in measurement precision don't define whether a variable is continuous or discrete. Rather the distinction is whether the value could be **logically** measured to any degree of accuracy. We often measure height out to half inches and we could imagine that if we have a precise enough measurement instrument, we could measure a person's height out to any decimal level that we desired. So, it is perfectly sensible for someone to say they were 69.825467 inches tall, even though we might think they are being a bit tedious. 
 
-In both the discrete and continuous cases, you migh notice that I said "within a range." Depending on the variable, there are also often logical limits on minimum and maximum values. For example, you can't have negative children or height. While we have no exact upper limits to the values that either variable can take, but we would likely think we have a data coding error if we saw a report of a 20 foot person or a woman who gave birth to 50 children. In general, **both** discrete and continuous variables can be limited in the range of values that they can take. What distinguishes them from each other is what values they can logically take within that limited range.   
+::: {.callout-note collapse="true"}
+## How much money do I have in my pocket?
+
+Sometimes, the distinction between discrete and continuous can be fuzzy. Money is an excellent example of this fuzziness. If you ask how much money I have in my pocket, the answer is a discrete variable because the lowest monetary denomination I can give (in US currency) is a penny. I can't have half a penny or 0.07894 dollars, or so on. 
+
+However, when we think about monetary value more generally, we often think about it as a continuous variable. This is true in investing, where share prices are often recorded out to several decimal places. It is also true when we think about currency exchange.  
+
+:::
+
+In both the discrete and continuous cases, you migh notice that I said "within a range." Depending on the variable, there are also often logical limits on minimum and maximum values. For example, you can't have negative children or height. While we have no exact upper limits to the values that either variable can take, we would be rightly suspicious of a data collection error if we saw a report of a 20 foot person or a woman who gave birth to 50 children. In general, **both** discrete and continuous variables can be limited in the range of values that they can take. What distinguishes them from each other is what values they can logically take *within* that limited range.   
 
 #### Categorical variables
 
 Categorical variables are not represented by numerical quantities but rather by a set of mutually exclusive categories to which observations can belong. The gender, race, political party affiliation, and highest educational degree of a person, the public/private status of a university, and the passenger class of a passenger on the Titanic are all examples of categorical variables.
 
-Categorical variables can also be sub-divided into two sub-types. **Ordinal variables** are categorical variables in which the categories have an explicit and logical ordered structure, while **nominal variables** are categorical variables in which the categories are unordered.  Highest educational degree is an example of an ordinal variables because it is ordered such that Graduate Degree > BA Degree > AA Degree > High School Diploma > No degree. Passenger class is also an ordinal variables that starts in Third class (or steerage - Think Leonardo DiCaprio) and ends in First class (think Kate Winslet), with a Second class in between.
+Categorical variables can also be divided into two sub-types. **Ordinal variables** are categorical variables in which the categories have an explicit and logical ordered structure, while **nominal variables** are categorical variables in which the categories are unordered.  Highest educational degree is an example of an ordinal variables because it is ordered such that Graduate Degree > BA Degree > AA Degree > High School Diploma > No degree. Passenger class is also an ordinal variables that starts in Third class (or steerage - Think Leonardo DiCaprio) and ends in First class (think Kate Winslet), with a Second class in between.
 
-Race, gender, and political party affiliation are all examples of nominal variables because The categories of these variables have no logical ordering. While some people might have their own political party preferences, these sort of normative evaluations of categories are irrelevant. For the same reason, even the variable of survival on the Titanic is a nominal variable.  We don't judge the value of life and death, we just record it!
+Race, gender, and political party affiliation are all examples of nominal variables because the categories of these variables have no logical ordering. While some people might have their own political party preferences, these sort of normative evaluations of categories are irrelevant. For the same reason, even the variable of survival on the Titanic is a nominal variable.  We don't judge the value of life and death, we just record it!
 
 ### Using course example datasets in R
 
-Throughout this book and the accompanying slides, I will use several example datasets. If you are taking this course from me, you will also access these datasets to complete assignments. More information about these datasets can be found in @sec-example-datasets, but here I provide a brief overview of each dataset. You should take the time to familiarize yourself with all of the details in @sec-example-datasets.
+Throughout this book and the accompanying slides, I will use several example datasets. If you are taking this course from me, you will also have access to these datasets to complete assignments. More information about these datasets can be found in @sec-example-datasets, but here I provide a brief overview of each dataset. You should take the time to familiarize yourself with all of the details in @sec-example-datasets.
 
 Crimes
 : The crimes data contain information on violent and property crime rates and demographic variables for all fifty US states and the District of Columbia. The crime rates are averaged over the years 2014-2018 and come from the FBI’s Uniform Crime Reports (UCR). The demographic variables include information on poverty rates, education levels, income inequality, and median income.
 
 Earnings
-: This data has information on the hourly wages of US workers in 2018. The data here are extracted from Current Population Survey. We will use it to look at the relationship between a variety of demographic variables and how much a person earns.
+: This data has information on the hourly wages of US workers in 2018. The data here are extracted from the Current Population Survey, conducted by the US Census Bureau and Department of Labor. We will use it to look at the relationship between a variety of demographic variables and how much a person earns.
 
 Movies
 : The movie data contain information about 4,343 full feature English language movies produced in the US between 2000 and 2021. The data come from the Internet Movie Database and have been supplemented with extra information from the Open Movie Database. Variables include box office returns, movie runtime, maturity ratings, and viewer and critic review scores.
@@ -92,7 +103,7 @@ The dataset files all have an *.RData extension. You can load a dataset into RSt
 load("sex.RData")
 ```
 
-`load` is an example of an *R* command (or function), which I will have more to say about in the next module. 
+`load` is an example of an *R* command (or function), which I will have more to say about in the next chapter. 
 
 ::: {.callout-caution collapse="true"}
 ## Where is your data?
@@ -112,15 +123,15 @@ Once the load is successful, you will see an object titled `sex` in your Environ
 sex
 ```
 
-By default, only the first ten rows will be shown. You can also click on the dataset in your Environment tab to open up a data viewer in RStudio that gives you a fuller picture. 
+By default, only the first ten rows will be shown. You can also click on the dataset in your Environment tab to open up a data viewer in RStudio that provides a fuller picture. 
 
-I can see that this dataset contains multiple variables. What if I want to reference a specific variable in this dataset? In R, we do this with the following syntax:
+I can see that this dataset contains multiple variables. What if I want to reference a specific variable in this dataset? In *R*, we do this with the following syntax:
 
 ```r
 dataset_name$variable_name
 ```
 
-To reference a particular variable, we use the dollar sign after the dataset name and then follow that with the variable name. We will use this syntax *a lot* in this course. For example, lets say we want to calculate the mean (which we will learn more about in the next module) of the `educ` variable. It turns out that there is a `mean` function that expects us to feed in a variable. So,
+To reference a particular variable, we use the dollar sign after the dataset name and then follow that with the variable name. We will use this syntax *a lot* in this course. For example, lets say we want to calculate the mean (which we will learn more about in the next chapter) of the `educ` variable. It turns out that there is a `mean` function that expects us to feed in a variable. So,
 
 ```{r}
 mean(sex$educ)
@@ -145,11 +156,11 @@ What is *R* trying to tell you here? Its telling you that your `sex` dataset was
 
 {{< video https://youtu.be/3Uh01x63I9Y >}}
 
-We now understand the structure of data better, but what do social scientists do with this kind of data? In the first part of this course, we will learn three fundamental data analysis tasks: analysis of the distribution of a single variable, measuring association, and statistical inference. In the final part of the course, we will build on these fundamentals to learn how to build more complex statistical models. 
+We now understand the structure of data better, but what do social scientists do with this kind of data? In the first part of this section, we will learn three fundamental data analysis tasks: analysis of the distribution of a single variable, measuring association, and statistical inference. In the final part of the section, we will build on these fundamentals to learn how to build more complex statistical models. 
 
 ###  How is a variable distributed?
 
-Sometimes, we just want to understand what a single variable "looks like." We may be interested in its "average" value or we may want to know something else, like how spread out the values of the variable are. Alternatively, we may just want to get some visual sense of where the values of this variable fall. In these cases, we calculate **univariate** (latin for "one variable") statistics on the **distribution** of a variable and create figures that graphically show us what these distributions look like. Typically, univariate statistics aren't as interesting to social scientists as the measures of association discussed below, but even if our ultimate goal is something more complex, it is always a good idea to start our analysis by examining univariate statistics and looking at distributions to understand all of the variables in our research. 
+Sometimes, we just want to understand what a single variable "looks like." We may be interested in its "average" value or we may want to know something else, like how spread out the values of the variable are. Alternatively, we may just want to get some visual sense of where the values of this variable fall. In these cases, we calculate **univariate** (latin for "one variable") statistics on the **distribution** of a variable and create figures that graphically show us what these distributions look like. Typically, univariate statistics aren't as interesting to social scientists as the measures of association discussed below, but even if our ultimate goal is something more complex, it is always a good idea to start our analysis by examining univariate statistics and looking at distributions to understand all of the variables used in our research project. 
 
 In some cases, the calculation of a univariate statistics is the important question at hand. For example, when political pollsters try to figure out who is going to win an election, they are very much interested in the univariate distribution of support for each candidate, which gives the proportions of likely voters who intend to vote for each candidate. Here are some other questions we could ask about the distribution of variables in our datasets:
 
@@ -159,29 +170,29 @@ In some cases, the calculation of a univariate statistics is the important quest
 
 ###  Measuring association
 
-Social scientists are often most interested in the relationships, or **association**, between two or more variables. These associations allow us to test hypotheses about causal relationships between underlying social constructs. For example, we might be interested in whether divorce affects children's well-being. In this case, we would want to examine at the relationship between a categorical variable indicating whether a child's parents were divorced and some measure of their well-being, such as feelings of stress, academic performance, etc. Here are some questions about association we could ask in our data:
+Social scientists are often most interested in the relationships, or **association**, between two or more variables. These associations allow us to test hypotheses about causal relationships between underlying social constructs. For example, we might be interested in whether divorce affects children's well-being. In this case, we would want to examine the association between a categorical variable indicating whether a child's parents were divorced and some measure of their well-being, such as feelings of stress, academic performance, etc. Here are some questions about association we could ask in our data:
 
 - Did the probability of surviving the Titanic depend on passenger class? (categorical and categorical)
 - Do the earnings of movies vary by genre? (quantitative and categorical)
 - Is income inequality in a state related to its crime rate? (quantitative and quantitative)
 
-How me measure association depends very much on whether the variables are categorical or quantitative. Later this term, we will learn different techniques for measuring association between two quantitative variables, two categorical variables, and a categorical and quantitative variable. So, you should always ask yourself "what kind of variables do I have" before trying to measuring association to make sure you are using the right methods.
+How me measure association depends very much on whether the variables are categorical or quantitative. We will learn different techniques for measuring association between two quantitative variables, two categorical variables, and a categorical and quantitative variable. So, you should always ask yourself "what kind of variables do I have" before trying to measuring association to make sure you are using the right methods.
 
 ### Making statistical inferences
 
-If I told you that in I had a sample of twenty people, brown-eyed individuals make $5 more than all other eye colors combined, would you believe I was capturing some thing real? You probably shouldn't, because in a sample of twenty people, odd results like this are not unlikely just by random chance. If I told you I observed this phenomenon on a well-drawn sample of 20,000 individuals, you would probably be more likely to believe me. 
+If I told you that in a sample of twenty people, brown-eyed individuals make $5 more than all other eye colors combined, would you believe I was capturing something real? You probably shouldn't, because in a sample of twenty people, odd results like this are not unlikely just by random chance, even when there are no differences in the population. If I told you I observed this phenomenon on a well-drawn sample of 20,000 individuals, you would probably be more likely to believe me. 
 
-The statistical concept underlying our intuition here is called **statistical inference**. We often draw samples of observations from a larger population and want to know what is happening in the population. Statistical inference is the technique of quantifying how uncertain we are about whether our sample data are similar to the population or not. When you hear press reports on political polls use the term "margin of error," they are referring to statistical inference. 
+The statistical concept underlying our intuition here is called **statistical inference**. We often draw samples of observations from a large population and want to know what is happening in that population, not just the sample. Statistical inference is the technique of quantifying how uncertain we are about whether our sample data are similar to the population or not. When you hear press reports on political polls use the term "margin of error," they are referring to referring to a key statistical inference concept. 
 
 Many introductory statistics course focus most of their attention on statistical inference, partly because it is more abstract and complex. However, statistical inference is always secondary to the basic descriptive measures of univariate, bivariate, and multivariate statistics. Therefore, I spend considerably less time on this topic than in most statistics courses, so that we can focus on the more important stuff. 
 
 ### Building Models
 
-Although our basic measures of association are useful, the most common tool in social science analysis is a **statistical model** in which the user can specify the relationships between variables by some kind of mathematical functions. In the final module of the course, we will learn how to build basic versions of these models that allow us to examine the relationships between multiple quantitative and categorical variables. This module will build on our work in tthe previous modules. We will specifically focus on two uses of statistical models.
+Although our basic measures of association are useful, the most common tool in social science analysis is a **statistical model** in which the user can specify the relationships between variables by a mathematical function. In the final chapter of this section, we will learn how to build basic versions of these models that allow us to examine the relationships between multiple quantitative and categorical variables. This module will build on our work in the previous chapter. We will specifically focus on two uses of statistical models.
 
-First, statistical models allow us to "control" for other variables when we look at the association between any two variables. Controlling for other variables is important because these other variables may be **confounded** with the relationship we want to measure. For example, we may be interested in the relationship between marital status (e.g. never married, married, widowed, divorced) and sexual frequency in our GSS data. However, these different groups vary significantly in their age. Never married individuals are much younger than all of the other groups and widowed individuals are much older. Given the fact that sexual frequency tends to decline with age (something we will show later in this term), it seems problematic to just compare the average sexual frequency across these groups because this advantages the never-married and disadvantages the widowed. In this case, age **confounds** the relationship between marital status and sexual frequency. Statistical models will gives us tools to account for this problem and to get a better estimate of the relationship between marital status and sexual frequency, net of this confounding influence. 
+First, statistical models allow us to "control" for other variables when we look at the association between any two variables. Controlling for other variables is important because these other variables may be **confounded** with the relationship we want to measure. For example, we may be interested in the relationship between marital status (e.g. never married, married, widowed, divorced) and sexual frequency in the data from the General Social Survey. However, these different groups vary significantly in their age. Never married individuals are much younger than all of the other groups and widowed individuals are much older. Given the fact that sexual frequency tends to decline with age (something we will show later in this term), it seems problematic to just compare the average sexual frequency across these groups because this advantages the never-married and disadvantages the widowed. In this case, age **confounds** the relationship between marital status and sexual frequency. Statistical models will give us tools to account for this problem and to get a better estimate of the relationship between marital status and sexual frequency, net of this confounding influence. 
 
-Second, statistical models will allow us to account for how the relationship between two variables might differ depending on the context of a third variable. This is what we call an **interaction**. For example, lets say we were interested in the relationship between the number of sports played and a student's popularity (measured by friend nominations) in our example data. Because of gender norms, we might suspect this relationship to be different for boys and girls. We can use statistical models to empirically examine whether this suspicion is correct. This kind of contextualization is an important component of sociological practice. 
+Second, statistical models will allow us to account for how the relationship between two variables might differ depending on the context of a third variable. This is what we call an **interaction**. For example, lets say we were interested in the relationship between the number of sports played and a student's popularity (measured by friend nominations) in the Add Health data. Because of gender norms, we might suspect this relationship to be different for boys and girls. We can use statistical models to empirically examine whether this suspicion is correct. This kind of contextualization is an important component of sociological practice. 
 
 ### Observational Data, Experimental Thinking
 
@@ -189,6 +200,6 @@ Much of the data that we use in sociology is **observational** rather than **exp
 
 Experimental data can be more powerful than observational data because the random assignment of a treatment through researcher manipulation strengthens claims of causation. If the researcher observes a relationship between the treatment and outcome, they know that it must either be causal or a result of random chance because the assignment of the treatment was randomly determined. In observational data, the relationship between any two variables can  also be a **spurious** relationship. Spuriousness occurs when another confounding variable or variables produce the relationship between the two observed variables rather than them directly causing each other. The example above about marital status and sexual frequency is a simple example of this problem. If we note that widows have less sex than other people, we may be tempted to think that something about being widowed reduces someone's sexual drive or their interactions with others. However, the more obvious explanation is that widows tend to be quite a bit older than other marital status groups and older people have less sex. Age is generating a spurious relationship between widowhood and sexual frequency. This spuriousness problem is the reason for the frequent claim that "correlation is not causation."
 
-There are two different philosophical approaches to the statistical analysis of observational data where spuriousness can be a problem. The first approach treates our data and methods in a **pseudo-experimental** manner. The goal of this approach is to try to find ways to mimic the experimental design approach with observational data. At a basic level this can include "controlling" for other variables (which we will learn) and can extend to a variety of techniques of causal modeling that are intending to use some feature of the data to recover causation (which are beyond the scope of what we will learn in this course).
+There are two different philosophical approaches to the statistical analysis of observational data where spuriousness can be a problem. The first approach treats our data and methods in a **pseudo-experimental** manner. The goal of this approach is to try to find ways to mimic the experimental design approach with observational data. At a basic level this can include "controlling" for other variables (which we will learn) and can extend to a variety of techniques of causal modeling that are intending to use some feature of the data to recover causation (which are beyond the scope of what we will learn in this book).
 
 The second approach treats statistical analysis as a way to describe observed data in a formal, systematic, and replicable way. The goal is to establish to what extent the data are consistent with competing theories that seek to understand the outcome in question, rather than to mimic the experimental approach. Although quantitative and qualitative approaches are often seen as philosophically different approaches, this approach to observational data shares many features with more purely qualitative approaches to data analysis. This is the approach that I take in this course. 
